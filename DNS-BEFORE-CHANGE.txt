@@ -1,0 +1,30 @@
+prxdjay.com — DNS as it stood before pointing at GitHub Pages
+Captured 12 Aug 2026. Keep this: it's how to undo the change.
+
+Registrar:    Squarespace Domains II LLC (registration stays here — only
+              the DNS records change, the domain is not being transferred)
+Nameservers:  nse1-4.squarespacedns.com
+Registered:   2026-04-18   Expires: 2027-04-18
+
+A records for @ (all four pointed at Squarespace):
+  198.185.159.144
+  198.185.159.145
+  198.49.23.144
+  198.49.23.145
+
+www:
+  CNAME -> ext-sq.squarespace.com
+
+DO NOT TOUCH — these carry email on @prxdjay.com:
+  MX    @  -> 1 smtp.google.com      (Google Workspace)
+  TXT   @  -> "v=spf1 include:_spf.google.com ~all"   (SPF; stops your
+             mail being marked as spam)
+Deleting either of those breaks email on the domain. Only the four A
+records and the www CNAME are being changed.
+
+REPLACING WITH (GitHub Pages):
+A @   -> 185.199.108.153
+A @   -> 185.199.109.153
+A @   -> 185.199.110.153
+A @   -> 185.199.111.153
+CNAME www -> prxdjay.github.io

@@ -145,7 +145,7 @@ html[data-motion="on"] .ambient::after{
   70%{opacity:.25}100%{opacity:0;visibility:hidden}
 }
 .curtain__inner{position:relative;z-index:2;max-width:560px}
-.curtain__mark{font-size:clamp(2.8rem,21vw,8rem);margin-bottom:14px}
+.curtain__mark{font-size:clamp(2.3rem,16vw,6rem);margin-bottom:14px}
 .curtain__say{font-family:var(--font-mono);font-size:.64rem;letter-spacing:var(--tracking-label);text-transform:uppercase;color:var(--bone-faint);margin-bottom:44px}
 .curtain__btn{
   font-family:var(--font-mono);font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;
@@ -206,7 +206,7 @@ html[data-motion="on"] .ambient::after{
 .hero__media.is-empty{background:linear-gradient(180deg,var(--ink-3),var(--ink))}
 .hero__inner{position:relative;z-index:2;width:100%;max-width:var(--max);margin-inline:auto}
 .hero__kicker{display:block;margin-bottom:18px}
-.hero__name{font-size:clamp(3.2rem,23vw,12rem);margin-bottom:16px;transform:rotate(var(--tilt));transform-origin:0 50%}
+.hero__name{font-size:clamp(2.6rem,17vw,8.5rem);margin-bottom:16px;transform:rotate(var(--tilt));transform-origin:0 50%}
 .hero__say{font-family:var(--font-mono);font-size:.66rem;letter-spacing:var(--tracking-label);text-transform:uppercase;color:var(--bone-dim);margin-bottom:32px}
 .hero__cta{display:flex;flex-wrap:wrap;gap:22px;align-items:center}
 .hero__scroll{display:none;position:absolute;right:var(--gutter);bottom:48px;z-index:2;writing-mode:vertical-rl;font-family:var(--font-mono);font-size:.54rem;letter-spacing:.28em;text-transform:uppercase;color:var(--bone-faint)}
@@ -417,7 +417,7 @@ html[data-motion="on"] .ambient::after{
 
 /* ---------- FOOTER ---------- */
 .ftr{border-top:1px solid var(--line);padding:56px var(--gutter) calc(42px + env(safe-area-inset-bottom));text-align:center;position:relative;z-index:1}
-.ftr__mark{font-family:var(--font-display);font-style:normal;font-weight:400;font-size:clamp(2.6rem,21vw,9rem);line-height:.94;letter-spacing:-.03em}
+.ftr__mark{font-family:var(--font-display);font-style:normal;font-weight:400;font-size:clamp(2.2rem,16vw,7rem);line-height:.94;letter-spacing:-.03em}
 .ftr__note{font-family:var(--font-mono);font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--bone-faint);margin-top:10px}
 .ftr__legal{margin-top:32px;font-family:var(--font-mono);font-size:.54rem;letter-spacing:.16em;text-transform:uppercase;color:var(--bone-faint);line-height:1.9}
 
@@ -480,7 +480,7 @@ html[data-motion="on"] .reveal.is-in{opacity:1;transform:none;transition:opacity
   position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
   object-position:var(--focal,50% 32%);
   filter:grayscale(.42) contrast(1.14) brightness(.66);
-  opacity:0;transition:opacity 1.6s var(--ease);
+  opacity:0;   /* crossfade timing lives in the CONVERSION LAYER below */
 }
 .hero__slides img.is-on{opacity:1}
 html[data-motion="on"] .hero__slides img.is-on{animation:push 9s var(--ease) forwards}
@@ -652,7 +652,7 @@ body:has(.dock.is-up) .ftr{padding-bottom:calc(80px + env(safe-area-inset-bottom
   position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
   object-position:var(--focal,50% 32%);
   filter:grayscale(.42) contrast(1.14) brightness(.66);
-  opacity:0;transition:opacity 1.6s var(--ease);
+  opacity:0;   /* crossfade timing lives in the CONVERSION LAYER below */
 }
 .hero__slides video.is-on{opacity:1}
 
@@ -1010,10 +1010,10 @@ html[data-motion="on"] .hero__media::before{
    fading, and fades slower, so something is always fully opaque underneath
    the incoming one. Without the delay both sit at ~50% mid-transition and
    the whole landing screen visibly darkens on every change. */
-.hero__slides img,.hero__slides video{transition:opacity 1.8s var(--ease) .55s}
-.hero__slides img.is-on,.hero__slides video.is-on{transition:opacity 1.1s var(--ease) 0s}
-.curtain__media img,.curtain__media video{transition:opacity 1.5s var(--ease) .45s}
-.curtain__media img.is-on,.curtain__media video.is-on{transition:opacity .9s var(--ease) 0s}
+.hero__slides img,.hero__slides video{transition:opacity 2.4s var(--ease) .7s}
+.hero__slides img.is-on,.hero__slides video.is-on{transition:opacity 1.5s var(--ease) 0s}
+.curtain__media img,.curtain__media video{transition:opacity 1.9s var(--ease) .55s}
+.curtain__media img.is-on,.curtain__media video.is-on{transition:opacity 1.2s var(--ease) 0s}
 
 /* ---------- THE DOOR AS A LOADING SCREEN ---------------------------------
    The hero opens on video. Rather than let someone walk into a stutter,
@@ -1095,4 +1095,32 @@ html[data-motion="on"] .hero__media:has(.hero__slides[data-kind="still"])::befor
   .hub__item--primary .hub__note{white-space:normal}
   .hub__item--primary .hub__arrow{order:3}
   .hub__item--primary .hub__cta{flex:0 0 100%;order:4}
+}
+
+/* ---------- NOISE OVER THE FOOTAGE --------------------------------------
+   The clips are compressed off YouTube, so flat areas band and the joins
+   between them show. A layer of grain sitting on top of the footage hides
+   both, and matches the tape treatment the rest of the page already has.
+   Sits above the video, below the scrim and the wordmark. */
+.hero__slides::after{
+  content:"";position:absolute;inset:0;z-index:2;pointer-events:none;
+  background-image:var(--grain-url);
+  background-size:190px 190px;
+  opacity:.16;
+  mix-blend-mode:overlay;
+}
+html[data-motion="on"] .hero__slides::after{animation:grainshift .8s steps(3) infinite}
+html[data-grain="off"] .hero__slides::after{display:none}
+
+/* A touch more on the clips than the stills — they're the compressed ones. */
+.hero__slides[data-kind="clip"]::after{opacity:.22}
+
+/* ---------- LOADING BAR DRIVEN BY REAL PROGRESS -------------------------
+   `--load` is set from JS as each clip finishes buffering (0 -> 1), so the
+   bar reflects what has actually downloaded instead of animating on a
+   guessed duration and then sitting full while the page is still stalling. */
+.curtain[data-loading] .curtain__btn::after{
+  animation:none;
+  transform:scaleX(var(--load,0));
+  transition:transform .35s var(--ease-out);
 }

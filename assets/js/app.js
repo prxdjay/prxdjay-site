@@ -31,6 +31,11 @@
   var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var root = document.documentElement;
 
+  /* How long the outgoing slide takes to finish dissolving: the .7s hold
+     plus the 2.4s fade defined on .hero__slides > * in base.css. Used to
+     decide when it's safe to pause the clip underneath. Keep in step. */
+  var FADE_MS = 3100;
+
   /* -------------------------------------------------------------------------
      SHARED STATE  — memory, analytics, and who's already a member
      ---------------------------------------------------------------------- */
@@ -162,6 +167,10 @@
       }
     }
 
+    // readyState 3 = HAVE_FUTURE_DATA: there are frames ready to show.
+    // Below that, starting a clip means fading up into black.
+    function ready(n) { return n.tagName !== "VIDEO" || n.readyState >= 3; }
+
     var cleanup = null;
 
     function play(n) {
@@ -207,26 +216,46 @@
       safety();
     }
 
-    function next() {
+    function next(waited) {
       clear();
       var live = nodes.filter(function (n) { return n.isConnected; });
       if (live.length < 2) return;
 
       var cur = live[i % live.length];
-      cur.classList.remove("is-on");
-      if (cur.tagName === "VIDEO") { try { cur.pause(); } catch (e) {} }
+      var nxt = live[(i + 1) % live.length];
 
+      /* Never hand over to a clip that has nothing to show yet.
+
+         Cutting to an unbuffered video is what made the change feel choppy:
+         the old frame vanished and the new one faded up out of black while
+         it was still downloading. Instead, hold on the current frame and
+         come back in a moment. Capped, so a clip that never loads can't
+         freeze the hero — after that we move on and let it fall back. */
+      if (!ready(nxt)) {
+        preload(nxt);
+        var held = (waited || 0) + 250;
+        if (held < 6000) { timer = setTimeout(function () { next(held); }, 250); return; }
+      }
+
+      cur.classList.remove("is-on");
       i = (i + 1) % live.length;
-      var nxt = live[i];
       nxt.classList.remove("is-on");
       void nxt.offsetWidth;                // restart the drift from the top
       nxt.classList.add("is-on");
       play(nxt);
+
+      /* Let the outgoing clip keep rendering through the crossfade, then
+         pause it. Pausing on the same tick as the swap drops it to a still
+         frame while it's still half visible, which reads as a stutter. */
+      if (cur.tagName === "VIDEO") {
+        setTimeout(function () { try { cur.pause(); } catch (e) {} }, FADE_MS);
+      }
+
       preload(live[(i + 1) % live.length]);
     }
 
     play(nodes[0]);
-    preload(nodes[1]);
+    nodes.forEach(preload);   // pull the whole set down up front, not one ahead
   }
 
   /* -------------------------------------------------------------------------
@@ -1222,15 +1251,34 @@
        through, and says so while it waits. The wait is capped: on a bad
        connection they get in anyway rather than staring at a locked door. */
     var gate = (E.hero && E.hero.loading) || {};
-    var maxWait = gate.maxWait == null ? 4000 : gate.maxWait;
-    var opener  = document.querySelector(".hero__slides video, .hero__media video");
+    var maxWait = gate.maxWait == null ? 12000 : gate.maxWait;
     var opened  = false;
+    var waitTimer = null, pollTimer = null;
+
+    /* Wait on EVERY clip in the hero, not just the opening one.
+
+       Gating on the first clip alone was the bug: the door opened as soon as
+       one clip was ready, and the second and third were still downloading
+       when their turn came, so the stutter just moved further down the reel.
+       The whole set is ~1.7MB — small enough to have in hand before anyone
+       walks in. */
+    var clips = [].slice.call(document.querySelectorAll(".hero__slides video"));
+    clips.forEach(function (v) {
+      if (!v.src && v.dataset.src) { v.preload = "auto"; v.src = v.dataset.src; }
+    });
+
+    function loaded() {
+      var n = 0;
+      clips.forEach(function (v) { if (v.readyState >= 3 || v.error) n += 1; });
+      return n;
+    }
 
     function unlock(why) {
       if (opened) return;
       opened = true;
-      clearTimeout(waitTimer);
+      clearTimeout(waitTimer); clearInterval(pollTimer);
       c.removeAttribute("data-loading");
+      c.style.removeProperty("--load");
       lbl.textContent = H.enterLabel || "ENTER";
       btn.disabled = false;
       btn.removeAttribute("aria-disabled");
@@ -1238,19 +1286,20 @@
       if (why === "auto" && gate.autoEnter) go();
     }
 
-    // Nothing to wait on (reduced motion, stills only, or already buffered).
-    var ready = !opener || reduced || opener.readyState >= 3;
-    var waitTimer = null;
-
-    if (ready) {
+    if (!clips.length || reduced || loaded() === clips.length) {
       unlock("ready");
     } else {
       c.setAttribute("data-loading", "1");
       lbl.textContent = gate.label || "LOADING";
       btn.disabled = true;
       btn.setAttribute("aria-disabled", "true");
-      opener.addEventListener("canplaythrough", function () { unlock("ready"); }, { once: true });
-      opener.addEventListener("error", function () { unlock("error"); }, { once: true });
+
+      // Drive the bar off real progress rather than a guessed duration.
+      pollTimer = setInterval(function () {
+        var done = loaded();
+        c.style.setProperty("--load", (done / clips.length).toFixed(3));
+        if (done === clips.length) unlock("ready");
+      }, 120);
       waitTimer = setTimeout(function () { unlock("timeout"); }, maxWait);
     }
 
