@@ -1124,3 +1124,21 @@ html[data-grain="off"] .hero__slides::after{display:none}
   transform:scaleX(var(--load,0));
   transition:transform .35s var(--ease-out);
 }
+
+/* ---------- THE DOOR'S PORTRAIT -----------------------------------------
+   The artist photo is only 531x640, so filling a desktop screen with it is
+   a 3x upscale — it goes to mush and the grain turns to porridge. Push it
+   back instead of trying to present it as a hero image: framed off the
+   wordmark, darker, and softened just enough that the upscaling reads as
+   atmosphere rather than a low-res photo. */
+.curtain__media img{
+  object-position:50% 22%;
+  filter:grayscale(.45) contrast(1.12) brightness(.34) saturate(.85) blur(1.4px);
+  transform:scale(1.06);           /* hides the blur's soft edge */
+}
+/* Deepen the middle so the name always has something dark to sit on. */
+.curtain__media::after{
+  background:
+    radial-gradient(58% 46% at 50% 46%, rgba(0,0,0,.72), rgba(0,0,0,.30) 60%, transparent 78%),
+    radial-gradient(78% 62% at 50% 50%, rgba(0,0,0,.30), rgba(0,0,0,.9) 88%);
+}

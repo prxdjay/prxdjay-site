@@ -1225,7 +1225,17 @@
         if (!reduced) { cv.autoplay = true; cv.play().catch(function () {}); }
         cm.appendChild(cv);
       } else {
-        normSlides(H.slides).slice(0, 3).forEach(function (s, i) {
+        /* What sits behind the door is set separately from the hero reel.
+
+           It used to borrow the hero's first three slides, which meant the
+           very first thing anyone saw could be a clip he's only featured on.
+           `hero.loading.media` decides it now: a list of its own, or an
+           empty list for a blank screen. */
+        var doorMedia = (H.loading && H.loading.media !== undefined)
+          ? H.loading.media
+          : H.slides;
+
+        normSlides(doorMedia).slice(0, 3).forEach(function (s, i) {
           var n = slideNode(s, i === 0);
           // A still can't move on its own, so it gets its own treatment
         // rather than sharing the clips' drift.
