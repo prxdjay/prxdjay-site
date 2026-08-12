@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#121110">
+<meta name="theme-color" content="#090b0f">
 <meta name="color-scheme" content="dark">
 
 <!-- ============================ SEO METADATA ============================ -->
@@ -87,14 +87,15 @@
 <!-- ============================== STYLES ================================
      theme.css = era tokens (swap per era)  ·  base.css = permanent framework
 
-     ?v=26 ON EVERY FILE BELOW IS NOT DECORATION. Browsers hold on to CSS and
+     ?v=27 ON EVERY FILE BELOW IS NOT DECORATION. Browsers hold on to CSS and
      JS for days. Without the number, someone who visited last week keeps the
      OLD site until their cache clears on its own.
      >>> EVERY TIME YOU EDIT era.config.js OR ANY css/js FILE, BUMP ALL FOUR
          NUMBERS BELOW BY ONE (v=2 -> v=3). That's the whole ritual. <<<
      ==================================================================== -->
-<link rel="stylesheet" href="assets/css/theme.css?v=26">
-<link rel="stylesheet" href="assets/css/base.css?v=26">
+<link rel="stylesheet" href="assets/css/theme.css?v=27">
+<link rel="stylesheet" href="assets/css/base.css?v=27">
+<link rel="stylesheet" href="assets/css/system.css?v=27">
 </head>
 
 <body>
@@ -167,7 +168,7 @@
   <!-- ============================= MUSIC ============================= -->
   <section class="section" id="music" aria-labelledby="musH">
     <div class="wrap">
-      <div class="sec-head reveal">
+      <div class="sec-head reveal" data-window="MUSIC">
         <div>
           <span class="eyebrow">01 · Music</span>
           <h2 class="display h-sec" id="musH">THE MUSIC</h2>
@@ -183,7 +184,7 @@
 
   <section class="section" id="video" aria-labelledby="vidH">
     <div class="wrap">
-      <div class="sec-head reveal">
+      <div class="sec-head reveal" data-window="VIDEOS">
         <div>
           <span class="eyebrow">02 · Videos</span>
           <h2 class="display h-sec" id="vidH">IN MOTION</h2>
@@ -200,7 +201,7 @@
   <!-- ============================= ABOUT ============================= -->
   <section class="section" id="bio" aria-labelledby="bioH">
     <div class="wrap">
-      <div class="sec-head reveal">
+      <div class="sec-head reveal" data-window="ABOUT">
         <div>
           <span class="eyebrow">03 · About</span>
           <h2 class="display h-sec" id="bioH">ABOUT</h2>
@@ -221,7 +222,7 @@
   <!-- ============================= PHOTOS ============================ -->
   <section class="section" id="gallery" aria-labelledby="galH">
     <div class="wrap">
-      <div class="sec-head reveal">
+      <div class="sec-head reveal" data-window="PHOTOS">
         <div>
           <span class="eyebrow">04 · Photos</span>
           <h2 class="display h-sec" id="galH">PHOTOS</h2>
@@ -235,7 +236,7 @@
   <!-- ============================= LINKS ============================= -->
   <section class="section" id="links" aria-labelledby="linksH">
     <div class="wrap">
-      <div class="sec-head reveal">
+      <div class="sec-head reveal" data-window="LINKS">
         <div>
           <span class="eyebrow">05 · Links</span>
           <h2 class="display h-sec" id="linksH">LINKS</h2>
@@ -255,7 +256,7 @@
   <!-- ========================== EMAIL LIST =========================== -->
   <section class="section" id="list" aria-labelledby="listH">
     <div class="wrap">
-      <div class="sec-head reveal">
+      <div class="sec-head reveal" data-window="MAILING LIST">
         <div>
           <span class="eyebrow">06 · Join</span>
           <h2 class="display h-sec" id="listH">JOIN THE LIST</h2>
@@ -269,7 +270,7 @@
   <!-- ========================= 8. CONTACT =========================== -->
   <section class="section" id="contact" aria-labelledby="conH">
     <div class="wrap">
-      <div class="sec-head reveal">
+      <div class="sec-head reveal" data-window="CONTACT">
         <div>
           <span class="eyebrow">07 · Contact</span>
           <h2 class="display h-sec" id="conH">CONTACT</h2>
@@ -304,7 +305,7 @@
 <aside class="prompt" id="prompt" role="complementary" aria-label="Join the mailing list" hidden></aside>
 
 <!-- ============================ SCRIPTS ============================ -->
-<script src="assets/js/era.config.js?v=26"></script>
-<script src="assets/js/app.js?v=26" defer></script>
+<script src="assets/js/era.config.js?v=27"></script>
+<script src="assets/js/app.js?v=27" defer></script>
 </body>
 </html>

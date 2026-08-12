@@ -9,10 +9,10 @@ Most release changes happen in `assets/js/era.config.js`:
 1. Update `opening.sticker` and the primary release in `links.items`.
 2. Update `music.featured` with the title, year, cover, Spotify ID, and URL.
 3. Add new YouTube IDs under `video.items`.
-4. Replace the portrait, opening image, gallery images, and `assets/img/share.jpg` when new media is ready.
-5. Change every `?v=26` reference in the HTML files to the next number after editing CSS or JavaScript.
+4. Replace the opening clips, portrait, gallery images, and `assets/img/share.jpg` when new media is ready.
+5. Change every `?v=27` reference in the HTML files to the next number after editing CSS or JavaScript.
 
-The permanent framework lives in `index.html`, `assets/css/base.css`, and `assets/js/app.js`. A normal release should not require changes to those files.
+The permanent framework lives in `index.html`, `assets/css/base.css`, `assets/css/system.css`, and `assets/js/app.js`. A normal release should not require changes to those files.
 
 ## Site Order
 
@@ -35,6 +35,7 @@ See `SETUP-THE-LIST.md` for the one-time account connection.
 |---|---|
 | `assets/js/era.config.js` | Release copy, links, music, videos, photos, About, and contact settings |
 | `assets/css/theme.css` | Colors, typography, texture, and spacing |
+| `assets/css/system.css` | Dark desktop-window presentation and responsive system chrome |
 | `assets/img/share.jpg` | 1200 x 630 link preview image |
 | `functions/api/subscribe.js` | Protected email signup endpoint |
 | `_headers` | Browser security and caching headers on Cloudflare Pages |
