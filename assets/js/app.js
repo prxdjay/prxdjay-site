@@ -45,7 +45,9 @@
     pending:   "prxdjay.pending",    // they requested the confirmation email
     prompt:    "prxdjay.prompt",     // slide-up dismissed
     exit:      "prxdjay.exit",       // exit modal shown
-    been:      "prxdjay.been"        // they've been here before
+    been:      "prxdjay.been",       // they've been here before
+    theme:     "prxdjay.theme",
+    accent:    "prxdjay.accent"
   };
 
   var store = {
@@ -55,6 +57,95 @@
   };
 
   var isMember = function () { return store.get(KEY.member) === "1"; };
+
+  /* -------------------------------------------------------------------------
+     APPEARANCE — fan-controlled display and accent, stored on this device.
+     ---------------------------------------------------------------------- */
+  (function appearance() {
+    var panel = $("#appearance");
+    var openBtn = $("#appearanceBtn");
+    var closeBtn = $("#appearanceClose");
+    if (!panel || !openBtn || !closeBtn) return;
+
+    var themes = ["tube", "desktop", "clean"];
+    var accents = ["red", "green", "blue", "violet", "gold"];
+    var lastFocus = null;
+    var backgroundState = [];
+
+    function valid(value, choices, fallback) {
+      return choices.indexOf(value) > -1 ? value : fallback;
+    }
+    function current() {
+      return {
+        theme: valid(root.dataset.theme, themes, "tube"),
+        accent: valid(root.dataset.accent, accents, "red")
+      };
+    }
+    function paint(theme, accent, remember) {
+      root.dataset.theme = valid(theme, themes, "tube");
+      root.dataset.accent = valid(accent, accents, "red");
+      if (remember) {
+        store.set(KEY.theme, root.dataset.theme);
+        store.set(KEY.accent, root.dataset.accent);
+      }
+      panel.querySelectorAll("[data-theme-choice]").forEach(function (btn) {
+        btn.setAttribute("aria-pressed", String(btn.dataset.themeChoice === root.dataset.theme));
+      });
+      panel.querySelectorAll("[data-accent-choice]").forEach(function (btn) {
+        btn.setAttribute("aria-pressed", String(btn.dataset.accentChoice === root.dataset.accent));
+      });
+    }
+    function open() {
+      lastFocus = document.activeElement;
+      paint(current().theme, current().accent, false);
+      panel.hidden = false;
+      backgroundState = [].slice.call(document.body.children).filter(function (node) {
+        return node !== panel && node.tagName !== "SCRIPT";
+      }).map(function (node) {
+        var state = { node: node, inert: node.inert };
+        node.inert = true;
+        return state;
+      });
+      document.body.classList.add("appearance-open");
+      openBtn.setAttribute("aria-expanded", "true");
+      closeBtn.focus();
+    }
+    function close() {
+      panel.hidden = true;
+      backgroundState.forEach(function (state) { state.node.inert = state.inert; });
+      backgroundState = [];
+      document.body.classList.remove("appearance-open");
+      openBtn.setAttribute("aria-expanded", "false");
+      if (lastFocus && lastFocus.focus) lastFocus.focus();
+    }
+
+    openBtn.addEventListener("click", function () { panel.hidden ? open() : close(); });
+    closeBtn.addEventListener("click", close);
+    panel.addEventListener("click", function (e) {
+      if (e.target === panel) close();
+      var themeBtn = e.target.closest("[data-theme-choice]");
+      var accentBtn = e.target.closest("[data-accent-choice]");
+      var state = current();
+      if (themeBtn) paint(themeBtn.dataset.themeChoice, state.accent, true);
+      if (accentBtn) paint(state.theme, accentBtn.dataset.accentChoice, true);
+    });
+    $("#appearanceReset").addEventListener("click", function () {
+      paint("tube", "red", true);
+    });
+    panel.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") close();
+      if (e.key !== "Tab") return;
+      var focusable = [].slice.call(panel.querySelectorAll("button:not([disabled])"));
+      if (!focusable.length) return;
+      var first = focusable[0], last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault(); last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault(); first.focus();
+      }
+    });
+    paint(current().theme, current().accent, false);
+  })();
 
   // Brevo returns here only after the person uses the confirmation link.
   // This is the point where the browser can truthfully remember membership.

@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html lang="en" data-era="001">
+<html lang="en" data-era="001" data-theme="tube" data-accent="red">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#090b0f">
+<script src="assets/js/appearance.js?v=28"></script>
 <meta name="color-scheme" content="dark">
 
 <!-- ============================ SEO METADATA ============================ -->
@@ -87,15 +88,15 @@
 <!-- ============================== STYLES ================================
      theme.css = era tokens (swap per era)  ·  base.css = permanent framework
 
-     ?v=27 ON EVERY FILE BELOW IS NOT DECORATION. Browsers hold on to CSS and
+     ?v=28 ON EVERY FILE BELOW IS NOT DECORATION. Browsers hold on to CSS and
      JS for days. Without the number, someone who visited last week keeps the
      OLD site until their cache clears on its own.
      >>> EVERY TIME YOU EDIT era.config.js OR ANY css/js FILE, BUMP ALL FOUR
          NUMBERS BELOW BY ONE (v=2 -> v=3). That's the whole ritual. <<<
      ==================================================================== -->
-<link rel="stylesheet" href="assets/css/theme.css?v=27">
-<link rel="stylesheet" href="assets/css/base.css?v=27">
-<link rel="stylesheet" href="assets/css/system.css?v=27">
+<link rel="stylesheet" href="assets/css/theme.css?v=28">
+<link rel="stylesheet" href="assets/css/base.css?v=28">
+<link rel="stylesheet" href="assets/css/system.css?v=28">
 </head>
 
 <body>
@@ -124,6 +125,9 @@
   <!-- Tablet: every section visible in the header. Mobile: the menu button.
        Desktop: the side rail below takes over and this hides. -->
   <nav class="hdr__nav" id="hdrNav" aria-label="Sections"></nav>
+  <button class="appearance-btn" id="appearanceBtn" type="button" aria-expanded="false" aria-controls="appearance" aria-label="Personalize appearance">
+    <span aria-hidden="true"><i></i><i></i><i></i></span>
+  </button>
   <button class="menu-btn" id="menuBtn" type="button" aria-expanded="false" aria-controls="nav">
     <span id="menuLabel">MENU</span>
     <span class="menu-btn__bars" aria-hidden="true"><i></i><i></i><i></i></span>
@@ -298,6 +302,37 @@
   <button class="lbx__nav lbx__nav--next" id="lbxNext" type="button" aria-label="Next photo">&#8250;</button>
 </div>
 
+<!-- ======================= APPEARANCE SETTINGS ===================== -->
+<aside class="appearance" id="appearance" role="dialog" aria-modal="true" aria-labelledby="appearanceTitle" hidden>
+  <div class="appearance__window">
+    <header class="appearance__titlebar">
+      <h2 id="appearanceTitle">APPEARANCE</h2>
+      <button class="appearance__close" id="appearanceClose" type="button" aria-label="Close appearance settings">&#10005;</button>
+    </header>
+    <div class="appearance__body">
+      <fieldset>
+        <legend>DISPLAY</legend>
+        <div class="appearance__themes" role="group" aria-label="Display style">
+          <button type="button" data-theme-choice="tube">TUBE</button>
+          <button type="button" data-theme-choice="desktop">DESKTOP</button>
+          <button type="button" data-theme-choice="clean">CLEAN</button>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>COLOR</legend>
+        <div class="appearance__swatches" role="group" aria-label="Accent color">
+          <button type="button" data-accent-choice="red" aria-label="Red"><span></span></button>
+          <button type="button" data-accent-choice="green" aria-label="Green"><span></span></button>
+          <button type="button" data-accent-choice="blue" aria-label="Blue"><span></span></button>
+          <button type="button" data-accent-choice="violet" aria-label="Violet"><span></span></button>
+          <button type="button" data-accent-choice="gold" aria-label="Gold"><span></span></button>
+        </div>
+      </fieldset>
+      <button class="appearance__reset" id="appearanceReset" type="button">RESET</button>
+    </div>
+  </div>
+</aside>
+
 <!-- ===================== STICKY DOCK (fast path) ==================== -->
 <nav class="dock" id="dock" aria-label="Quick links"></nav>
 
@@ -305,7 +340,7 @@
 <aside class="prompt" id="prompt" role="complementary" aria-label="Join the mailing list" hidden></aside>
 
 <!-- ============================ SCRIPTS ============================ -->
-<script src="assets/js/era.config.js?v=27"></script>
-<script src="assets/js/app.js?v=27" defer></script>
+<script src="assets/js/era.config.js?v=28"></script>
+<script src="assets/js/app.js?v=28" defer></script>
 </body>
 </html>

@@ -10,9 +10,9 @@ Most release changes happen in `assets/js/era.config.js`:
 2. Update `music.featured` with the title, year, cover, Spotify ID, and URL.
 3. Add new YouTube IDs under `video.items`.
 4. Replace the opening clips, portrait, gallery images, and `assets/img/share.jpg` when new media is ready.
-5. Change every `?v=27` reference in the HTML files to the next number after editing CSS or JavaScript.
+5. Change every `?v=28` reference in the HTML files to the next number after editing CSS or JavaScript.
 
-The permanent framework lives in `index.html`, `assets/css/base.css`, `assets/css/system.css`, and `assets/js/app.js`. A normal release should not require changes to those files.
+The permanent framework lives in `index.html`, `assets/css/base.css`, `assets/css/system.css`, `assets/js/appearance.js`, and `assets/js/app.js`. A normal release should not require changes to those files.
 
 ## Site Order
 
