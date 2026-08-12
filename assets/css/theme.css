@@ -62,7 +62,7 @@
   --font-hand:    "Caveat", "Bradley Hand", cursive;
   --font-body:    "Inter", -apple-system, "Helvetica Neue", sans-serif;
 
-  --tracking-display: -0.005em;
+  --tracking-display: 0;
   --tracking-label:    0.22em;
 
   /* ---- SHAPE -------------------------------------------------------------
@@ -82,8 +82,8 @@
   /* ---- TEXTURE -----------------------------------------------------------
      Turn these up for a rougher era, down for a cleaner one.
      ------------------------------------------------------------------- */
-  --grain-opacity:   .085;   /* film grain */
-  --scanline-op:     .055;   /* CRT / VHS scanlines */
+  --grain-opacity:   .05;    /* film grain */
+  --scanline-op:     .025;   /* CRT / VHS scanlines */
   --scanline-gap:    3px;
   --flicker-op:      .022;   /* tape hiss brightness flicker */
   --tilt:            -0.6deg; /* base off-grid rotation */
