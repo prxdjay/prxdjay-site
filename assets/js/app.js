@@ -13,6 +13,7 @@
 
   var E = window.ERA;
   if (!E) { console.error("era.config.js did not load."); return; }
+  var OPENING = E.opening || {};
 
   var $  = function (s, c) { return (c || document).querySelector(s); };
   var el = function (t, cls, html) {
@@ -41,11 +42,10 @@
      ---------------------------------------------------------------------- */
   var KEY = {
     member:    "prxdjay.member",     // they joined. never ask again.
-    lead:      "prxdjay.lead",       // what we know about them
+    pending:   "prxdjay.pending",    // they requested the confirmation email
     prompt:    "prxdjay.prompt",     // slide-up dismissed
     exit:      "prxdjay.exit",       // exit modal shown
-    been:      "prxdjay.been",       // they've been here before
-    skin:      "prxdjay.skin"
+    been:      "prxdjay.been"        // they've been here before
   };
 
   var store = {
@@ -55,6 +55,18 @@
   };
 
   var isMember = function () { return store.get(KEY.member) === "1"; };
+
+  // Brevo returns here only after the person uses the confirmation link.
+  // This is the point where the browser can truthfully remember membership.
+  try {
+    var confirmation = new URLSearchParams(location.search).get("confirmed");
+    if (confirmation === "1") {
+      store.set(KEY.member, "1");
+      localStorage.removeItem(KEY.pending);
+      var clean = location.pathname + location.hash;
+      history.replaceState(null, "", clean);
+    }
+  } catch (e) {}
 
   /* Fires into Plausible / GA4 if either is configured. Silent no-op otherwise. */
   function track(event, props) {
@@ -308,6 +320,7 @@
      ---------------------------------------------------------------------- */
   var X = E.experience || {};
   root.setAttribute("data-motion",  reduced ? "off" : "on");
+  root.setAttribute("data-skin", "tape");
   root.setAttribute("data-grain",   X.grain === false || reduced ? "off" : "on");
   root.setAttribute("data-glow",    X.ambientGlow === false ? "off" : "on");
   root.setAttribute("data-shimmer", X.chromeShimmer === false || reduced ? "off" : "on");
@@ -324,8 +337,8 @@
   set("curtainMark", ID.name);
   set("curtainSay",  ID.pronunciation);
   set("hdrMark",     ID.name);
-  set("heroName",    (E.hero && E.hero.headline) || ID.name);
-  set("heroSay",     (E.hero && E.hero.sub) || ID.pronunciation);
+  set("heroName",    OPENING.headline || ID.name);
+  set("heroSay",     OPENING.sub || ID.pronunciation);
   set("ftrMark",     (E.footer && E.footer.mark) || ID.name);
   set("ftrNote",     (E.footer && E.footer.note) || ID.pronunciation);
   set("hdrEra",      (E.era && E.era.name) ? "ERA " + (E.era.id||"") + " · " + E.era.name : (ID.tagline || ""));
@@ -343,37 +356,22 @@
       (flinks ? '<br><span class="ftr__links">' + flinks + "</span>" : "");
   }
 
-  /* -------------------------------------------------------------------------
-     ANALYTICS — nothing loads unless a key is filled in in era.config.js.
-     ---------------------------------------------------------------------- */
-  (function analytics() {
-    var A = E.analytics || {};
-    if (A.plausible) {
-      var s = el("script");
-      s.defer = true; s.dataset.domain = A.plausible;
-      s.src = "https://plausible.io/js/script.js";
-      document.head.appendChild(s);
-      window.plausible = window.plausible || function () {
-        (window.plausible.q = window.plausible.q || []).push(arguments);
-      };
-    }
-    if (A.ga4) {
-      var g = el("script");
-      g.async = true;
-      g.src = "https://www.googletagmanager.com/gtag/js?id=" + encodeURIComponent(A.ga4);
-      document.head.appendChild(g);
-      window.dataLayer = window.dataLayer || [];
-      window.gtag = function () { window.dataLayer.push(arguments); };
-      window.gtag("js", new Date());
-      window.gtag("config", A.ga4);
-    }
+  /* Bot protection is loaded only when the public site key is configured. */
+  (function turnstile() {
+    var key = E.list && E.list.turnstileSiteKey;
+    if (!key) return;
+    var s = el("script");
+    s.src = "https://challenges.cloudflare.com/turnstile/v0/api.js";
+    s.async = true;
+    s.defer = true;
+    document.head.appendChild(s);
   })();
 
   /* -------------------------------------------------------------------------
-     HERO
+     OPENING SCREEN
      ---------------------------------------------------------------------- */
-  (function hero() {
-    var H = E.hero || {};
+  (function opening() {
+    var H = OPENING;
     var kickEl = $("#heroKicker");
     if (kickEl) { if (H.kicker) kickEl.textContent = H.kicker; else kickEl.remove(); }
     set("heroScroll", H.scrollHint || "scroll");
@@ -444,7 +442,7 @@
         a.href = url; a.target = "_blank"; a.rel = "noopener";
         if (c.primary && primary) a.setAttribute("aria-label", "Listen to " + primary.label);
       }
-      a.addEventListener("click", function () { track("hero_cta", { label: c.label }); });
+      a.addEventListener("click", function () { track("opening_cta", { label: c.label }); });
       cta.appendChild(a);
     });
 
@@ -499,15 +497,27 @@
     function toggle(open) {
       btn.setAttribute("aria-expanded", String(open));
       navEl.classList.toggle("is-open", open);
+      navEl.toggleAttribute("inert", !open);
+      navEl.setAttribute("aria-hidden", String(!open));
       document.body.classList.toggle("is-locked", open);
       label.textContent = open ? "CLOSE" : "MENU";
-      if (open) { var f = navEl.querySelector("a"); if (f) f.focus(); }
+      if (open) {
+        var f = navEl.querySelector("a");
+        if (f) setTimeout(function () { f.focus(); }, 0);
+      }
     }
     btn.addEventListener("click", function () { toggle(btn.getAttribute("aria-expanded") !== "true"); });
     navEl.addEventListener("click", function (e) { if (e.target.closest("a")) toggle(false); });
     document.addEventListener("keydown", function (e) {
-      if (e.key === "Escape" && navEl.classList.contains("is-open")) { toggle(false); btn.focus(); }
+      if (!navEl.classList.contains("is-open")) return;
+      if (e.key === "Escape") { toggle(false); btn.focus(); return; }
+      if (e.key !== "Tab") return;
+      var focusable = [btn].concat([].slice.call(navEl.querySelectorAll("a")));
+      var first = focusable[0], last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
     });
+    toggle(false);
 
     // Sticky header state + active section
     var hdr = $("#hdr");
@@ -638,15 +648,23 @@
     });
 
     var lbx = $("#lbx"), lbxImg = $("#lbxImg"), cur = 0, lastFocus = null;
+    lbx.setAttribute("aria-hidden", "true");
+    lbx.setAttribute("inert", "");
     function open(i) {
       if (!real.length) return;
       cur = i; lastFocus = document.activeElement;
       lbxImg.src = real[cur].src; lbxImg.alt = real[cur].alt || "";
-      lbx.classList.add("is-open"); document.body.classList.add("is-locked");
-      $("#lbxClose").focus();
+      lbx.classList.add("is-open");
+      lbx.removeAttribute("inert");
+      lbx.setAttribute("aria-hidden", "false");
+      document.body.classList.add("is-locked");
+      setTimeout(function () { $("#lbxClose").focus(); }, 0);
     }
     function close() {
-      lbx.classList.remove("is-open"); document.body.classList.remove("is-locked");
+      lbx.classList.remove("is-open");
+      lbx.setAttribute("inert", "");
+      lbx.setAttribute("aria-hidden", "true");
+      document.body.classList.remove("is-locked");
       if (lastFocus) lastFocus.focus();
     }
     function step(d) {
@@ -662,6 +680,12 @@
       if (e.key === "Escape") close();
       if (e.key === "ArrowLeft") step(-1);
       if (e.key === "ArrowRight") step(1);
+      if (e.key === "Tab") {
+        var controls = [].slice.call(lbx.querySelectorAll("button:not([hidden])"));
+        var first = controls[0], last = controls[controls.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
     });
     if (real.length < 2) { $("#lbxPrev").hidden = true; $("#lbxNext").hidden = true; }
   })();
@@ -844,76 +868,43 @@
   var JOIN = (function () {
     var L = E.list || {};
     var endpoint = String(L.endpoint || "");
-    var configured = /^https?:\/\//.test(endpoint) && endpoint.indexOf("YOUR_FORM_ID") === -1;
-    var listeners = [];
+    var configured = L.enabled !== false && (/^https?:\/\//.test(endpoint) || endpoint.charAt(0) === "/");
     var uid = 0;
 
-    if (!configured && endpoint) {
-      console.warn("[PRXD.JAY] list.endpoint isn't set up yet — signups will fall back to the mail app. See SETUP-THE-LIST.md");
-    }
-
-    function lead() { return store.json(KEY.lead) || {}; }
-    function remember(patch) {
-      var d = lead();
-      Object.keys(patch).forEach(function (k) { if (patch[k]) d[k] = patch[k]; });
-      store.set(KEY.lead, JSON.stringify(d));
-      return d;
-    }
-    function onJoin(fn) { listeners.push(fn); }
-    function announce() { listeners.forEach(function (f) { try { f(); } catch (e) {} }); }
-
     /* ----------------------------------------------------------------------
-       SEND. Resolves true/false. Never throws, never loses the record —
-       anything that fails is kept locally so nothing typed is thrown away.
+       SEND. Contact details go directly to the protected server endpoint.
+       They are never written to localStorage or placed in a mailto link.
        ------------------------------------------------------------------- */
     function send(fields, cb) {
-      remember(fields);
-
       var payload = {
-        email:        fields.email || lead().email || "",
+        email:        fields.email || "",
         name:         fields.name || "",
         phone:        fields.phone || "",
         sms_consent:  fields.sms_consent || "no",
         consent_text: fields.consent_text || "",
-        consent_at:   new Date().toISOString(),
         source:       fields.source || "site",
         stage:        fields.stage || "email",
-        page:         location.href,
-        referrer:     document.referrer || "direct",
-        _subject:     "Inner Circle — " + (fields.stage === "phone" ? "phone added" : "new signup")
+        turnstileToken: fields.turnstileToken || "",
+        website: fields.website || ""
       };
 
       if (!configured) {
-        // Nothing set up yet: hand it to the mail app so the signup still
-        // reaches him. Lossy — this is why SETUP-THE-LIST.md matters.
-        var to = L.fallbackEmail || (E.contact && E.contact.email) || "";
-        var body = Object.keys(payload).map(function (k) { return k + ": " + payload[k]; }).join("\r\n");
-        window.location.href = "mailto:" + encodeURIComponent(to) +
-          "?subject=" + encodeURIComponent(payload._subject) +
-          "&body=" + encodeURIComponent(body);
-        cb(true);
+        cb(false);
         return;
       }
 
-      var opaque = (L.transport === "opaque");
-      var opts = opaque
-        ? { method: "POST", mode: "no-cors", body: new URLSearchParams(payload) }
-        : { method: "POST", headers: { Accept: "application/json" }, body: toFormData(payload) };
-
-      fetch(endpoint, opts)
+      fetch(endpoint, {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { Accept: "application/json", "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      })
         .then(function (r) {
-          // A no-cors response is always opaque — we can't read it, so a
-          // resolved promise is the only success signal available.
-          if (!opaque && !r.ok) throw new Error("bad response");
-          cb(true);
+          return r.json().catch(function () { return {}; }).then(function (body) {
+            cb(r.ok, body);
+          });
         })
-        .catch(function () { cb(false); });
-    }
-
-    function toFormData(o) {
-      var fd = new FormData();
-      Object.keys(o).forEach(function (k) { fd.append(k, o[k]); });
-      return fd;
+        .catch(function () { cb(false, {}); });
     }
 
     /* ----------------------------------------------------------------------
@@ -927,6 +918,10 @@
       var id = function (s) { return "jf" + n + "-" + s; };
 
       if (isMember()) { return renderDone(box, opts); }
+      if (!configured) {
+        box.innerHTML = '<p class="join__body">' + esc(L.unavailable || "The email list is being connected. Please check back soon.") + "</p>";
+        return;
+      }
       renderStep1();
 
       /* ---- STEP 1 — email only ---- */
@@ -943,7 +938,8 @@
               '<button class="btn btn--solid join__go" type="submit"><span>' +
                 esc(L.submitLabel || "I'M IN") + "</span></button>" +
             "</div>" +
-            '<input class="hp" type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true">' +
+            '<input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">' +
+            (L.turnstileSiteKey ? '<div class="cf-turnstile" data-sitekey="' + esc(L.turnstileSiteKey) + '" data-action="subscribe" data-theme="dark"></div>' : "") +
             (opts.compact ? "" : '<p class="join__fine">' + esc(L.reassure || "") + "</p>") +
             '<p class="form__msg" role="status" aria-live="polite"></p>' +
           "</form>";
@@ -957,7 +953,7 @@
 
         form.addEventListener("submit", function (e) {
           e.preventDefault();
-          if (form._gotcha.value) return;                       // bot
+          if (form.website.value) return;
           msg.textContent = ""; msg.removeAttribute("data-state");
 
           if (!input.checkValidity() || !input.value.trim()) {
@@ -970,114 +966,51 @@
           setBusy(btn, true, "SENDING");
           track("join_email", { source: src });
 
-          send({ email: input.value.trim(), source: src, stage: "email" }, function (ok) {
+          var tokenInput = form.querySelector('[name="cf-turnstile-response"]');
+          var token = tokenInput ? tokenInput.value : "";
+          if (L.turnstileSiteKey && !token) {
+            msg.textContent = "Please complete the security check.";
+            msg.setAttribute("data-state", "err");
+            return;
+          }
+
+          send({
+            email: input.value.trim(),
+            source: src,
+            stage: "email",
+            turnstileToken: token
+          }, function (ok, body) {
             setBusy(btn, false, L.submitLabel || "I'M IN");
             if (!ok) {
-              msg.textContent = L.errorMsg || "That didn't send. Try again in a second.";
+              msg.textContent = (body && body.message) || L.errorMsg || "That didn't send. Please try again.";
               msg.setAttribute("data-state", "err");
+              if (window.turnstile) window.turnstile.reset();
               return;
             }
-            store.set(KEY.member, "1");
-            announce();
-            renderStep2();
+            store.set(KEY.pending, String(Date.now()));
+            renderPending(box, opts);
           });
         });
       }
 
-      /* ---- STEP 2 — name + phone, post-commitment ---- */
-      function renderStep2() {
-        var S = L.step2 || {};
-        var consent = S.consentText || "";
-        box.innerHTML =
-          '<div class="join__done-head">' +
-            '<p class="join__title">' + esc(S.title || "You're in.") + "</p>" +
-            '<p class="join__body">' + esc(S.body || "") + "</p>" +
-          "</div>" +
-          '<form class="form join" novalidate>' +
-            '<div class="join__two">' +
-              '<div class="field">' +
-                '<label for="' + id("name") + '">' + esc(S.nameLabel || "First name") + "</label>" +
-                '<input id="' + id("name") + '" name="name" type="text" autocomplete="given-name" ' +
-                  'placeholder="' + esc(S.namePlaceholder || "") + '">' +
-              "</div>" +
-              '<div class="field">' +
-                '<label for="' + id("phone") + '">' + esc(S.phoneLabel || "Phone") + "</label>" +
-                '<input id="' + id("phone") + '" name="phone" type="tel" autocomplete="tel" inputmode="tel" ' +
-                  'placeholder="' + esc(S.phonePlaceholder || "") + '">' +
-              "</div>" +
-            "</div>" +
-            '<label class="consent"><input type="checkbox" name="consent">' +
-              "<span>" + esc(consent) + "</span></label>" +
-            '<div class="join__row join__row--end">' +
-              '<button class="btn btn--solid join__go" type="submit"><span>' +
-                esc(S.submitLabel || "TEXT ME TOO") + "</span></button>" +
-              '<button class="join__skip" type="button">' + esc(S.skipLabel || "Email is enough") + "</button>" +
-            "</div>" +
-            '<p class="form__msg" role="status" aria-live="polite"></p>' +
-          "</form>";
-
-        var form = box.querySelector("form");
-        var msg  = box.querySelector(".form__msg");
-        var btn  = box.querySelector(".join__go");
-
-        track("join_step2_view", { source: src });
-        var t = box.querySelector(".join__title");
-        if (t) { t.setAttribute("tabindex", "-1"); t.focus(); }
-
-        box.querySelector(".join__skip").addEventListener("click", function () {
-          track("join_skip_phone", { source: src });
-          renderDone(box, opts);
-        });
-
-        form.addEventListener("submit", function (e) {
-          e.preventDefault();
-          var phone = form.phone.value.trim();
-          var name  = form.name.value.trim();
-          msg.textContent = ""; msg.removeAttribute("data-state");
-
-          // A phone number with no ticked box is not a consenting number.
-          // Sending to it would be illegal, so the box is required here.
-          if (phone && !form.consent.checked) {
-            msg.textContent = "Tick the box so I'm allowed to text you.";
-            msg.setAttribute("data-state", "err");
-            form.consent.focus();
-            return;
-          }
-          if (phone && phone.replace(/\D/g, "").length < 10) {
-            msg.textContent = "That number looks short.";
-            msg.setAttribute("data-state", "err");
-            form.phone.focus();
-            return;
-          }
-          if (!phone && !name) { renderDone(box, opts); return; }
-
-          setBusy(btn, true, "SENDING");
-          send({
-            name: name,
-            phone: phone,
-            sms_consent: phone && form.consent.checked ? "yes" : "no",
-            consent_text: phone && form.consent.checked ? consent : "",
-            source: src,
-            stage: "phone"
-          }, function (ok) {
-            setBusy(btn, false, (L.step2 || {}).submitLabel || "TEXT ME TOO");
-            if (!ok) {
-              msg.textContent = L.errorMsg || "That didn't send. Try again in a second.";
-              msg.setAttribute("data-state", "err");
-              return;
-            }
-            track(phone ? "join_phone" : "join_name", { source: src });
-            renderDone(box, opts);
-          });
-        });
+      /* ---- CONFIRMATION STATES ---- */
+      function renderPending(target, o) {
+        var P = L.pending || {};
+        target.innerHTML =
+          '<div class="join__done">' +
+            '<p class="join__title">' + esc(P.title || "Check your inbox.") + "</p>" +
+            '<p class="join__body">' + esc(P.body || "Use the confirmation link to finish joining the list.") + "</p>" +
+          "</div>";
+        var title = target.querySelector(".join__title");
+        if (title) { title.setAttribute("tabindex", "-1"); title.focus(); }
+        if (o && o.onDone) o.onDone();
+        return target;
       }
 
-      /* ---- STEP 3 — the payoff ---- */
       function renderDone(target, o) {
         var D = L.done || {};
         var R = D.reward || {};
-        var name = (lead().name || "").trim();
-        var greet = name ? "Welcome in, " + name + "." : (D.title || "Welcome in.");
+        var greet = D.title || "Check your inbox.";
 
         target.innerHTML =
           '<div class="join__done">' +
@@ -1124,7 +1057,7 @@
       }
     }
 
-    return { mount: mount, onJoin: onJoin, configured: configured, lead: lead };
+    return { mount: mount, configured: configured };
   })();
 
   /* Native share sheet where it exists, clipboard everywhere else. */
@@ -1150,7 +1083,7 @@
   }
 
   /* -------------------------------------------------------------------------
-     INNER CIRCLE SECTION
+     EMAIL LIST SECTION
      ---------------------------------------------------------------------- */
   (function list() {
     var L = E.list || {};
@@ -1175,12 +1108,6 @@
     box.appendChild(mountPoint);
     JOIN.mount(mountPoint, { source: "section" });
 
-    // If they join from the bar or the modal, this section catches up.
-    JOIN.onJoin(function () {
-      if (!mountPoint.querySelector(".join__done")) {
-        JOIN.mount(mountPoint, { source: "section" });
-      }
-    });
   })();
 
   /* -------------------------------------------------------------------------
@@ -1213,7 +1140,7 @@
   (function curtain() {
     var c = $("#curtain");
     if (!X.introCurtain) { c.remove(); return; }
-    var H = E.hero || {};
+    var H = OPENING;
 
     // Behind the name: the loop if it exists, otherwise your own frames.
     var cm = $("#curtainMedia");
@@ -1288,7 +1215,7 @@
        So the door holds itself shut until the opening clip can actually play
        through, and says so while it waits. The wait is capped: on a bad
        connection they get in anyway rather than staring at a locked door. */
-    var gate = (E.hero && E.hero.loading) || {};
+    var gate = H.loading || {};
     var maxWait = gate.maxWait == null ? 12000 : gate.maxWait;
     var opened  = false;
     var waitTimer = null, pollTimer = null;
@@ -1433,7 +1360,6 @@
           b.setAttribute("aria-label", joined ? "You're on the list" : "Join the list");
         };
         relabel();
-        JOIN.onJoin(relabel);
         b.addEventListener("click", function () {
           track("dock_join");
           var sec = document.getElementById("list");
@@ -1486,14 +1412,14 @@
   })();
 
   /* -------------------------------------------------------------------------
-     INNER CIRCLE SLIDE-UP — fires only after they've engaged.
+     EMAIL LIST SLIDE-UP — fires only after they've engaged.
      Dismissal is remembered. It never nags twice.
      ---------------------------------------------------------------------- */
   (function listPrompt() {
     var p = $("#prompt");
     if (!p) return;
     var L = E.list || {}, C = L.prompt;
-    if (X.listPrompt === false || !C || isMember()) { p.remove(); return; }
+    if (!JOIN.configured || X.listPrompt === false || !C || isMember()) { p.remove(); return; }
     if (store.get(KEY.prompt)) { p.remove(); return; }
 
     p.innerHTML =
@@ -1526,8 +1452,6 @@
     document.addEventListener("keydown", function (e) {
       if (e.key === "Escape" && p.classList.contains("is-up")) close(true);
     });
-    JOIN.onJoin(function () { store.set(KEY.prompt, "1"); });
-
     // Trigger: they got as far as the videos. They're interested — now ask.
     var trigger = document.getElementById(C.after || "video") || document.getElementById("music");
     if (!trigger || !("IntersectionObserver" in window)) return;
@@ -1552,7 +1476,7 @@
      ---------------------------------------------------------------------- */
   (function exitIntent() {
     var L = E.list || {}, C = L.exitIntent || {};
-    if (!C.on || isMember() || store.get(KEY.exit)) return;
+    if (!JOIN.configured || !C.on || isMember() || store.get(KEY.exit)) return;
     if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;   // no mobile
     if (window.innerWidth < 860) return;
 
@@ -1706,7 +1630,6 @@
     var live = ctaLive();
     if (!live) { tick(); var iv = setInterval(tick, 1000); }
     else if (clock) clock.remove();
-    JOIN.onJoin(ctaLive);
   })();
 
   /* -------------------------------------------------------------------------
@@ -1737,46 +1660,4 @@
     }, { threshold: 0.6 });
     nodes.forEach(function (n) { io.observe(n); });
   })();
-
-
-  /* -------------------------------------------------------------------------
-     SKIN SWITCHER — "tape" (default) <-> "win" (dark Windows)
-     The choice is remembered per device.
-     ---------------------------------------------------------------------- */
-  (function skins() {
-    var btn = $("#skinBtn");
-    var KEY = "prxdjay.skin";
-    var SKINS = {
-      tape: { label: "TAPE",   next: "win"  },
-      win:  { label: "SYSTEM", next: "tape" }
-    };
-
-    var start = X.defaultSkin === "win" ? "win" : "tape";
-    try { var saved = localStorage.getItem(KEY); if (SKINS[saved]) start = saved; } catch (e) {}
-    apply(start);
-
-    if (!btn) return;
-    if (X.skinSwitcher === false) { btn.remove(); return; }
-
-    function apply(s) {
-      root.setAttribute("data-skin", s);
-      var meta = document.querySelector('meta[name="theme-color"]');
-      if (meta) meta.setAttribute("content", s === "win" ? "#1b1915" : "#121110");
-      if (btn) {
-        btn.innerHTML = "<i aria-hidden='true'></i><span>" + SKINS[SKINS[s].next].label + "</span>";
-        btn.setAttribute("aria-pressed", String(s === "win"));
-        btn.setAttribute("aria-label", "Switch to the " + SKINS[SKINS[s].next].label + " skin");
-        btn.title = "Switch skin";
-      }
-    }
-    apply(root.getAttribute("data-skin") || start);
-
-    btn.addEventListener("click", function () {
-      var cur = root.getAttribute("data-skin") === "win" ? "win" : "tape";
-      var nxt = SKINS[cur].next;
-      apply(nxt);
-      try { localStorage.setItem(KEY, nxt); } catch (e) {}
-    });
-  })();
-
 })();
