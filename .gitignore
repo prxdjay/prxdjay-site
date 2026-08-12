@@ -1,0 +1,10 @@
+.DS_Store
+Thumbs.db
+*.psd
+*.ai
+node_modules/
+
+_preview/
+
+# local dev only — not part of the site
+.claude/

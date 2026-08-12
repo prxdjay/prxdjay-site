@@ -1,0 +1,5 @@
+Copyright (c) 2026 PRXDIGY LLC / PRXD.JAY. All rights reserved.
+
+All music, artwork, photography, video, and brand assets are the property of
+PRXDIGY LLC. The site code in this repository is for the exclusive use of
+PRXD.JAY and may not be redistributed as a template.

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Share image maker — PRXD.JAY</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..500;1,6..72,200..500&family=DM+Mono:wght@300;400&display=swap">
+<style>
+  :root{--ink:#121110;--bone:#ede6d6;--dim:#8b8376;--line:#302c26}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--ink);color:var(--bone);font-family:"DM Mono",monospace;padding:32px 20px 80px}
+  .wrap{max-width:1000px;margin:0 auto}
+  h1{font-family:Newsreader,serif;font-style:italic;font-weight:300;font-size:2.2rem;margin:0 0 6px}
+  p{color:var(--dim);font-size:.78rem;line-height:1.7;max-width:64ch}
+  ol{color:var(--dim);font-size:.78rem;line-height:1.9;padding-left:20px;max-width:64ch}
+  b{color:var(--bone);font-weight:400}
+  canvas{width:100%;height:auto;border:1px solid var(--line);margin:22px 0 18px;display:block;background:#000}
+  .row{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin-bottom:26px}
+  button,label.file{
+    font-family:"DM Mono",monospace;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;
+    background:var(--bone);color:var(--ink);border:0;padding:13px 22px;cursor:pointer;
+  }
+  button.ghost,label.file{background:transparent;color:var(--bone);border:1px solid var(--dim)}
+  button:disabled{opacity:.4;cursor:not-allowed}
+  input[type=file]{display:none}
+  .note{border-left:2px solid var(--line);padding-left:16px;margin-top:30px}
+  #status{font-size:.7rem;color:var(--dim);min-height:1.4em}
+</style>
+</head>
+<body>
+<!-- ===========================================================================
+     Makes the 1200x630 image that shows up when someone texts or posts your
+     link. Runs entirely in the browser — nothing is uploaded anywhere.
+     Open this file, pick a photo, click download, save to assets/img/share.jpg
+     ======================================================================== -->
+<div class="wrap">
+  <h1>Share image maker</h1>
+  <p>This makes the picture people see when your link gets texted, posted, or DM'd. Right now the site falls back to your square Spotify photo — this makes the proper wide one.</p>
+
+  <ol>
+    <li>Click <b>Use a photo from my computer</b> and pick a good one — landscape works best.</li>
+    <li>Click <b>Download share.jpg</b>.</li>
+    <li>Put that file in your site's <b>assets/img/</b> folder.</li>
+    <li>In <b>index.html</b>, follow the note above the sharing tags and swap the two image URLs to <b>https://prxdjay.com/assets/img/share.jpg</b>.</li>
+  </ol>
+
+  <canvas id="c" width="1200" height="630"></canvas>
+
+  <div class="row">
+    <label class="file">Use a photo from my computer<input id="file" type="file" accept="image/*"></label>
+    <button class="ghost" id="tryRemote" type="button">Try my Spotify photo</button>
+    <button id="dl" type="button">Download share.jpg</button>
+  </div>
+  <p id="status">Pick a photo to start.</p>
+
+  <div class="note">
+    <p><b>Why this matters more than it sounds.</b> Most people meet an artist through a link someone sent them. A blank grey rectangle in that message gets ignored. A face and a name gets tapped.</p>
+    <p><b>If "Try my Spotify photo" fails</b>, that's Spotify's servers refusing — just use a photo from your computer instead. Same result.</p>
+  </div>
+</div>
+
+<script>
+(function () {
+  var c = document.getElementById("c");
+  var x = c.getContext("2d");
+  var status = document.getElementById("status");
+  var dl = document.getElementById("dl");
+  var current = null;
+
+  var NAME = "PRXD.JAY";
+  var SAY  = "PRONOUNCED PRODIGY";
+  var TAG  = "PRXDIGY VXL.1 — OUT NOW";
+  var SITE = "PRXDJAY.COM";
+
+  function say(t) { status.textContent = t; }
+
+  function draw(img) {
+    x.fillStyle = "#121110";
+    x.fillRect(0, 0, 1200, 630);
+
+    if (img) {
+      // cover-fit, biased to the upper third where faces usually sit
+      var s = Math.max(1200 / img.width, 630 / img.height);
+      var w = img.width * s, h = img.height * s;
+      x.save();
+      x.filter = "grayscale(45%) contrast(112%) brightness(72%)";
+      x.drawImage(img, (1200 - w) / 2, (630 - h) / 2 - h * 0.06, w, h);
+      x.restore();
+    }
+
+    // Darken toward the bottom so the type always reads
+    var g = x.createLinearGradient(0, 0, 0, 630);
+    g.addColorStop(0,   "rgba(18,17,16,0.30)");
+    g.addColorStop(0.45,"rgba(18,17,16,0.55)");
+    g.addColorStop(1,   "rgba(18,17,16,0.94)");
+    x.fillStyle = g;
+    x.fillRect(0, 0, 1200, 630);
+
+    // Sticker
+    x.font = "400 20px 'DM Mono', monospace";
+    var tw = x.measureText(TAG).width;
+    x.fillStyle = "#ede6d6";
+    x.fillRect(72, 372, tw + 34, 42);
+    x.fillStyle = "#121110";
+    x.fillText(TAG, 89, 400);
+
+    // Wordmark
+    x.fillStyle = "#ede6d6";
+    x.font = "italic 300 132px Newsreader, Georgia, serif";
+    x.fillText(NAME, 68, 520);
+
+    // Pronunciation
+    x.fillStyle = "#a8a091";
+    x.font = "400 21px 'DM Mono', monospace";
+    x.letterSpacing = "6px";
+    x.fillText(SAY, 74, 562);
+
+    // Domain, bottom right
+    x.fillStyle = "#8b8376";
+    x.font = "400 19px 'DM Mono', monospace";
+    var dw = x.measureText(SITE).width;
+    x.fillText(SITE, 1128 - dw, 562);
+    x.letterSpacing = "0px";
+
+    dl.disabled = false;
+  }
+
+  function load(src, cross) {
+    var img = new Image();
+    if (cross) img.crossOrigin = "anonymous";
+    img.onload = function () {
+      current = img;
+      draw(img);
+      say("Looks right? Click download.");
+    };
+    img.onerror = function () {
+      say("That image wouldn't load. Use a photo from your computer instead.");
+    };
+    img.src = src;
+  }
+
+  document.fonts.ready.then(function () { draw(null); dl.disabled = true; });
+
+  document.getElementById("file").addEventListener("change", function (e) {
+    var f = e.target.files && e.target.files[0];
+    if (!f) return;
+    say("Loading…");
+    var r = new FileReader();
+    r.onload = function () { load(r.result, false); };
+    r.readAsDataURL(f);
+  });
+
+  document.getElementById("tryRemote").addEventListener("click", function () {
+    say("Asking Spotify…");
+    load("https://i.scdn.co/image/ab6761610000e5eb1fba8e84e5fb261305dcba7f", true);
+  });
+
+  dl.addEventListener("click", function () {
+    try {
+      c.toBlob(function (b) {
+        var a = document.createElement("a");
+        a.href = URL.createObjectURL(b);
+        a.download = "share.jpg";
+        a.click();
+        setTimeout(function () { URL.revokeObjectURL(a.href); }, 2000);
+        say("Saved. Put it in assets/img/ and update index.html.");
+      }, "image/jpeg", 0.9);
+    } catch (err) {
+      say("The browser blocked saving this image because it came from another site. Use a photo from your computer instead.");
+    }
+  });
+})();
+</script>
+</body>
+</html>

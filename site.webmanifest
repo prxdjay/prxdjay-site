@@ -1,0 +1,12 @@
+{
+  "name": "PRXD.JAY — pronounced Prodigy",
+  "short_name": "PRXD.JAY",
+  "description": "PRXD.JAY, pronounced Prodigy. Hear the next one before anyone else does.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#121110",
+  "theme_color": "#121110",
+  "icons": [
+    { "src": "/assets/img/favicon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}

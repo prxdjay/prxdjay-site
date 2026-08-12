@@ -1,0 +1,114 @@
+/* =============================================================================
+   PRXD.JAY — ERA THEME TOKENS
+   -----------------------------------------------------------------------------
+   Era 001 — "MIDNIGHT TAPES"
+   Bone on black. Lo-fi. Worn. Nothing shiny, nothing corporate.
+
+   Deliberately NOT the PRXDIGY Studios palette. No chrome, no bright red,
+   no card surfaces. The studio site sells a service. This one is a person.
+
+   Swap the values in :root to reskin the whole site.
+   Keep the variable NAMES the same — only change the values.
+   ========================================================================== */
+
+:root {
+  /* ---- CORE PALETTE ------------------------------------------------------
+     Almost no color. The photography carries everything.
+     ------------------------------------------------------------------- */
+  /* Not true black. A warm near-black holds the film grain and the
+     photography far better, and stops the page reading as a dead screen.
+     --ink-rgb must always match --ink: every scrim on the site is mixed
+     from it, so the two can never drift apart. */
+  --ink:            #121110;   /* page — warm near-black */
+  --ink-rgb:        18,17,16;
+  --ink-2:          #191714;   /* barely raised    */
+  --ink-3:          #201d19;   /* deepest surface  */
+  --line:           #302c26;   /* hairlines        */
+
+  --bone:           #ede6d6;   /* primary text — 15.2:1 on --ink */
+  --bone-dim:       #a8a091;   /* secondary text — 7.4:1 */
+  --bone-faint:     #8b8376;   /* tertiary — 5.0:1, still AA */
+
+  /* Used sparingly. Two places max per screen. */
+  --mark:           #c24a32;   /* faded rust marker */
+  --mark-hot:       #dd6444;
+
+  /* VHS artifact channels — ONLY inside the chroma-split effect */
+  --vhs-a:          #ff3b30;
+  --vhs-b:          #5fd0d8;
+
+  /* ---- DERIVED ----------------------------------------------------------- */
+  --sticker-bg:     var(--bone);   /* inverted tape-label blocks */
+  --sticker-fg:     var(--ink);
+
+  --tape:           rgba(237,230,214,.13);  /* translucent tape strips */
+  --tape-edge:      rgba(237,230,214,.22);
+
+  --scrim:          linear-gradient(180deg,
+                      rgba(var(--ink-rgb),.22) 0%,
+                      rgba(var(--ink-rgb),.48) 40%,
+                      rgba(var(--ink-rgb),.86) 80%,
+                      var(--ink) 100%);
+
+  --vignette:       radial-gradient(125% 95% at 50% 45%,
+                      transparent 45%, rgba(var(--ink-rgb),.42) 88%, rgba(var(--ink-rgb),.72) 100%);
+
+  /* ---- TYPE --------------------------------------------------------------
+     Editorial serif + typewriter mono + handwriting.
+     No geometric sans anywhere — that's what made it read corporate.
+     ------------------------------------------------------------------- */
+  --font-display: "Anton", "Haettenschweiler", Impact, sans-serif;
+  --font-mono:    "JetBrains Mono", "Courier New", ui-monospace, monospace;
+  --font-hand:    "Caveat", "Bradley Hand", cursive;
+  --font-body:    "Inter", -apple-system, "Helvetica Neue", sans-serif;
+
+  --tracking-display: -0.005em;
+  --tracking-label:    0.22em;
+
+  /* ---- SHAPE -------------------------------------------------------------
+     Almost no radius. Boxes were the problem. Edges are hard now.
+     ------------------------------------------------------------------- */
+  --radius:      2px;
+  --radius-lg:   2px;
+  --radius-pill: 0px;
+
+  /* ---- MOTION ------------------------------------------------------------ */
+  --ease:      cubic-bezier(.22,.61,.36,1);
+  --ease-out:  cubic-bezier(.16,1,.3,1);
+  --dur-fast:  .18s;
+  --dur:       .40s;
+  --dur-slow:  1.1s;
+
+  /* ---- TEXTURE -----------------------------------------------------------
+     Turn these up for a rougher era, down for a cleaner one.
+     ------------------------------------------------------------------- */
+  --grain-opacity:   .085;   /* film grain */
+  --scanline-op:     .055;   /* CRT / VHS scanlines */
+  --scanline-gap:    3px;
+  --flicker-op:      .022;   /* tape hiss brightness flicker */
+  --tilt:            -0.6deg; /* base off-grid rotation */
+
+  /* ---- LAYOUT ------------------------------------------------------------ */
+  --gutter:    24px;
+  --max:       1040px;
+  --max-text:  62ch;
+  --section-y: clamp(56px, 8vh, 96px);
+}
+
+/* -----------------------------------------------------------------------------
+   FUTURE ERA STARTERS — copy this file, change these values, relink in index.html
+-------------------------------------------------------------------------------
+  ERA 002 — "SUN BLEACHED"  (washed out, daytime, overexposed)
+  :root{
+    --ink:#f2efe6; --ink-2:#eae6da; --ink-3:#e2ddcf; --line:#cdc6b4;
+    --bone:#161410; --bone-dim:#4e4940; --bone-faint:#736c5f;
+    --mark:#b0432b; --sticker-bg:#161410; --sticker-fg:#f2efe6;
+    --grain-opacity:.11; --scanline-op:.02;
+  }
+
+  ERA 003 — "BLACKOUT"  (near-total dark, one light source)
+  :root{
+    --bone:#cfcabf; --bone-dim:#8b8376; --bone-faint:#6a6459;
+    --mark:#8e8577; --grain-opacity:.13; --scanline-op:.09; --tilt:-1.1deg;
+  }
+----------------------------------------------------------------------------- */

@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en" data-era="001">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#121110">
+<meta name="color-scheme" content="dark">
+
+<!-- ============================ SEO METADATA ============================ -->
+<title>PRXD.JAY — pronounced Prodigy | Official Site</title>
+<meta name="description" content="PRXD.JAY, pronounced Prodigy. New music, videos and photos — plus the Inner Circle, where unreleased records go out before anywhere else.">
+<link rel="canonical" href="https://prxdjay.com/">
+<meta name="author" content="PRXD.JAY">
+<meta name="robots" content="index, follow, max-image-preview:large">
+
+<!-- ======================= SOCIAL SHARING METADATA ======================
+     THIS IS WHAT PEOPLE SEE WHEN YOUR LINK GETS TEXTED AROUND.
+     This is the picture that shows up when someone texts or posts your
+     link. It lives at assets/img/share.jpg — 1200x630, built from your
+     artist photo. Replace that file to change it; keep the same name and
+     dimensions and nothing else needs touching.
+     ==================================================================== -->
+<meta property="og:type" content="profile">
+<meta property="og:site_name" content="PRXD.JAY">
+<meta property="og:title" content="PRXD.JAY — pronounced Prodigy">
+<meta property="og:description" content="Hear the next one before anyone else does.">
+<meta property="og:url" content="https://prxdjay.com/">
+<meta property="og:image" content="https://prxdjay.com/assets/img/share.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="PRXD.JAY, pronounced Prodigy">
+<meta property="profile:username" content="prxd.jay">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@prxdjay">
+<meta name="twitter:creator" content="@prxdjay">
+<meta name="twitter:title" content="PRXD.JAY — pronounced Prodigy">
+<meta name="twitter:description" content="Hear the next one before anyone else does.">
+<meta name="twitter:image" content="https://prxdjay.com/assets/img/share.jpg">
+
+<!-- ===================== STRUCTURED DATA (schema.org) ==================== -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "MusicGroup",
+  "name": "PRXD.JAY",
+  "alternateName": ["Prxd. Jay", "PRXDIGY", "Prodigy"],
+  "description": "PRXD.JAY, pronounced Prodigy. Rap and R&B, made end to end.",
+  "genre": ["Hip Hop", "Rap", "R&B", "Alternative R&B", "Neo Soul"],
+  "url": "https://prxdjay.com/",
+  "image": "https://i.scdn.co/image/ab6761610000e5eb1fba8e84e5fb261305dcba7f",
+  "sameAs": [
+    "https://open.spotify.com/artist/2BXB6wbzCaQKOx0kP4sTip",
+    "https://music.apple.com/us/artist/prxd-jay/1418723888",
+    "https://www.youtube.com/@PrxdJayNY",
+    "https://instagram.com/prxd.jay",
+    "https://www.tiktok.com/@prxd.jay",
+    "https://twitter.com/prxdjay"
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "PRXD.JAY, pronounced Prodigy",
+  "url": "https://prxdjay.com/"
+}
+</script>
+
+<!-- ============================== ICONS ================================= -->
+<link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+<!-- <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png"> 
+     ^ uncomment once a 180x180 PNG exists at that path (see ASSET-INVENTORY.md) -->
+<link rel="manifest" href="site.webmanifest">
+
+<!-- ============================== FONTS ================================= -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- The hero photography lives on these two. Opening the connections early
+     is worth roughly a quarter-second on the first paint over mobile data. -->
+<link rel="preconnect" href="https://i.ytimg.com" crossorigin>
+<link rel="preconnect" href="https://i.scdn.co" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=JetBrains+Mono:wght@400;500&family=Inter:wght@300;400;500;600&family=Caveat:wght@400;600&display=swap">
+
+<!-- ============================== STYLES ================================
+     theme.css = era tokens (swap per era)  ·  base.css = permanent framework
+
+     ?v=18 ON EVERY FILE BELOW IS NOT DECORATION. Browsers hold on to CSS and
+     JS for days. Without the number, someone who visited last week keeps the
+     OLD site until their cache clears on its own.
+     >>> EVERY TIME YOU EDIT era.config.js OR ANY css/js FILE, BUMP ALL FOUR
+         NUMBERS BELOW BY ONE (v=2 -> v=3). That's the whole ritual. <<<
+     ==================================================================== -->
+<link rel="stylesheet" href="assets/css/theme.css?v=18">
+<link rel="stylesheet" href="assets/css/base.css?v=18">
+<link rel="stylesheet" href="assets/css/skin-win.css?v=18">
+</head>
+
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<!-- Texture layers -->
+<div class="ambient" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+
+<!-- ========================= INTRO CURTAIN ========================= -->
+<div class="curtain" id="curtain" role="dialog" aria-label="Enter the site" hidden>
+  <div class="curtain__media" id="curtainMedia" aria-hidden="true"></div>
+  <div class="curtain__inner">
+    <p class="curtain__tag" id="curtainTag"></p>
+    <p class="display chrome vhs curtain__mark" id="curtainMark">PRXD.JAY</p>
+    <p class="curtain__say" id="curtainSay">pronounced Prodigy</p>
+    <button class="curtain__btn" id="curtainBtn" type="button"><span>ENTER</span></button>
+  </div>
+  <p class="curtain__meta" id="curtainMeta" aria-hidden="true"></p>
+</div>
+
+<!-- ============================ HEADER ============================ -->
+<header class="hdr" id="hdr">
+  <a class="hdr__mark" href="#home" id="hdrMark">PRXD.JAY</a>
+  <span class="hdr__era" id="hdrEra"></span>
+  <!-- Tablet: every section visible in the header. Mobile: the menu button.
+       Desktop: the side rail below takes over and this hides. -->
+  <nav class="hdr__nav" id="hdrNav" aria-label="Sections"></nav>
+  <button class="menu-btn" id="menuBtn" type="button" aria-expanded="false" aria-controls="nav">
+    <span id="menuLabel">MENU</span>
+    <span class="menu-btn__bars" aria-hidden="true"><i></i><i></i><i></i></span>
+  </button>
+</header>
+
+<!-- ============================== NAV ============================== -->
+<nav class="nav" id="nav" aria-label="Main">
+  <ul class="nav__list" id="navList"></ul>
+  <p class="nav__foot" id="navFoot"></p>
+</nav>
+
+<!-- ========================== SIDE RAIL ============================
+     Desktop only. The whole menu, on screen the entire time — nobody has
+     to open anything or remember what's where. Highlights the section
+     you're currently looking at as you scroll.
+     ============================================================== -->
+<nav class="rail" id="rail" aria-label="Sections">
+  <a class="rail__mark" href="#home">PRXD.JAY</a>
+  <ul class="rail__list" id="railList"></ul>
+  <p class="rail__foot" id="railFoot"></p>
+</nav>
+
+<main id="main">
+
+  <!-- ======================= 1. LANDING / HERO ======================= -->
+  <section class="hero" id="home" aria-label="PRXD.JAY">
+    <div class="hero__media" id="heroMedia" aria-hidden="true"></div>
+    <div class="hero__inner">
+      <span class="sticker" id="heroSticker"></span>
+      <span class="eyebrow hero__kicker" id="heroKicker"></span>
+      <h1 class="display chrome vhs hero__name" id="heroName">PRXD.JAY</h1>
+      <p class="hero__say" id="heroSay">pronounced Prodigy</p>
+      <div class="hero__cta" id="heroCta"></div>
+    </div>
+    <span class="hero__scroll" id="heroScroll" aria-hidden="true"></span>
+  </section>
+
+  <!-- ===================== NEXT DROP (off until set) ================== -->
+  <section class="drop" id="drop" aria-label="Next release" hidden></section>
+
+  <!-- ========================= 2. LINK HUB ========================== -->
+  <section class="section" id="links" aria-labelledby="linksH">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <div>
+          <span class="eyebrow">01 — All links</span>
+          <h2 class="display h-sec" id="linksH">THE HUB</h2>
+        </div>
+        <p class="caption" id="linksCap"></p>
+      </div>
+      <div class="hub reveal" id="hub"></div>
+    </div>
+  </section>
+
+  <!-- =========================== 3. BIO ============================= -->
+  <section class="section" id="music" aria-labelledby="musH">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <div>
+          <span class="eyebrow">02 — Music</span>
+          <h2 class="display h-sec" id="musH">THE MUSIC</h2>
+        </div>
+        <p class="caption" id="musCap"></p>
+      </div>
+      <div class="feat reveal" id="feat"></div>
+      <div class="reveal" id="archive"></div>
+    </div>
+  </section>
+
+  <div class="band" id="band-music" hidden></div>
+
+  <section class="section" id="video" aria-labelledby="vidH">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <div>
+          <span class="eyebrow">03 — Videos</span>
+          <h2 class="display h-sec" id="vidH">IN MOTION</h2>
+        </div>
+        <p class="caption" id="vidCap"></p>
+      </div>
+      <div class="vids reveal" id="vids"></div>
+      <p style="margin-top:22px" class="reveal"><a class="btn btn--ghost" id="vidChannel" href="#" target="_blank" rel="noopener"></a></p>
+    </div>
+  </section>
+
+  <div class="band" id="band-video" hidden></div>
+
+  <section class="section" id="gallery" aria-labelledby="galH">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <div>
+          <span class="eyebrow">04 — Photos</span>
+          <h2 class="display h-sec" id="galH">VISUALS</h2>
+        </div>
+        <p class="caption" id="galCap"></p>
+      </div>
+      <div class="gal reveal" id="gal"></div>
+    </div>
+  </section>
+
+  <section class="section" id="bio" aria-labelledby="bioH">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <div>
+          <span class="eyebrow">05 — About</span>
+          <h2 class="display h-sec" id="bioH">THE ARTIST</h2>
+        </div>
+      </div>
+      <div class="bio__grid">
+        <figure class="bio__portrait reveal" id="bioPortrait"></figure>
+        <div class="reveal">
+          <blockquote class="bio__quote" id="bioQuote"></blockquote>
+          <div class="bio__body" id="bioBody"></div>
+          <div class="bio__stats" id="bioStats"></div>
+          <dl class="bio__facts" id="bioFacts"></dl>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================= 4. GALLERY =========================== -->
+
+  <!-- ========================== 5. VIDEO ============================ -->
+
+  <!-- ========================== 6. MUSIC ============================ -->
+
+  <!-- ====================== 7. INNER CIRCLE ========================= -->
+  <section class="section" id="list" aria-labelledby="listH">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <div>
+          <span class="eyebrow">06 — Join the list</span>
+          <h2 class="display h-sec" id="listH">INNER CIRCLE</h2>
+        </div>
+        <p class="caption" id="listCap"></p>
+      </div>
+      <div class="list__box reveal" id="listBox"></div>
+    </div>
+  </section>
+
+  <!-- ========================= 8. CONTACT =========================== -->
+  <section class="section" id="contact" aria-labelledby="conH">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <div>
+          <span class="eyebrow">07 — Contact</span>
+          <h2 class="display h-sec" id="conH">CONTACT</h2>
+        </div>
+        <p class="caption" id="conCap"></p>
+      </div>
+      <div class="reveal" id="conBody"></div>
+    </div>
+  </section>
+
+</main>
+
+<!-- =========================== 9. FOOTER ============================ -->
+<footer class="ftr">
+  <p class="ftr__mark chrome vhs" id="ftrMark">PRXD.JAY</p>
+  <p class="ftr__note" id="ftrNote">pronounced Prodigy</p>
+  <p class="ftr__legal" id="ftrLegal"></p>
+</footer>
+
+<!-- ========================== LIGHTBOX ============================= -->
+<div class="lbx" id="lbx" role="dialog" aria-modal="true" aria-label="Photo viewer">
+  <button class="lbx__close" id="lbxClose" type="button" aria-label="Close">&#10005;</button>
+  <button class="lbx__nav lbx__nav--prev" id="lbxPrev" type="button" aria-label="Previous photo">&#8249;</button>
+  <img id="lbxImg" src="" alt="">
+  <button class="lbx__nav lbx__nav--next" id="lbxNext" type="button" aria-label="Next photo">&#8250;</button>
+</div>
+
+<!-- ===================== STICKY DOCK (fast path) ==================== -->
+<nav class="dock" id="dock" aria-label="Quick links"></nav>
+
+<!-- ========================= SKIN SWITCHER ========================= -->
+<button class="skin-btn" id="skinBtn" type="button" aria-pressed="false"></button>
+
+<!-- =================== INNER CIRCLE SLIDE-UP INVITE ================= -->
+<aside class="prompt" id="prompt" role="complementary" aria-label="Join the mailing list" hidden></aside>
+
+<!-- ============================ SCRIPTS ============================ -->
+<script src="assets/js/era.config.js?v=18"></script>
+<script src="assets/js/app.js?v=18" defer></script>
+</body>
+</html>

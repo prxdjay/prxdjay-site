@@ -1,0 +1,296 @@
+/* =============================================================================
+   PRXD.JAY — SKIN: "SYSTEM" (dark Windows hybrid)
+   -----------------------------------------------------------------------------
+   Loads ON TOP of theme.css + base.css and only applies when
+   <html data-skin="win">. Flip it back and the tape skin returns untouched.
+
+   Idea: Windows 95/98 bones — title bars, hard bevels, a taskbar — but in
+   your black-and-bone palette instead of beige. Retro structure, current mood.
+   ========================================================================== */
+
+html[data-skin="win"] {
+  /* Bevel system — the whole look is these four lines */
+  --win-face:      #1b1915;                 /* panel face                 */
+  --win-face-2:    #232019;                 /* raised face                */
+  --win-hi:        rgba(237,230,214,.34);   /* top-left highlight         */
+  --win-sh:        rgba(0,0,0,.9);          /* bottom-right shadow        */
+  --win-bar:       linear-gradient(90deg,#2b2822,#4a453a 55%,#211f1b);
+  --win-bar-txt:   #ede6d6;
+  --win-inset:     #100f0d;                 /* sunken field               */
+
+  --radius: 0px; --radius-lg: 0px; --radius-pill: 0px;
+  --tilt: 0deg;                             /* Windows doesn't tilt       */
+  --scanline-op: .035;
+  --grain-opacity: .05;
+  --section-y: 34px;
+}
+
+/* Bevel helpers */
+html[data-skin="win"] .win-out{
+  border-top:2px solid var(--win-hi); border-left:2px solid var(--win-hi);
+  border-right:2px solid var(--win-sh); border-bottom:2px solid var(--win-sh);
+  background:var(--win-face);
+}
+html[data-skin="win"] .win-in{
+  border-top:2px solid var(--win-sh); border-left:2px solid var(--win-sh);
+  border-right:2px solid var(--win-hi); border-bottom:2px solid var(--win-hi);
+  background:var(--win-inset);
+}
+
+/* ---------- TYPE: system UI, not editorial ---------- */
+html[data-skin="win"] body{ font-family:var(--font-mono); font-size:15px; line-height:1.5 }
+html[data-skin="win"] .display{
+  font-family:var(--font-mono); font-style:normal; font-weight:400;
+  letter-spacing:.06em; text-transform:uppercase; line-height:1.1;
+}
+html[data-skin="win"] .h-sec{ font-size:clamp(1.2rem,5vw,1.9rem) }
+html[data-skin="win"] .sec-head .display{ transform:none }
+html[data-skin="win"] .bio__quote{ font-family:var(--font-mono); font-style:normal; font-size:1rem; line-height:1.5 }
+html[data-skin="win"] .bio__quote::before,
+html[data-skin="win"] .bio__quote::after{ content:'"' }
+html[data-skin="win"] .bio__body p{ font-family:var(--font-mono); font-size:.82rem; line-height:1.7 }
+html[data-skin="win"] .vhs{ text-shadow:none !important; animation:none !important }
+
+/* ---------- SECTIONS BECOME WINDOWS ---------- */
+html[data-skin="win"] .section{
+  margin:14px var(--gutter); padding:0;
+  border-top:2px solid var(--win-hi); border-left:2px solid var(--win-hi);
+  border-right:2px solid var(--win-sh); border-bottom:2px solid var(--win-sh);
+  background:var(--win-face);
+}
+html[data-skin="win"] .section + .section::before{ display:none }
+html[data-skin="win"] .section .wrap{ padding:12px }
+
+/* Title bar, built from the section's own eyebrow text */
+html[data-skin="win"] .sec-head{
+  margin:0 0 12px; display:block; position:relative;
+  background:var(--win-bar); padding:5px 8px;
+  margin-inline:-12px; margin-top:-12px;
+}
+html[data-skin="win"] .sec-head > div{ display:flex; align-items:center; gap:8px }
+html[data-skin="win"] .sec-head .eyebrow{
+  order:2; margin:0; color:var(--win-bar-txt); font-size:.66rem;
+  letter-spacing:.08em; text-transform:none; opacity:.75;
+}
+html[data-skin="win"] .sec-head .eyebrow::before{ content:"— " }
+html[data-skin="win"] .sec-head .display{ order:1; font-size:.72rem; letter-spacing:.1em; color:var(--win-bar-txt) }
+/* window buttons */
+html[data-skin="win"] .sec-head::after{
+  content:"_  \25A1  \2715"; position:absolute; right:8px; top:5px;
+  font-family:var(--font-mono); font-size:.62rem; letter-spacing:.34em;
+  color:var(--win-bar-txt); opacity:.8;
+}
+html[data-skin="win"] .sec-head .caption{
+  display:block; text-align:left; margin:8px 0 0; padding:0 0 2px;
+  font-size:.7rem; color:var(--bone-dim);
+}
+
+/* ---------- LINK HUB → file list ---------- */
+html[data-skin="win"] .hub{
+  border:0; padding:6px;
+  border-top:2px solid var(--win-sh); border-left:2px solid var(--win-sh);
+  border-right:2px solid var(--win-hi); border-bottom:2px solid var(--win-hi);
+  background:var(--win-inset);
+}
+html[data-skin="win"] .hub__item{
+  min-height:40px; padding:7px 8px; border-bottom:0; gap:10px;
+}
+html[data-skin="win"] .hub__item:hover,
+html[data-skin="win"] .hub__item:focus-visible{ background:#2f2b24; padding-left:8px }
+html[data-skin="win"] .hub__dots{ display:none }
+html[data-skin="win"] .hub__label{ font-size:.74rem; letter-spacing:.06em }
+html[data-skin="win"] .hub__note{ font-size:.62rem; text-transform:none; letter-spacing:0 }
+html[data-skin="win"] .hub__arrow{ display:none }
+html[data-skin="win"] .hub__cta{
+  border:2px outset transparent; background:var(--win-face-2);
+  border-top-color:var(--win-hi); border-left-color:var(--win-hi);
+  border-right-color:var(--win-sh); border-bottom-color:var(--win-sh);
+  padding:4px 10px; font-size:.58rem; color:var(--bone);
+}
+html[data-skin="win"] .hub__item:hover .hub__cta{ border-color:var(--win-sh) var(--win-hi) var(--win-hi) var(--win-sh) }
+html[data-skin="win"] .hub__item--primary{
+  transform:none; background:var(--win-face-2); color:var(--bone);
+  margin:0 0 6px; padding:10px 8px;
+  border-top:2px solid var(--win-hi); border-left:2px solid var(--win-hi);
+  border-right:2px solid var(--win-sh); border-bottom:2px solid var(--win-sh);
+}
+html[data-skin="win"] .hub__item--primary .hub__label{
+  font-family:var(--font-mono); font-size:.9rem; text-transform:uppercase; letter-spacing:.08em;
+}
+html[data-skin="win"] .hub__item--primary .hub__cta{ color:var(--bone); opacity:1 }
+html[data-skin="win"] .hub__art{ width:44px; height:44px; flex-basis:44px; border:1px solid var(--win-sh) }
+
+/* ---------- BUTTONS ---------- */
+html[data-skin="win"] .btn{
+  border:0; min-height:auto; padding:8px 16px; letter-spacing:.1em; font-size:.64rem;
+  background:var(--win-face-2);
+  border-top:2px solid var(--win-hi); border-left:2px solid var(--win-hi);
+  border-right:2px solid var(--win-sh); border-bottom:2px solid var(--win-sh);
+}
+html[data-skin="win"] .btn:hover,html[data-skin="win"] .btn:focus-visible{ letter-spacing:.1em; transform:none }
+html[data-skin="win"] .btn:active{ border-color:var(--win-sh) var(--win-hi) var(--win-hi) var(--win-sh) }
+html[data-skin="win"] .btn::after{ content:"" }
+html[data-skin="win"] .btn--solid{ background:var(--win-face-2); color:var(--bone); transform:none }
+
+/* ---------- MEDIA: everything gets a frame ---------- */
+html[data-skin="win"] .gal__cell,
+html[data-skin="win"] .vid,
+html[data-skin="win"] .feat__art,
+html[data-skin="win"] .bio__portrait,
+html[data-skin="win"] .band{
+  transform:none !important; border:0;
+  border-top:2px solid var(--win-sh); border-left:2px solid var(--win-sh);
+  border-right:2px solid var(--win-hi); border-bottom:2px solid var(--win-hi);
+}
+html[data-skin="win"] .gal__cell::before,
+html[data-skin="win"] .bio__portrait::before,
+html[data-skin="win"] .bio__portrait::after,
+html[data-skin="win"] .feat__art::before{ display:none }   /* no tape */
+html[data-skin="win"] .gal{ gap:8px }
+html[data-skin="win"] .band{ height:34vh; min-height:200px; margin:0 var(--gutter) }
+html[data-skin="win"] .vid__play{
+  width:0;height:0;border-left:22px solid var(--bone);
+  border-top:13px solid transparent;border-bottom:13px solid transparent;
+}
+
+/* ---------- FIELDS: sunken inputs ---------- */
+html[data-skin="win"] .field input{
+  border:0; padding:7px 8px; min-height:34px; background:var(--win-inset);
+  border-top:2px solid var(--win-sh); border-left:2px solid var(--win-sh);
+  border-right:2px solid var(--win-hi); border-bottom:2px solid var(--win-hi);
+  font-size:16px;
+}
+html[data-skin="win"] .field label{ font-size:.62rem; letter-spacing:.06em; text-transform:none }
+html[data-skin="win"] .list__box{ border:0; padding:0 }
+html[data-skin="win"] .consent input{ border-radius:0 }
+
+/* ---------- HEADER + TASKBAR ---------- */
+html[data-skin="win"] .hdr{
+  position:static; background:var(--win-bar); padding:6px 10px;
+  border-bottom:2px solid var(--win-sh);
+}
+html[data-skin="win"] .hdr__mark{ font-size:.68rem; letter-spacing:.14em }
+html[data-skin="win"] .hero{ min-height:78svh }
+
+html[data-skin="win"] .dock{
+  background:var(--win-face); border-top:2px solid var(--win-hi);
+  backdrop-filter:none; -webkit-backdrop-filter:none;
+}
+html[data-skin="win"] .dock__item{
+  border-right:1px solid var(--win-sh); padding:8px 4px; min-height:52px;
+  flex-direction:row; gap:7px;
+}
+html[data-skin="win"] .dock__item:hover{ background:#2f2b24 }
+html[data-skin="win"] .dock__item span{ font-size:.5rem; letter-spacing:.06em }
+html[data-skin="win"] .dock__item svg{ width:15px; height:15px }
+
+/* ---------- ARCHIVE = expandable folder ---------- */
+html[data-skin="win"] .arch__btn{
+  border:0; padding:9px 8px; background:var(--win-face-2);
+  border-top:2px solid var(--win-hi); border-left:2px solid var(--win-hi);
+  border-right:2px solid var(--win-sh); border-bottom:2px solid var(--win-sh);
+  font-size:.62rem;
+}
+html[data-skin="win"] .arch__btn::before{ content:"\1F5C0  "; font-size:.8rem }
+html[data-skin="win"] .rel__item{ padding:8px 6px; border-bottom:1px solid rgba(237,230,214,.07) }
+html[data-skin="win"] .rel__item:hover{ background:#2f2b24; padding-left:6px }
+html[data-skin="win"] .rel__dots{ display:none }
+
+/* ---------- CURTAIN = boot screen ---------- */
+html[data-skin="win"] .curtain__mark{
+  font-family:var(--font-mono); font-style:normal; letter-spacing:.14em;
+  font-size:clamp(1.5rem,7vw,2.6rem);
+}
+html[data-skin="win"] .curtain__btn{
+  border:0; padding:11px 30px; background:var(--win-face-2);
+  border-top:2px solid var(--win-hi); border-left:2px solid var(--win-hi);
+  border-right:2px solid var(--win-sh); border-bottom:2px solid var(--win-sh);
+}
+html[data-skin="win"] .curtain__btn::after{ display:none }
+html[data-skin="win"] .curtain__btn span{ color:var(--bone) }
+html[data-skin="win"] .curtain__btn:hover span{ color:var(--bone) }
+
+/* ---------- PROMPT = system dialog ---------- */
+html[data-skin="win"] .prompt{
+  border:0; background:var(--win-face);
+  border-top:2px solid var(--win-hi); border-left:2px solid var(--win-hi);
+  border-right:2px solid var(--win-sh);
+  left:8px; right:8px; bottom:8px;
+}
+html[data-skin="win"] .prompt__title{ font-family:var(--font-mono); font-style:normal; font-size:1rem; letter-spacing:.04em }
+html[data-skin="win"] .prompt__yes{
+  background:var(--win-face-2); color:var(--bone);
+  border-top:2px solid var(--win-hi); border-left:2px solid var(--win-hi);
+  border-right:2px solid var(--win-sh); border-bottom:2px solid var(--win-sh);
+}
+
+/* ---------- FOOTER ---------- */
+html[data-skin="win"] .ftr__mark{
+  font-family:var(--font-mono); font-style:normal;
+  font-size:clamp(1.4rem,7vw,2.4rem); letter-spacing:.16em;
+}
+html[data-skin="win"] .ftr__note{ font-style:normal }
+
+/* ---------- NAV = start menu ---------- */
+html[data-skin="win"] .nav__link{
+  font-family:var(--font-mono); font-style:normal;
+  font-size:clamp(1rem,4.4vw,1.4rem); letter-spacing:.1em;
+  border-bottom:1px solid rgba(237,230,214,.08); padding:11px 8px;
+}
+html[data-skin="win"] .nav__link:hover{ background:#2f2b24; padding-left:14px }
+
+/* ---------- THE SWITCHER ---------- */
+.skin-btn{
+  position:fixed; right:10px; z-index:81;
+  bottom:calc(74px + env(safe-area-inset-bottom));
+  display:inline-flex; align-items:center; gap:7px;
+  font-family:var(--font-mono); font-size:.54rem; letter-spacing:.16em;
+  text-transform:uppercase; color:var(--bone);
+  background:rgba(var(--ink-rgb),.88); border:1px solid var(--line);
+  padding:8px 12px; min-height:38px;
+  backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+  transition:border-color var(--dur-fast) var(--ease),background var(--dur-fast) var(--ease);
+}
+.skin-btn:hover,.skin-btn:focus-visible{ border-color:var(--bone); background:rgba(var(--ink-rgb),.96) }
+.skin-btn i{
+  font-style:normal; width:7px; height:7px; background:var(--bone-faint);
+  display:inline-block; transition:background var(--dur-fast) var(--ease);
+}
+.skin-btn:hover i{ background:var(--bone) }
+html[data-skin="win"] .skin-btn{
+  border:0; background:var(--win-face-2); border-radius:0;
+  border-top:2px solid var(--win-hi); border-left:2px solid var(--win-hi);
+  border-right:2px solid var(--win-sh); border-bottom:2px solid var(--win-sh);
+  backdrop-filter:none; -webkit-backdrop-filter:none;
+}
+
+@media (min-width:860px){
+  html[data-skin="win"] .section{ margin-inline:auto; max-width:var(--max) }
+  html[data-skin="win"] .section .wrap{ padding:16px }
+  html[data-skin="win"] .sec-head{ margin-inline:-16px; margin-top:-16px }
+  html[data-skin="win"] .band{ margin-inline:auto; max-width:var(--max) }
+  .skin-btn{ bottom:calc(80px + env(safe-area-inset-bottom)) }
+}
+
+@media (prefers-reduced-motion:reduce){
+  .skin-btn{ transition:none }
+}
+
+/* Mono is far wider than the serif — the wordmark needs its own scale here. */
+html[data-skin="win"] .hero__name{
+  font-size:clamp(1.6rem,10vw,4.2rem);
+  letter-spacing:.02em;
+  transform:none;
+  word-break:break-word;
+}
+html[data-skin="win"] .hero__say{ font-size:.6rem }
+html[data-skin="win"] .hero__kicker{ font-size:.54rem }
+html[data-skin="win"] .sticker{ transform:none; font-size:.56rem }
+html[data-skin="win"] .hero__cta{ gap:10px }
+
+/* Loading state, Windows dialect: a segmented progress meter */
+html[data-skin="win"] .curtain[data-loading] .curtain__btn::after{
+  height:10px;left:4px;right:4px;bottom:4px;width:auto;
+  background:repeating-linear-gradient(90deg,var(--bone) 0 9px,transparent 9px 13px);
+  opacity:.9;
+}
