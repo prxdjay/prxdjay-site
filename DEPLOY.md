@@ -1,5 +1,30 @@
 # DEPLOY — prxdjay.com on GitHub Pages
 
+> ## READ THIS FIRST — current state, checked 12 Aug 2026
+>
+> **prxdjay.com is pointed at Squarespace right now.** It serves a "Coming
+> Soon" page. Nothing in this folder is live anywhere yet.
+>
+> That means Part 2 below (the DNS step) is not optional cleanup — the domain
+> has to be moved off Squarespace before prxdjay.com shows this site. Those A
+> records get changed wherever the domain's DNS is managed, which is likely
+> Squarespace itself rather than a separate registrar.
+>
+> **You do not have to wait for DNS to see it live.** Finish Part 1 and GitHub
+> gives you a working public URL immediately:
+> `https://YOURUSERNAME.github.io/prxdjay-site/`
+> That link is shareable and works on any phone. Do the domain move whenever.
+>
+> The folder is already a git repo with everything committed on `main`, so if
+> you'd rather use the command line than the web uploader, it's two commands:
+>
+> ```
+> git remote add origin https://github.com/YOURUSERNAME/prxdjay-site.git
+> git push -u origin main
+> ```
+>
+> Either route works. The drag-and-drop steps below need no terminal at all.
+
 Beginner-friendly. Free forever. ~20 minutes the first time, then every future update is a 30-second drag-and-drop.
 
 ---
