@@ -37,7 +37,7 @@ window.ERA = {
      3. EXPERIENCE FLAGS
      ------------------------------------------------------------------------ */
   experience: {
-    introCurtain: false,
+    introCurtain: true,
     grain: true,
     ambientGlow: true,       // scanlines + vignette
     chromeShimmer: true,     // VHS chroma split on the wordmark
@@ -50,11 +50,24 @@ window.ERA = {
      4. OPENING SCREEN
      ------------------------------------------------------------------------ */
   opening: {
-    /* Set video to a short, muted solo clip when the next release media is
-       ready. Leave it null to use the portrait in image. */
+    /* Short self-hosted clips keep the opening alive without the weight of
+       animated GIFs. The startup window prepares the first clip; the rest
+       download quietly after the site opens. */
     video: null,
-    loading: { media: [] },
-    slides: [],
+    loading: {
+      label: "LOADING MEDIA",
+      minShow: 900,
+      maxWait: 5000,
+      criticalClips: 1,
+      autoEnter: true,
+      media: []
+    },
+    slides: [
+      { src: "assets/img/clips/wrist.mp4?v=27", fallback: "https://i.ytimg.com/vi/tE0BXfeUcWo/maxresdefault.jpg" },
+      { src: "assets/img/clips/sponsored.mp4?v=27", fallback: "https://i.ytimg.com/vi/zkoz1tAjeEA/maxresdefault.jpg" },
+      { src: "assets/img/clips/findyou.mp4?v=27", fallback: "https://i.ytimg.com/vi/Se1q1ejP65g/sddefault.jpg" },
+      { src: "assets/img/clips/toomany.mp4?v=27", fallback: "https://i.ytimg.com/vi/e7SS51HBa5c/maxresdefault.jpg" }
+    ],
     image: "https://i.scdn.co/image/ab6761610000e5eb1fba8e84e5fb261305dcba7f",
     imageAlt: "PRXD.JAY",
     focalPoint: "50% 32%",
@@ -62,6 +75,8 @@ window.ERA = {
     sub: "pronounced Prodigy",
     kicker: null,          // genre tag over the name. null = nothing shows
     sticker: "PRXDIGY VXL.1 · OUT NOW",
+    enterLabel: "ENTER SITE",
+    doorLine: "PRXD.JAY // MEDIA PLAYER // NEW YORK",
     scrollHint: "scroll",
 
     /* Keep the opening decision simple. The primary link comes from links.items. */
