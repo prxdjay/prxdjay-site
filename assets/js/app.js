@@ -31,6 +31,10 @@
 
   var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var root = document.documentElement;
+  var connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+  var lightMedia = window.matchMedia("(max-width: 760px), (pointer: coarse)").matches ||
+    !!(connection && (connection.saveData || /(^|-)2g$/.test(connection.effectiveType || "")));
+  root.setAttribute("data-performance", lightMedia ? "lite" : "full");
 
   /* How long the outgoing slide takes to finish dissolving: the .7s hold
      plus the 2.4s fade defined on .hero__slides > * in base.css. Used to
@@ -203,9 +207,11 @@
     if (isClip(s.src)) {
       var v = el("video");
       v.muted = true; v.loop = true; v.playsInline = true;
+      v.preload = first ? "auto" : "none";
       v.setAttribute("muted", ""); v.setAttribute("playsinline", "");
       v.setAttribute("aria-hidden", "true");
       v.dataset.src = s.src;
+      if (s.fallback) v.poster = s.fallback;
 
       // A phone that won't play the clip still gets the frame behind it.
       v.onerror = function () {
@@ -248,6 +254,30 @@
     }
     if (v.readyState >= 2) go();
     else v.addEventListener("canplay", go, { once: true });
+  }
+
+  /* Phones keep one moving opening, then stop decoding it as soon as it is
+     off screen. This preserves the reel's character without making the rest
+     of the page compete with a hidden full-screen video. */
+  function manageSoloClip(v, container) {
+    if (!v || !container || v.tagName !== "VIDEO") return;
+    var visible = true;
+
+    function sync() {
+      if (document.hidden || !visible) {
+        try { v.pause(); } catch (e) {}
+      } else if (!reduced) {
+        armClip(v);
+      }
+    }
+
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver(function (entries) {
+        visible = !!(entries[0] && entries[0].isIntersecting);
+        sync();
+      }, { threshold: 0.02 }).observe(container);
+    }
+    document.addEventListener("visibilitychange", sync);
   }
 
   /* Rotate a set of slides.
@@ -480,6 +510,7 @@
     media.style.setProperty("--focal", H.focalPoint || "50% 35%");
 
     var slides = normSlides(H.slides);
+    if (lightMedia && slides.length) slides = slides.slice(0, 1);
 
     if (H.video) {
       // Muted, looping, decorative background only. Never plays audio.
@@ -489,7 +520,7 @@
       v.setAttribute("aria-hidden", "true");
       if (!reduced) { v.autoplay = true; v.play().catch(function () {}); }
       media.appendChild(v);
-    } else if (slides.length > 1) {
+    } else if (slides.length) {
       var wrapS = el("div", "hero__slides");
       var nodes = [];
       slides.forEach(function (s, i) {
@@ -504,7 +535,8 @@
       });
       media.appendChild(wrapS);
       armFirst(nodes);
-      runSlides(nodes, 5000);   // clips run their length; stills hold 5s
+      if (nodes.length > 1) runSlides(nodes, 5000);   // clips run their length; stills hold 5s
+      else manageSoloClip(nodes[0], media);
     } else if (H.image) {
       var img = el("img");
       img.src = H.image;

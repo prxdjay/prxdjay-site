@@ -460,6 +460,21 @@ html[data-motion="on"] .reveal.is-in{opacity:1;transform:none;transition:opacity
   .reveal{opacity:1 !important;transform:none !important}
 }
 
+/* Keep the moving opening on phones without combining it with several
+   full-screen compositing effects. The dark scrim supplies the video grade. */
+@media (max-width:760px), (pointer:coarse){
+  .grain{display:none}
+  html[data-motion="on"] .ambient::after{display:none}
+  html[data-motion="on"] .hero__media::before{display:none;animation:none}
+  html[data-motion="on"] .hero__slides::after{animation:none}
+  .hero__slides::after{mix-blend-mode:normal;opacity:.08}
+  .hero__slides[data-kind="clip"]::after{opacity:.1}
+  .hero__slides video,
+  .hero__media video{filter:none;transform:none;animation:none !important}
+  .hdr{backdrop-filter:none;-webkit-backdrop-filter:none}
+  .section,.band,.ftr{content-visibility:auto;contain-intrinsic-size:auto 720px}
+}
+
 /* ---------- PRINT (EPK one-pager) ---------- */
 @media print{
   .hdr,.nav,.grain,.ambient,.curtain,.hero__scroll,.lbx{display:none !important}

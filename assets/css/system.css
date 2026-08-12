@@ -460,6 +460,11 @@ html[data-theme="clean"] .grain{opacity:.25}
   .appearance__swatches button{width:100%}
 }
 
+@media (max-width:760px), (pointer:coarse){
+  .appearance__panel{backdrop-filter:none;-webkit-backdrop-filter:none}
+  .hero__media img,.hero__media video{filter:none}
+}
+
 @media (prefers-reduced-motion:reduce){
   .curtain.is-out{animation:none}
   .hero__slides video:not(.is-on){display:none}
