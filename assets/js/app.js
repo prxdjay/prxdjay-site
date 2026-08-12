@@ -173,6 +173,26 @@
 
     var cleanup = null;
 
+    /* Get a clip actually rolling BEFORE it becomes visible.
+
+       Rewinding to 0 makes the browser seek, and play() doesn't resolve
+       until that seek lands — measured at 350-560ms on a live connection.
+       Fading a clip up during that window is exactly what read as a stutter:
+       the picture changed but the footage was still a frozen frame.
+
+       So rewind and start it while it's still at opacity 0, and only swap
+       once it reports it's really playing. */
+    function preroll(n, then) {
+      if (n.tagName !== "VIDEO") { then(); return; }
+      n.loop = false;
+      try { n.currentTime = 0; } catch (e) {}
+      var fired = false;
+      var go = function () { if (!fired) { fired = true; then(); } };
+      n.addEventListener("playing", go, { once: true });
+      armClip(n);
+      setTimeout(go, 600);                 // never hang on a clip that won't start
+    }
+
     function play(n) {
       clear();
       if (cleanup) { cleanup(); cleanup = null; }
@@ -186,8 +206,7 @@
       }
 
       if (n.parentNode) n.parentNode.setAttribute("data-kind", "clip");
-      n.loop = false;                      // play once, then hand over
-      try { n.currentTime = 0; } catch (e) {}
+      n.loop = false;
 
       /* Safety net for the case where `ended` never arrives — autoplay
          blocked, dead file, a tab that got backgrounded mid-clip.
@@ -237,21 +256,24 @@
         if (held < 6000) { timer = setTimeout(function () { next(held); }, 250); return; }
       }
 
-      cur.classList.remove("is-on");
-      i = (i + 1) % live.length;
-      nxt.classList.remove("is-on");
-      void nxt.offsetWidth;                // restart the drift from the top
-      nxt.classList.add("is-on");
-      play(nxt);
+      // Start it rolling first, then dissolve to it once it's really moving.
+      preroll(nxt, function () {
+        cur.classList.remove("is-on");
+        i = (i + 1) % live.length;
+        nxt.classList.remove("is-on");
+        void nxt.offsetWidth;              // restart the drift from the top
+        nxt.classList.add("is-on");
+        play(nxt);
 
-      /* Let the outgoing clip keep rendering through the crossfade, then
-         pause it. Pausing on the same tick as the swap drops it to a still
-         frame while it's still half visible, which reads as a stutter. */
-      if (cur.tagName === "VIDEO") {
-        setTimeout(function () { try { cur.pause(); } catch (e) {} }, FADE_MS);
-      }
+        /* Let the outgoing clip keep rendering through the crossfade before
+           pausing it. Pausing on the same tick as the swap drops it to a
+           frozen frame while it is still half visible. */
+        if (cur.tagName === "VIDEO") {
+          setTimeout(function () { try { cur.pause(); } catch (e) {} }, FADE_MS);
+        }
 
-      preload(live[(i + 1) % live.length]);
+        preload(live[(i + 1) % live.length]);
+      });
     }
 
     play(nodes[0]);

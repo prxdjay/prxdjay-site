@@ -75,7 +75,7 @@ window.ERA = {
 
     /* Until that exists, these cross-fade with a slow drift.
        EACH ENTRY CAN BE A CLIP, NOT JUST A PHOTO:
-         "assets/img/clips/wrist.mp4?v=20"   ← best. silent, looping, ~2MB
+         "assets/img/clips/wrist.mp4?v=21"   ← best. silent, looping, ~2MB
          "assets/img/clips/wrist.gif"   ← works, but heavy. mp4 beats gif every time
          "https://i.ytimg.com/..."      ← a still
        Mix them freely. Anything ending .mp4/.webm plays as silent video.
@@ -104,15 +104,15 @@ window.ERA = {
 
       /* WRIST — opens on the thumbnail shot (all five of them), then the
          LED-floor sequence. ~6.5s */
-      { src: "assets/img/clips/wrist.mp4?v=20",     fallback: "https://i.ytimg.com/vi/tE0BXfeUcWo/maxresdefault.jpg" },
+      { src: "assets/img/clips/wrist.mp4?v=21",     fallback: "https://i.ytimg.com/vi/tE0BXfeUcWo/maxresdefault.jpg" },
       /* SPONSORED — high-contrast black and white */
-      { src: "assets/img/clips/sponsored.mp4?v=20", fallback: "https://i.ytimg.com/vi/zkoz1tAjeEA/maxresdefault.jpg" },
+      { src: "assets/img/clips/sponsored.mp4?v=21", fallback: "https://i.ytimg.com/vi/zkoz1tAjeEA/maxresdefault.jpg" },
       /* A still in the middle so it breathes and isn't wall-to-wall motion */
       { src: "https://i.scdn.co/image/ab6761610000e5eb1fba8e84e5fb261305dcba7f" },
       /* FIND YOU — your green-lit section, not Kayeandre's */
-      { src: "assets/img/clips/findyou.mp4?v=20",   fallback: "https://i.ytimg.com/vi/Se1q1ejP65g/sddefault.jpg" },
+      { src: "assets/img/clips/findyou.mp4?v=21",   fallback: "https://i.ytimg.com/vi/Se1q1ejP65g/sddefault.jpg" },
       /* TOO MANY — you in the backseat, Times Square out the window */
-      { src: "assets/img/clips/toomany.mp4?v=20",   fallback: "https://i.ytimg.com/vi/e7SS51HBa5c/maxresdefault.jpg" }
+      { src: "assets/img/clips/toomany.mp4?v=21",   fallback: "https://i.ytimg.com/vi/e7SS51HBa5c/maxresdefault.jpg" }
     ],
     image: "https://i.scdn.co/image/ab6761610000e5eb1fba8e84e5fb261305dcba7f",
     imageAlt: "PRXD.JAY",
