@@ -7,8 +7,8 @@
 <meta name="color-scheme" content="dark">
 
 <!-- ============================ SEO METADATA ============================ -->
-<title>PRXD.JAY — pronounced Prodigy | Official Site</title>
-<meta name="description" content="PRXD.JAY, pronounced Prodigy. New music, videos and photos — plus the Inner Circle, where unreleased records go out before anywhere else.">
+<title>PRXD.JAY | Official Site</title>
+<meta name="description" content="The official site of PRXD.JAY, pronounced Prodigy: an R&amp;B and hip-hop artist, producer, and engineer from Brentwood, New York.">
 <link rel="canonical" href="https://prxdjay.com/">
 <meta name="author" content="PRXD.JAY">
 <meta name="robots" content="index, follow, max-image-preview:large">
@@ -23,7 +23,7 @@
 <meta property="og:type" content="profile">
 <meta property="og:site_name" content="PRXD.JAY">
 <meta property="og:title" content="PRXD.JAY — pronounced Prodigy">
-<meta property="og:description" content="Hear the next one before anyone else does.">
+<meta property="og:description" content="R&amp;B and hip-hop from New York. Listen to the latest music and watch official videos.">
 <meta property="og:url" content="https://prxdjay.com/">
 <meta property="og:image" content="https://prxdjay.com/assets/img/share.jpg">
 <meta property="og:image:width" content="1200">
@@ -35,18 +35,19 @@
 <meta name="twitter:site" content="@prxdjay">
 <meta name="twitter:creator" content="@prxdjay">
 <meta name="twitter:title" content="PRXD.JAY — pronounced Prodigy">
-<meta name="twitter:description" content="Hear the next one before anyone else does.">
+<meta name="twitter:description" content="R&amp;B and hip-hop from New York. Listen to the latest music and watch official videos.">
 <meta name="twitter:image" content="https://prxdjay.com/assets/img/share.jpg">
 
 <!-- ===================== STRUCTURED DATA (schema.org) ==================== -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "MusicGroup",
+  "@type": "Person",
   "name": "PRXD.JAY",
-  "alternateName": ["Prxd. Jay", "PRXDIGY", "Prodigy"],
-  "description": "PRXD.JAY, pronounced Prodigy. Rap and R&B, made end to end.",
-  "genre": ["Hip Hop", "Rap", "R&B", "Alternative R&B", "Neo Soul"],
+  "alternateName": ["Prxd. Jay", "Prodigy"],
+  "description": "PRXD.JAY, pronounced Prodigy, is an R&B and hip-hop artist, producer, and engineer from Brentwood, New York.",
+  "jobTitle": ["Musician", "Record producer", "Audio engineer"],
+  "homeLocation": { "@type": "Place", "name": "Brentwood, New York" },
   "url": "https://prxdjay.com/",
   "image": "https://i.scdn.co/image/ab6761610000e5eb1fba8e84e5fb261305dcba7f",
   "sameAs": [
@@ -81,20 +82,19 @@
      is worth roughly a quarter-second on the first paint over mobile data. -->
 <link rel="preconnect" href="https://i.ytimg.com" crossorigin>
 <link rel="preconnect" href="https://i.scdn.co" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=JetBrains+Mono:wght@400;500&family=Inter:wght@300;400;500;600&family=Caveat:wght@400;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&amp;family=JetBrains+Mono:wght@400;500&amp;family=Inter:wght@300;400;500;600&amp;family=Caveat:wght@400;600&amp;display=swap">
 
 <!-- ============================== STYLES ================================
      theme.css = era tokens (swap per era)  ·  base.css = permanent framework
 
-     ?v=25 ON EVERY FILE BELOW IS NOT DECORATION. Browsers hold on to CSS and
+     ?v=26 ON EVERY FILE BELOW IS NOT DECORATION. Browsers hold on to CSS and
      JS for days. Without the number, someone who visited last week keeps the
      OLD site until their cache clears on its own.
      >>> EVERY TIME YOU EDIT era.config.js OR ANY css/js FILE, BUMP ALL FOUR
          NUMBERS BELOW BY ONE (v=2 -> v=3). That's the whole ritual. <<<
      ==================================================================== -->
-<link rel="stylesheet" href="assets/css/theme.css?v=25">
-<link rel="stylesheet" href="assets/css/base.css?v=25">
-<link rel="stylesheet" href="assets/css/skin-win.css?v=25">
+<link rel="stylesheet" href="assets/css/theme.css?v=26">
+<link rel="stylesheet" href="assets/css/base.css?v=26">
 </head>
 
 <body>
@@ -148,7 +148,7 @@
 
 <main id="main">
 
-  <!-- ======================= 1. LANDING / HERO ======================= -->
+  <!-- ========================= OPENING SCREEN ========================= -->
   <section class="hero" id="home" aria-label="PRXD.JAY">
     <div class="hero__media" id="heroMedia" aria-hidden="true"></div>
     <div class="hero__inner">
@@ -164,26 +164,12 @@
   <!-- ===================== NEXT DROP (off until set) ================== -->
   <section class="drop" id="drop" aria-label="Next release" hidden></section>
 
-  <!-- ========================= 2. LINK HUB ========================== -->
-  <section class="section" id="links" aria-labelledby="linksH">
-    <div class="wrap">
-      <div class="sec-head reveal">
-        <div>
-          <span class="eyebrow">01 — All links</span>
-          <h2 class="display h-sec" id="linksH">THE HUB</h2>
-        </div>
-        <p class="caption" id="linksCap"></p>
-      </div>
-      <div class="hub reveal" id="hub"></div>
-    </div>
-  </section>
-
-  <!-- =========================== 3. BIO ============================= -->
+  <!-- ============================= MUSIC ============================= -->
   <section class="section" id="music" aria-labelledby="musH">
     <div class="wrap">
       <div class="sec-head reveal">
         <div>
-          <span class="eyebrow">02 — Music</span>
+          <span class="eyebrow">01 · Music</span>
           <h2 class="display h-sec" id="musH">THE MUSIC</h2>
         </div>
         <p class="caption" id="musCap"></p>
@@ -199,7 +185,7 @@
     <div class="wrap">
       <div class="sec-head reveal">
         <div>
-          <span class="eyebrow">03 — Videos</span>
+          <span class="eyebrow">02 · Videos</span>
           <h2 class="display h-sec" id="vidH">IN MOTION</h2>
         </div>
         <p class="caption" id="vidCap"></p>
@@ -211,25 +197,13 @@
 
   <div class="band" id="band-video" hidden></div>
 
-  <section class="section" id="gallery" aria-labelledby="galH">
-    <div class="wrap">
-      <div class="sec-head reveal">
-        <div>
-          <span class="eyebrow">04 — Photos</span>
-          <h2 class="display h-sec" id="galH">VISUALS</h2>
-        </div>
-        <p class="caption" id="galCap"></p>
-      </div>
-      <div class="gal reveal" id="gal"></div>
-    </div>
-  </section>
-
+  <!-- ============================= ABOUT ============================= -->
   <section class="section" id="bio" aria-labelledby="bioH">
     <div class="wrap">
       <div class="sec-head reveal">
         <div>
-          <span class="eyebrow">05 — About</span>
-          <h2 class="display h-sec" id="bioH">THE ARTIST</h2>
+          <span class="eyebrow">03 · About</span>
+          <h2 class="display h-sec" id="bioH">ABOUT</h2>
         </div>
       </div>
       <div class="bio__grid">
@@ -244,19 +218,47 @@
     </div>
   </section>
 
+  <!-- ============================= PHOTOS ============================ -->
+  <section class="section" id="gallery" aria-labelledby="galH">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <div>
+          <span class="eyebrow">04 · Photos</span>
+          <h2 class="display h-sec" id="galH">PHOTOS</h2>
+        </div>
+        <p class="caption" id="galCap"></p>
+      </div>
+      <div class="gal reveal" id="gal"></div>
+    </div>
+  </section>
+
+  <!-- ============================= LINKS ============================= -->
+  <section class="section" id="links" aria-labelledby="linksH">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <div>
+          <span class="eyebrow">05 · Links</span>
+          <h2 class="display h-sec" id="linksH">LINKS</h2>
+        </div>
+        <p class="caption" id="linksCap"></p>
+      </div>
+      <div class="hub reveal" id="hub"></div>
+    </div>
+  </section>
+
   <!-- ========================= 4. GALLERY =========================== -->
 
   <!-- ========================== 5. VIDEO ============================ -->
 
   <!-- ========================== 6. MUSIC ============================ -->
 
-  <!-- ====================== 7. INNER CIRCLE ========================= -->
+  <!-- ========================== EMAIL LIST =========================== -->
   <section class="section" id="list" aria-labelledby="listH">
     <div class="wrap">
       <div class="sec-head reveal">
         <div>
-          <span class="eyebrow">06 — Join the list</span>
-          <h2 class="display h-sec" id="listH">INNER CIRCLE</h2>
+          <span class="eyebrow">06 · Join</span>
+          <h2 class="display h-sec" id="listH">JOIN THE LIST</h2>
         </div>
         <p class="caption" id="listCap"></p>
       </div>
@@ -269,7 +271,7 @@
     <div class="wrap">
       <div class="sec-head reveal">
         <div>
-          <span class="eyebrow">07 — Contact</span>
+          <span class="eyebrow">07 · Contact</span>
           <h2 class="display h-sec" id="conH">CONTACT</h2>
         </div>
         <p class="caption" id="conCap"></p>
@@ -291,21 +293,18 @@
 <div class="lbx" id="lbx" role="dialog" aria-modal="true" aria-label="Photo viewer">
   <button class="lbx__close" id="lbxClose" type="button" aria-label="Close">&#10005;</button>
   <button class="lbx__nav lbx__nav--prev" id="lbxPrev" type="button" aria-label="Previous photo">&#8249;</button>
-  <img id="lbxImg" src="" alt="">
+  <img id="lbxImg" alt="">
   <button class="lbx__nav lbx__nav--next" id="lbxNext" type="button" aria-label="Next photo">&#8250;</button>
 </div>
 
 <!-- ===================== STICKY DOCK (fast path) ==================== -->
 <nav class="dock" id="dock" aria-label="Quick links"></nav>
 
-<!-- ========================= SKIN SWITCHER ========================= -->
-<button class="skin-btn" id="skinBtn" type="button" aria-pressed="false"></button>
-
-<!-- =================== INNER CIRCLE SLIDE-UP INVITE ================= -->
+<!-- ===================== EMAIL LIST SLIDE-UP INVITE ================== -->
 <aside class="prompt" id="prompt" role="complementary" aria-label="Join the mailing list" hidden></aside>
 
 <!-- ============================ SCRIPTS ============================ -->
-<script src="assets/js/era.config.js?v=25"></script>
-<script src="assets/js/app.js?v=25" defer></script>
+<script src="assets/js/era.config.js?v=26"></script>
+<script src="assets/js/app.js?v=26" defer></script>
 </body>
 </html>
