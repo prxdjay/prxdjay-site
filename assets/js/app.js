@@ -1260,6 +1260,12 @@
     var lbl = btn.querySelector("span") || btn;
 
     function go() {
+      /* Make sure whatever slide is up is actually rolling as the door
+         opens. Priming pauses clips to warm the decoder, and a mistimed
+         one would otherwise hand over a frozen frame. */
+      var live = document.querySelector(".hero__slides .is-on");
+      if (live && live.tagName === "VIDEO" && live.paused) armClip(live);
+
       c.classList.add("is-out");
       document.body.classList.remove("is-locked");
       setTimeout(function () { c.remove(); }, reduced ? 0 : 900);
@@ -1289,9 +1295,40 @@
       if (!v.src && v.dataset.src) { v.preload = "auto"; v.src = v.dataset.src; }
     });
 
+    /* "Ready" has to mean the WHOLE clip is on the device.
+
+       readyState >= 3 only promises a few frames ahead of the playhead, so a
+       clip could clear the gate and then stall halfway through — which is
+       exactly the lag the door is supposed to be hiding. Check the buffered
+       range actually reaches the end instead. */
+    function buffered(v) {
+      if (v.error) return true;                       // dead file: falls back to a still
+      if (!v.duration || !isFinite(v.duration)) return false;
+      if (!v.buffered || !v.buffered.length) return false;
+      return v.buffered.end(v.buffered.length - 1) >= v.duration - 0.15;
+    }
+
+    /* Downloaded isn't the same as ready to play. The first play of a clip
+       also has to spin up the decoder, which is its own hitch. Run each one
+       for a moment while it's still hidden behind the door so that cost is
+       paid here rather than on screen. */
+    function prime(v) {
+      if (v.__primed || v.error) return;
+      // The slide that's already up is running its real turn — priming it
+      // would pause the hero on a frozen frame the moment the door opens.
+      if (v.classList.contains("is-on")) { v.__primed = true; return; }
+      v.__primed = true;
+      v.muted = true;
+      var p = v.play();
+      if (p && p.then) p.catch(function () {});
+      setTimeout(function () {
+        try { v.pause(); v.currentTime = 0; } catch (e) {}
+      }, 140);
+    }
+
     function loaded() {
       var n = 0;
-      clips.forEach(function (v) { if (v.readyState >= 3 || v.error) n += 1; });
+      clips.forEach(function (v) { if (buffered(v)) { prime(v); n += 1; } });
       return n;
     }
 
@@ -1308,9 +1345,20 @@
       if (why === "auto" && gate.autoEnter) go();
     }
 
-    if (!clips.length || reduced || loaded() === clips.length) {
+    if (!clips.length || reduced) {
       unlock("ready");
     } else {
+      /* The loading screen is FORCED — it shows on every visit, even when
+         the clips are already cached and ready in 50ms.
+
+         Opening the door the instant everything happened to be ready meant
+         that on a fast connection there was no loading screen at all, and on
+         a slow one it flashed by before the footage was really in hand. A
+         deliberate minimum beat is also what gives the decoder time to warm
+         up, so the first clip doesn't hitch on its opening frames. */
+      var minShow = gate.minShow == null ? 1600 : gate.minShow;
+      var started = Date.now();
+
       c.setAttribute("data-loading", "1");
       lbl.textContent = gate.label || "LOADING";
       btn.disabled = true;
@@ -1319,9 +1367,12 @@
       // Drive the bar off real progress rather than a guessed duration.
       pollTimer = setInterval(function () {
         var done = loaded();
-        c.style.setProperty("--load", (done / clips.length).toFixed(3));
-        if (done === clips.length) unlock("ready");
-      }, 120);
+        var held = Date.now() - started;
+        // Never let the bar hit the end before the door actually opens.
+        var pct = Math.min(done / clips.length, held / minShow);
+        c.style.setProperty("--load", pct.toFixed(3));
+        if (done === clips.length && held >= minShow) unlock("ready");
+      }, 100);
       waitTimer = setTimeout(function () { unlock("timeout"); }, maxWait);
     }
 
