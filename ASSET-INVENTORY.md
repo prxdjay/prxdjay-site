@@ -28,7 +28,7 @@ Compiled 2026-08-11. **Only artist-owned / platform-provided sources.** No fan u
 
 ---
 
-## ✅ VIDEOS — 6 LIVE ON THE SITE
+## ✅ VIDEOS — 5 LIVE ON THE SITE
 
 Every ID below was confirmed via YouTube's oEmbed API as an upload on **@PrxdJayNY**. No reuploads, no fan channels.
 
@@ -39,7 +39,6 @@ Every ID below was confirmed via YouTube's oEmbed API as an upload on **@PrxdJay
 | Find You (w/ Kayeandre) | Official music video (2024) | `Se1q1ejP65g` |
 | P4RTY (ft. JDE) | Official visualiser (2025) | `rACq2a4tj2c` |
 | DNT TRN ME UP | Official video | `j02TnPuogJU` |
-| A10TN | Official visualizer | `79s0B8S2a5o` |
 
 **Not included** (feature on another artist's channel, so it belongs to them): `Sabotage (feat. Prxd. Jay)` — `ukfm9XycjOI`. Add it if you want.
 
@@ -128,6 +127,12 @@ renders as a still.
   `index.html` is commented out until the file exists.
 
 ---
+
+## ❌ PULLED FROM THE SITE
+
+- **A10TN** (`79s0B8S2a5o`) — removed at his request, 12 Aug 2026. Gone from
+  VIDEOS and from the photo grid. The upload itself is untouched on YouTube;
+  it is only off this site.
 
 ## ❌ EXCLUDED ON PURPOSE
 

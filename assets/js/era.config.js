@@ -75,7 +75,7 @@ window.ERA = {
 
     /* Until that exists, these cross-fade with a slow drift.
        EACH ENTRY CAN BE A CLIP, NOT JUST A PHOTO:
-         "assets/img/clips/wrist.mp4?v=24"   ← best. silent, looping, ~2MB
+         "assets/img/clips/wrist.mp4?v=25"   ← best. silent, looping, ~2MB
          "assets/img/clips/wrist.gif"   ← works, but heavy. mp4 beats gif every time
          "https://i.ytimg.com/..."      ← a still
        Mix them freely. Anything ending .mp4/.webm plays as silent video.
@@ -120,15 +120,15 @@ window.ERA = {
 
       /* WRIST — opens on the thumbnail shot (all five of them), then the
          LED-floor sequence. ~6.5s */
-      { src: "assets/img/clips/wrist.mp4?v=24",     fallback: "https://i.ytimg.com/vi/tE0BXfeUcWo/maxresdefault.jpg" },
+      { src: "assets/img/clips/wrist.mp4?v=25",     fallback: "https://i.ytimg.com/vi/tE0BXfeUcWo/maxresdefault.jpg" },
       /* SPONSORED — high-contrast black and white */
-      { src: "assets/img/clips/sponsored.mp4?v=24", fallback: "https://i.ytimg.com/vi/zkoz1tAjeEA/maxresdefault.jpg" },
+      { src: "assets/img/clips/sponsored.mp4?v=25", fallback: "https://i.ytimg.com/vi/zkoz1tAjeEA/maxresdefault.jpg" },
       /* A still in the middle so it breathes and isn't wall-to-wall motion */
       { src: "https://i.scdn.co/image/ab6761610000e5eb1fba8e84e5fb261305dcba7f" },
       /* FIND YOU — your green-lit section, not Kayeandre's */
-      { src: "assets/img/clips/findyou.mp4?v=24",   fallback: "https://i.ytimg.com/vi/Se1q1ejP65g/sddefault.jpg" },
+      { src: "assets/img/clips/findyou.mp4?v=25",   fallback: "https://i.ytimg.com/vi/Se1q1ejP65g/sddefault.jpg" },
       /* TOO MANY — you in the backseat, Times Square out the window */
-      { src: "assets/img/clips/toomany.mp4?v=24",   fallback: "https://i.ytimg.com/vi/e7SS51HBa5c/maxresdefault.jpg" }
+      { src: "assets/img/clips/toomany.mp4?v=25",   fallback: "https://i.ytimg.com/vi/e7SS51HBa5c/maxresdefault.jpg" }
     ],
     image: "https://i.scdn.co/image/ab6761610000e5eb1fba8e84e5fb261305dcba7f",
     imageAlt: "PRXD.JAY",
@@ -282,8 +282,6 @@ window.ERA = {
       { src: "https://i.ytimg.com/vi/Se1q1ejP65g/maxresdefault.jpg", fallback: "https://i.ytimg.com/vi/Se1q1ejP65g/hqdefault.jpg", alt: "PRXD.JAY & Kayeandre — Find You" },
       { src: "https://i.ytimg.com/vi/rACq2a4tj2c/maxresdefault.jpg", fallback: "https://i.ytimg.com/vi/rACq2a4tj2c/hqdefault.jpg", alt: "PRXD.JAY — P4RTY" },
       { src: "https://i.ytimg.com/vi/j02TnPuogJU/maxresdefault.jpg", fallback: "https://i.ytimg.com/vi/j02TnPuogJU/hqdefault.jpg", alt: "PRXD.JAY — DNT TRN ME UP" }
-      /* A10TN pulled — too old to be representing him in the photo grid.
-         The video itself is still listed under VIDEOS. */
     ]
   },
 
@@ -310,8 +308,7 @@ window.ERA = {
       { title: "SPONSORED",     note: "with Kayeandre · Official video", id: "zkoz1tAjeEA" },
       { title: "FIND YOU",      note: "with Kayeandre · Official video", id: "Se1q1ejP65g" },
       { title: "P4RTY",         note: "ft. JDE · Official visualiser",   id: "rACq2a4tj2c" },
-      { title: "DNT TRN ME UP", note: "Official video",                  id: "j02TnPuogJU" },
-      { title: "A10TN",         note: "Official visualizer",             id: "79s0B8S2a5o" }
+      { title: "DNT TRN ME UP", note: "Official video",                  id: "j02TnPuogJU" }
     ]
   },
 
