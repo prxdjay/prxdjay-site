@@ -289,7 +289,9 @@
     }
 
     play(nodes[0]);
-    nodes.forEach(preload);   // pull the whole set down up front, not one ahead
+    // Keep one clip ahead instead of downloading the entire reel at once.
+    // This preserves a clean handoff without competing with the first paint.
+    preload(nodes[1]);
   }
 
   /* -------------------------------------------------------------------------
@@ -1220,15 +1222,12 @@
     var opened  = false;
     var waitTimer = null, pollTimer = null;
 
-    /* Wait on EVERY clip in the hero, not just the opening one.
-
-       Gating on the first clip alone was the bug: the door opened as soon as
-       one clip was ready, and the second and third were still downloading
-       when their turn came, so the stutter just moved further down the reel.
-       The whole set is ~1.7MB — small enough to have in hand before anyone
-       walks in. */
+    /* Wait only on the configured critical clips. The reel keeps one clip
+       ahead after entry, so the startup screen never turns into a long gate. */
     var clips = [].slice.call(document.querySelectorAll(".hero__slides video"));
-    clips.forEach(function (v) {
+    var criticalCount = Math.max(1, Math.min(clips.length, gate.criticalClips || 1));
+    var critical = clips.slice(0, criticalCount);
+    critical.forEach(function (v) {
       if (!v.src && v.dataset.src) { v.preload = "auto"; v.src = v.dataset.src; }
     });
 
@@ -1265,7 +1264,7 @@
 
     function loaded() {
       var n = 0;
-      clips.forEach(function (v) { if (buffered(v)) { prime(v); n += 1; } });
+      critical.forEach(function (v) { if (buffered(v)) { prime(v); n += 1; } });
       return n;
     }
 
@@ -1273,13 +1272,19 @@
       if (opened) return;
       opened = true;
       clearTimeout(waitTimer); clearInterval(pollTimer);
+      /* When the critical clip is ready, keep the loading bar intact during
+         the short exit animation. Swapping it to a button first creates a
+         bright one-frame flash on fast phones. */
+      if (why === "auto" && gate.autoEnter) {
+        go();
+        return;
+      }
       c.removeAttribute("data-loading");
       c.style.removeProperty("--load");
       lbl.textContent = H.enterLabel || "ENTER";
       btn.disabled = false;
       btn.removeAttribute("aria-disabled");
       btn.focus();
-      if (why === "auto" && gate.autoEnter) go();
     }
 
     if (!clips.length || reduced) {
@@ -1306,9 +1311,9 @@
         var done = loaded();
         var held = Date.now() - started;
         // Never let the bar hit the end before the door actually opens.
-        var pct = Math.min(done / clips.length, held / minShow);
+        var pct = Math.min(done / critical.length, held / minShow);
         c.style.setProperty("--load", pct.toFixed(3));
-        if (done === clips.length && held >= minShow) unlock("ready");
+        if (done === critical.length && held >= minShow) unlock("auto");
       }, 100);
       waitTimer = setTimeout(function () { unlock("timeout"); }, maxWait);
     }
