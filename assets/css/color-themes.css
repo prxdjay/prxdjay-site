@@ -1,0 +1,318 @@
+/* =============================================================================
+   PRXD.JAY — COLOR SYSTEM + THEME MENU
+   Color is independent from interface: every palette works in MODERN and RETRO.
+   ========================================================================== */
+
+/* ---------- PALETTES ---------- */
+html[data-color="ivory"]{
+  color-scheme:light;
+  --ink:#eee9df;--ink-rgb:238,233,223;
+  --ink-2:#e5ded2;--ink-3:#d9d0c2;--line:#c3b8a8;
+  --bone:#171513;--bone-dim:#4e4942;--bone-faint:#696159;
+  --mark:#a83d2b;--mark-hot:#c84c34;
+  --sticker-bg:#171513;--sticker-fg:#f3eee4;
+  --tape:rgba(23,21,19,.10);--tape-edge:rgba(23,21,19,.18);
+  --grain-opacity:.055;--scanline-op:.028;--flicker-op:.016;
+  --hero-tint:#d7c2a1;
+}
+html[data-color="cobalt"]{
+  --ink:#071a42;--ink-rgb:7,26,66;
+  --ink-2:#0b2457;--ink-3:#102f6d;--line:#254b8f;
+  --bone:#edf5ff;--bone-dim:#b9d1f1;--bone-faint:#90afd9;
+  --mark:#4bc7ff;--mark-hot:#89ddff;
+  --sticker-bg:#67d4ff;--sticker-fg:#06183b;
+  --tape:rgba(103,212,255,.13);--tape-edge:rgba(103,212,255,.25);
+  --hero-tint:#69b9ff;
+}
+html[data-color="violet"]{
+  --ink:#190b2e;--ink-rgb:25,11,46;
+  --ink-2:#241140;--ink-3:#321855;--line:#543071;
+  --bone:#f8f0ff;--bone-dim:#d5bde7;--bone-faint:#b094c5;
+  --mark:#d878ff;--mark-hot:#ebadff;
+  --sticker-bg:#e2a4ff;--sticker-fg:#1a0b2e;
+  --tape:rgba(226,164,255,.13);--tape-edge:rgba(226,164,255,.25);
+  --hero-tint:#c185ff;
+}
+html[data-color="cherry"]{
+  --ink:#2a070e;--ink-rgb:42,7,14;
+  --ink-2:#3a0b15;--ink-3:#4b101c;--line:#762438;
+  --bone:#fff1ee;--bone-dim:#edc0bc;--bone-faint:#c99592;
+  --mark:#ff526e;--mark-hot:#ff8b9d;
+  --sticker-bg:#ff647b;--sticker-fg:#28060d;
+  --tape:rgba(255,100,123,.13);--tape-edge:rgba(255,100,123,.25);
+  --hero-tint:#ff637d;
+}
+html[data-color="forest"]{
+  --ink:#071e18;--ink-rgb:7,30,24;
+  --ink-2:#0d2a22;--ink-3:#12382d;--line:#285c49;
+  --bone:#edf8e6;--bone-dim:#bed6b5;--bone-faint:#94b18c;
+  --mark:#77dc72;--mark-hot:#a8ef8d;
+  --sticker-bg:#a9e788;--sticker-fg:#071c16;
+  --tape:rgba(169,231,136,.13);--tape-edge:rgba(169,231,136,.25);
+  --hero-tint:#73d694;
+}
+html[data-color="sunset"]{
+  --ink:#32160b;--ink-rgb:50,22,11;
+  --ink-2:#42200f;--ink-3:#552b15;--line:#7d4828;
+  --bone:#fff2d8;--bone-dim:#e8c9a1;--bone-faint:#c19c78;
+  --mark:#ff8c42;--mark-hot:#ffb45e;
+  --sticker-bg:#ffc765;--sticker-fg:#2c1309;
+  --tape:rgba(255,199,101,.14);--tape-edge:rgba(255,199,101,.26);
+  --hero-tint:#ff9b51;
+}
+html[data-color="midnight"]{--hero-tint:#d7d0c3}
+
+html[data-color]:not([data-color="midnight"]){
+  --grain-opacity:.075;
+  --scanline-op:.045;
+  --scrim:linear-gradient(180deg,
+    rgba(var(--ink-rgb),.18) 0%,
+    rgba(var(--ink-rgb),.44) 40%,
+    rgba(var(--ink-rgb),.84) 80%,
+    var(--ink) 100%);
+  --vignette:radial-gradient(125% 95% at 50% 45%,
+    transparent 45%,rgba(var(--ink-rgb),.38) 88%,rgba(var(--ink-rgb),.7) 100%);
+}
+
+/* ---------- COLORED MEDIA ---------- */
+html[data-color="cobalt"] .hero__media img,
+html[data-color="cobalt"] .hero__media video{filter:grayscale(.12) saturate(1.24) contrast(1.12) brightness(.7) hue-rotate(172deg)}
+html[data-color="violet"] .hero__media img,
+html[data-color="violet"] .hero__media video{filter:grayscale(.08) saturate(1.2) contrast(1.14) brightness(.66) hue-rotate(248deg)}
+html[data-color="cherry"] .hero__media img,
+html[data-color="cherry"] .hero__media video{filter:grayscale(.1) sepia(.16) saturate(1.28) contrast(1.15) brightness(.64) hue-rotate(315deg)}
+html[data-color="forest"] .hero__media img,
+html[data-color="forest"] .hero__media video{filter:grayscale(.12) sepia(.12) saturate(1.14) contrast(1.1) brightness(.66) hue-rotate(72deg)}
+html[data-color="sunset"] .hero__media img,
+html[data-color="sunset"] .hero__media video{filter:sepia(.24) saturate(1.25) contrast(1.1) brightness(.68) hue-rotate(342deg)}
+
+html[data-color="cobalt"] .band img{filter:saturate(1.15) contrast(1.08) brightness(.72) hue-rotate(172deg)}
+html[data-color="violet"] .band img{filter:saturate(1.12) contrast(1.08) brightness(.7) hue-rotate(248deg)}
+html[data-color="cherry"] .band img{filter:saturate(1.2) contrast(1.1) brightness(.68) hue-rotate(315deg)}
+html[data-color="forest"] .band img{filter:saturate(1.08) contrast(1.06) brightness(.7) hue-rotate(72deg)}
+html[data-color="sunset"] .band img{filter:sepia(.2) saturate(1.2) contrast(1.07) brightness(.72)}
+
+/* ---------- IVORY / LIGHT TREATMENT ---------- */
+html[data-color="ivory"],
+html[data-color="ivory"] body{background:var(--ink)}
+html[data-color="ivory"] .grain{mix-blend-mode:multiply;filter:contrast(1.3)}
+html[data-color="ivory"] .ambient{
+  background:
+    var(--vignette),
+    repeating-linear-gradient(180deg,rgba(54,45,36,var(--scanline-op)) 0 1px,transparent 1px var(--scanline-gap));
+}
+html[data-color="ivory"] .hdr.is-stuck{background:linear-gradient(180deg,rgba(238,233,223,.96),rgba(238,233,223,0))}
+html[data-color="ivory"] .nav,
+html[data-color="ivory"] .rail,
+html[data-color="ivory"] .curtain{background:var(--ink)}
+html[data-color="ivory"] .menu-btn__bars i{background:var(--bone)}
+html[data-color="ivory"] .hero__media img,
+html[data-color="ivory"] .hero__media video{
+  filter:grayscale(.18) saturate(.82) contrast(.96) brightness(1.08);
+}
+html[data-color="ivory"] .hero__media::after{
+  background:
+    linear-gradient(180deg,rgba(238,233,223,.04),rgba(238,233,223,.14) 38%,rgba(238,233,223,.64) 78%,var(--ink) 100%),
+    linear-gradient(90deg,rgba(238,233,223,.2),transparent 62%);
+}
+html[data-color="ivory"] .curtain__media img,
+html[data-color="ivory"] .curtain__media video{
+  filter:grayscale(.28) contrast(.92) brightness(1.18) saturate(.74) blur(1px);
+}
+html[data-color="ivory"] .curtain__media::after{
+  background:
+    radial-gradient(58% 46% at 50% 46%,rgba(238,233,223,.7),rgba(238,233,223,.25) 62%,transparent 80%),
+    linear-gradient(180deg,rgba(238,233,223,.15),rgba(238,233,223,.76));
+}
+html[data-color="ivory"] .chrome{color:var(--bone);-webkit-text-fill-color:currentColor}
+html[data-color="ivory"] .hub__item--primary{background:var(--sticker-bg);color:var(--sticker-fg)}
+html[data-color="ivory"] .vid__meta{color:#f4efe6;background:linear-gradient(transparent,rgba(14,12,10,.9))}
+html[data-color="ivory"] .vid__note{color:rgba(244,239,230,.7)}
+html[data-color="ivory"] .vid__play{border-left-color:#f4efe6}
+html[data-color="ivory"] .band__cap{color:#f4efe6;text-shadow:0 1px 10px rgba(0,0,0,.65)}
+html[data-color="ivory"] .field input{background:rgba(255,252,246,.58)}
+html[data-color="ivory"] .dock{background:rgba(238,233,223,.92)}
+
+/* The reel keeps exactly half its source saturation in every palette; the
+   theme tint is supplied separately by the subtle overlay in base.css. */
+html[data-color] .hero__slides img,
+html[data-color] .hero__slides video{
+  filter:saturate(.5) contrast(var(--media-contrast,1.48)) brightness(var(--media-exposure,.82));
+}
+
+/* ---------- MAKE RETRO INHERIT THE ACTIVE COLOR ---------- */
+html[data-skin="win"][data-color]:not([data-color="midnight"]){
+  --win-face:var(--ink-2);
+  --win-face-2:var(--ink-3);
+  --win-hi:color-mix(in srgb,var(--bone) 34%,transparent);
+  --win-sh:color-mix(in srgb,var(--ink) 62%,#000);
+  --win-bar:linear-gradient(90deg,var(--ink-3),var(--mark) 58%,var(--ink-2));
+  --win-bar-txt:var(--bone);
+  --win-inset:color-mix(in srgb,var(--ink) 76%,#000);
+}
+html[data-skin="win"][data-color="ivory"]{
+  --win-hi:rgba(255,255,255,.9);
+  --win-sh:rgba(40,34,28,.55);
+  --win-bar:linear-gradient(90deg,#8f3123,#b64b35 58%,#74271e);
+  --win-bar-txt:#fff7ed;
+  --win-inset:#d8d0c3;
+}
+html[data-skin="win"][data-color]:not([data-color="midnight"]) .hub__item:hover,
+html[data-skin="win"][data-color]:not([data-color="midnight"]) .rel__item:hover,
+html[data-skin="win"][data-color]:not([data-color="midnight"]) .dock__item:hover,
+html[data-skin="win"][data-color]:not([data-color="midnight"]) .nav__link:hover{
+  background:color-mix(in srgb,var(--mark) 18%,var(--win-face));
+}
+
+/* ---------- THE BIG THEME MENU ---------- */
+.skin-btn i{
+  background:var(--mark);
+  box-shadow:0 0 9px var(--mark);
+}
+
+.theme-panel{
+  position:fixed;
+  right:10px;
+  bottom:calc(124px + env(safe-area-inset-bottom));
+  z-index:120;
+  width:min(430px,calc(100vw - 20px));
+  max-height:min(680px,calc(100vh - 150px));
+  overflow:auto;
+  padding:20px;
+  color:var(--bone);
+  background:rgba(var(--ink-rgb),.96);
+  border:1px solid var(--line);
+  box-shadow:0 26px 80px rgba(0,0,0,.4);
+  backdrop-filter:blur(22px) saturate(130%);
+  -webkit-backdrop-filter:blur(22px) saturate(130%);
+  opacity:0;
+  transform:translateY(10px) scale(.985);
+  transition:opacity .26s var(--ease),transform .26s var(--ease-out);
+}
+.theme-panel[hidden]{display:none}
+.theme-panel.is-open{opacity:1;transform:none}
+.theme-panel__head{
+  display:flex;align-items:flex-start;justify-content:space-between;gap:20px;
+  padding-bottom:17px;border-bottom:1px solid var(--line);
+}
+.theme-panel__eyebrow,
+.theme-panel__label,
+.theme-panel__note{
+  font-family:var(--font-mono);text-transform:uppercase;
+}
+.theme-panel__eyebrow{font-size:.54rem;letter-spacing:.22em;color:var(--bone-faint)}
+.theme-panel__title{
+  margin-top:5px;font-family:var(--font-display);
+  font-size:clamp(1.7rem,7vw,2.35rem);line-height:1;
+}
+.theme-panel__close{
+  flex:0 0 44px;width:44px;height:44px;
+  display:grid;place-items:center;color:var(--bone-dim);
+  border:1px solid var(--line);
+}
+.theme-panel__close:hover{color:var(--bone);border-color:var(--bone)}
+.theme-panel__group{padding-top:20px}
+.theme-panel__label{
+  margin-bottom:10px;font-size:.58rem;letter-spacing:.2em;color:var(--bone-faint);
+}
+.theme-panel__views{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.theme-view{
+  display:grid;gap:4px;text-align:left;min-height:70px;padding:14px;
+  color:var(--bone);background:var(--ink-2);border:1px solid var(--line);
+}
+.theme-view b{font-family:var(--font-mono);font-size:.72rem;letter-spacing:.12em}
+.theme-view small{font-family:var(--font-mono);font-size:.54rem;color:var(--bone-faint)}
+.theme-view:hover,.theme-view.is-selected{border-color:var(--bone);background:var(--ink-3)}
+.theme-view.is-selected::after{
+  content:"SELECTED";margin-top:3px;font-family:var(--font-mono);
+  font-size:.46rem;letter-spacing:.18em;color:var(--mark);
+}
+.theme-panel__colors{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.theme-color{
+  display:flex;align-items:center;gap:10px;min-height:48px;padding:9px 11px;
+  color:var(--bone);background:var(--ink-2);border:1px solid var(--line);
+  font-family:var(--font-mono);font-size:.58rem;letter-spacing:.1em;
+}
+.theme-color:hover,.theme-color.is-selected{border-color:var(--bone);background:var(--ink-3)}
+.theme-color__swatch{
+  width:22px;height:22px;flex:0 0 22px;border:1px solid rgba(255,255,255,.28);
+  box-shadow:inset 0 0 0 2px rgba(0,0,0,.12);
+}
+.theme-color[data-color="midnight"] .theme-color__swatch{background:#121110}
+.theme-color[data-color="ivory"] .theme-color__swatch{background:#eee9df}
+.theme-color[data-color="cobalt"] .theme-color__swatch{background:#1058c5}
+.theme-color[data-color="violet"] .theme-color__swatch{background:#7a37b0}
+.theme-color[data-color="cherry"] .theme-color__swatch{background:#b41d3b}
+.theme-color[data-color="forest"] .theme-color__swatch{background:#197a59}
+.theme-color[data-color="sunset"] .theme-color__swatch{background:#d76d28}
+.theme-panel__note{
+  margin-top:19px;padding-top:14px;border-top:1px solid var(--line);
+  font-size:.5rem;letter-spacing:.12em;color:var(--bone-faint);
+}
+
+/* RETRO keeps its window construction inside the menu too. */
+html[data-skin="win"] .theme-panel{
+  padding:12px;background:var(--win-face);
+  border-top:2px solid var(--win-hi);border-left:2px solid var(--win-hi);
+  border-right:2px solid var(--win-sh);border-bottom:2px solid var(--win-sh);
+  box-shadow:10px 14px 0 rgba(0,0,0,.3);
+}
+html[data-skin="win"] .theme-panel__head{
+  margin:-12px -12px 0;padding:7px 8px;
+  background:var(--win-bar);color:var(--win-bar-txt);
+}
+html[data-skin="win"] .theme-panel__eyebrow{color:var(--win-bar-txt)}
+html[data-skin="win"] .theme-panel__title{
+  margin-top:2px;font-family:var(--font-mono);font-size:.82rem;letter-spacing:.08em;
+}
+html[data-skin="win"] .theme-panel__close{
+  width:34px;height:30px;flex-basis:34px;color:var(--win-bar-txt);
+  background:var(--win-face-2);border-color:var(--win-hi) var(--win-sh) var(--win-sh) var(--win-hi);
+}
+html[data-skin="win"] .theme-view,
+html[data-skin="win"] .theme-color{background:var(--win-face-2);border-radius:0}
+
+@media (max-width:599px){
+  .theme-panel{
+    right:8px;bottom:calc(118px + env(safe-area-inset-bottom));
+    width:calc(100vw - 16px);padding:16px;
+  }
+  .theme-panel__colors{grid-template-columns:1fr 1fr}
+  .theme-view{padding:12px;min-height:66px}
+}
+@media (prefers-reduced-motion:reduce){.theme-panel{transition:none}}
+
+/* ---------- INTERFACE LOADING BEAT ----------
+   A full skin change repaints most of the document. This brief blackout
+   gives that work a clean place to happen and makes Retro feel discovered. */
+.view-load{
+  position:fixed;inset:0;z-index:180;display:grid;place-items:end center;
+  padding:0 24px max(64px,10vh);color:#f5f2eb;background:#030303;
+  opacity:0;pointer-events:none;transition:opacity .24s ease;
+}
+.view-load[hidden]{display:none}
+.view-load.is-active{opacity:1}
+.view-load.is-leaving{opacity:0;transition-duration:.34s}
+.view-load__inner{width:min(560px,100%)}
+.view-load__label{
+  margin-bottom:12px;font-family:var(--font-mono);font-size:.58rem;
+  font-weight:600;letter-spacing:.22em;text-transform:uppercase;
+  animation:viewLoadBlink .95s steps(2,end) infinite;
+}
+.view-load__track{display:block;height:2px;background:rgba(255,255,255,.2);overflow:hidden}
+.view-load__track i{
+  display:block;width:100%;height:100%;background:#f5f2eb;
+  transform:scaleX(0);transform-origin:left center;
+}
+.view-load.is-active .view-load__track i{animation:viewLoadBar .74s cubic-bezier(.2,.8,.2,1) forwards}
+@keyframes viewLoadBar{0%{transform:scaleX(0)}55%{transform:scaleX(.72)}100%{transform:scaleX(1)}}
+@keyframes viewLoadBlink{0%,64%{opacity:1}65%,100%{opacity:.42}}
+
+@media (max-width:640px){
+  .theme-panel{backdrop-filter:none;-webkit-backdrop-filter:none}
+}
+@media (prefers-reduced-motion:reduce){
+  .view-load{transition:none}
+  .view-load__label,.view-load.is-active .view-load__track i{animation:none}
+  .view-load__track i{transform:scaleX(1)}
+}

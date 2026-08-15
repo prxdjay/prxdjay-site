@@ -13,7 +13,6 @@
 
   var E = window.ERA;
   if (!E) { console.error("era.config.js did not load."); return; }
-  var OPENING = E.opening || {};
 
   var $  = function (s, c) { return (c || document).querySelector(s); };
   var el = function (t, cls, html) {
@@ -31,27 +30,22 @@
 
   var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var root = document.documentElement;
-  var connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-  var lightMedia = window.matchMedia("(max-width: 760px), (pointer: coarse)").matches ||
-    !!(connection && (connection.saveData || /(^|-)2g$/.test(connection.effectiveType || "")));
-  root.setAttribute("data-performance", lightMedia ? "lite" : "full");
 
-  /* How long the outgoing slide takes to finish dissolving: the .7s hold
-     plus the 2.4s fade defined on .hero__slides > * in base.css. Used to
+  /* How long the outgoing slide takes to finish dissolving: the .25s hold
+     plus the 1.2s fade defined on .hero__slides > * in base.css. Used to
      decide when it's safe to pause the clip underneath. Keep in step. */
-  var FADE_MS = 3100;
+  var FADE_MS = 1450;
+  var startHeroReel = function () {};
 
   /* -------------------------------------------------------------------------
      SHARED STATE  — memory, analytics, and who's already a member
      ---------------------------------------------------------------------- */
   var KEY = {
     member:    "prxdjay.member",     // they joined. never ask again.
-    pending:   "prxdjay.pending",    // they requested the confirmation email
+    lead:      "prxdjay.lead",       // what we know about them
     prompt:    "prxdjay.prompt",     // slide-up dismissed
     exit:      "prxdjay.exit",       // exit modal shown
-    been:      "prxdjay.been",       // they've been here before
-    theme:     "prxdjay.theme",
-    accent:    "prxdjay.accent"
+    been:      "prxdjay.been"        // they've been here before
   };
 
   var store = {
@@ -61,107 +55,6 @@
   };
 
   var isMember = function () { return store.get(KEY.member) === "1"; };
-
-  /* -------------------------------------------------------------------------
-     APPEARANCE — fan-controlled display and accent, stored on this device.
-     ---------------------------------------------------------------------- */
-  (function appearance() {
-    var panel = $("#appearance");
-    var openBtn = $("#appearanceBtn");
-    var closeBtn = $("#appearanceClose");
-    if (!panel || !openBtn || !closeBtn) return;
-
-    var themes = ["tube", "desktop", "clean"];
-    var accents = ["red", "green", "blue", "violet", "gold"];
-    var lastFocus = null;
-    var backgroundState = [];
-
-    function valid(value, choices, fallback) {
-      return choices.indexOf(value) > -1 ? value : fallback;
-    }
-    function current() {
-      return {
-        theme: valid(root.dataset.theme, themes, "tube"),
-        accent: valid(root.dataset.accent, accents, "red")
-      };
-    }
-    function paint(theme, accent, remember) {
-      root.dataset.theme = valid(theme, themes, "tube");
-      root.dataset.accent = valid(accent, accents, "red");
-      if (remember) {
-        store.set(KEY.theme, root.dataset.theme);
-        store.set(KEY.accent, root.dataset.accent);
-      }
-      panel.querySelectorAll("[data-theme-choice]").forEach(function (btn) {
-        btn.setAttribute("aria-pressed", String(btn.dataset.themeChoice === root.dataset.theme));
-      });
-      panel.querySelectorAll("[data-accent-choice]").forEach(function (btn) {
-        btn.setAttribute("aria-pressed", String(btn.dataset.accentChoice === root.dataset.accent));
-      });
-    }
-    function open() {
-      lastFocus = document.activeElement;
-      paint(current().theme, current().accent, false);
-      panel.hidden = false;
-      backgroundState = [].slice.call(document.body.children).filter(function (node) {
-        return node !== panel && node.tagName !== "SCRIPT";
-      }).map(function (node) {
-        var state = { node: node, inert: node.inert };
-        node.inert = true;
-        return state;
-      });
-      document.body.classList.add("appearance-open");
-      openBtn.setAttribute("aria-expanded", "true");
-      closeBtn.focus();
-    }
-    function close() {
-      panel.hidden = true;
-      backgroundState.forEach(function (state) { state.node.inert = state.inert; });
-      backgroundState = [];
-      document.body.classList.remove("appearance-open");
-      openBtn.setAttribute("aria-expanded", "false");
-      if (lastFocus && lastFocus.focus) lastFocus.focus();
-    }
-
-    openBtn.addEventListener("click", function () { panel.hidden ? open() : close(); });
-    closeBtn.addEventListener("click", close);
-    panel.addEventListener("click", function (e) {
-      if (e.target === panel) close();
-      var themeBtn = e.target.closest("[data-theme-choice]");
-      var accentBtn = e.target.closest("[data-accent-choice]");
-      var state = current();
-      if (themeBtn) paint(themeBtn.dataset.themeChoice, state.accent, true);
-      if (accentBtn) paint(state.theme, accentBtn.dataset.accentChoice, true);
-    });
-    $("#appearanceReset").addEventListener("click", function () {
-      paint("tube", "red", true);
-    });
-    panel.addEventListener("keydown", function (e) {
-      if (e.key === "Escape") close();
-      if (e.key !== "Tab") return;
-      var focusable = [].slice.call(panel.querySelectorAll("button:not([disabled])"));
-      if (!focusable.length) return;
-      var first = focusable[0], last = focusable[focusable.length - 1];
-      if (e.shiftKey && document.activeElement === first) {
-        e.preventDefault(); last.focus();
-      } else if (!e.shiftKey && document.activeElement === last) {
-        e.preventDefault(); first.focus();
-      }
-    });
-    paint(current().theme, current().accent, false);
-  })();
-
-  // Brevo returns here only after the person uses the confirmation link.
-  // This is the point where the browser can truthfully remember membership.
-  try {
-    var confirmation = new URLSearchParams(location.search).get("confirmed");
-    if (confirmation === "1") {
-      store.set(KEY.member, "1");
-      localStorage.removeItem(KEY.pending);
-      var clean = location.pathname + location.hash;
-      history.replaceState(null, "", clean);
-    }
-  } catch (e) {}
 
   /* Fires into Plausible / GA4 if either is configured. Silent no-op otherwise. */
   function track(event, props) {
@@ -207,17 +100,19 @@
     if (isClip(s.src)) {
       var v = el("video");
       v.muted = true; v.loop = true; v.playsInline = true;
-      v.preload = first ? "auto" : "none";
       v.setAttribute("muted", ""); v.setAttribute("playsinline", "");
       v.setAttribute("aria-hidden", "true");
       v.dataset.src = s.src;
-      if (s.fallback) v.poster = s.fallback;
+      if (s.exposure != null) v.style.setProperty("--media-exposure", String(s.exposure));
+      if (s.contrast != null) v.style.setProperty("--media-contrast", String(s.contrast));
 
       // A phone that won't play the clip still gets the frame behind it.
       v.onerror = function () {
         if (!s.fallback) { v.remove(); return; }
         var img = smartImg(s.fallback);
         img.className = v.className;
+        if (s.exposure != null) img.style.setProperty("--media-exposure", String(s.exposure));
+        if (s.contrast != null) img.style.setProperty("--media-contrast", String(s.contrast));
         if (v.parentNode) v.parentNode.replaceChild(img, v);
       };
 
@@ -227,6 +122,8 @@
       return v;
     }
     var img = smartImg(s.src, s.fallback);
+    if (s.exposure != null) img.style.setProperty("--media-exposure", String(s.exposure));
+    if (s.contrast != null) img.style.setProperty("--media-contrast", String(s.contrast));
     if (first) img.fetchPriority = "high"; else img.loading = "lazy";
     return img;
   }
@@ -254,30 +151,6 @@
     }
     if (v.readyState >= 2) go();
     else v.addEventListener("canplay", go, { once: true });
-  }
-
-  /* Phones keep one moving opening, then stop decoding it as soon as it is
-     off screen. This preserves the reel's character without making the rest
-     of the page compete with a hidden full-screen video. */
-  function manageSoloClip(v, container) {
-    if (!v || !container || v.tagName !== "VIDEO") return;
-    var visible = true;
-
-    function sync() {
-      if (document.hidden || !visible) {
-        try { v.pause(); } catch (e) {}
-      } else if (!reduced) {
-        armClip(v);
-      }
-    }
-
-    if ("IntersectionObserver" in window) {
-      new IntersectionObserver(function (entries) {
-        visible = !!(entries[0] && entries[0].isIntersecting);
-        sync();
-      }, { threshold: 0.02 }).observe(container);
-    }
-    document.addEventListener("visibilitychange", sync);
   }
 
   /* Rotate a set of slides.
@@ -410,9 +283,7 @@
     }
 
     play(nodes[0]);
-    // Keep one clip ahead instead of downloading the entire reel at once.
-    // This preserves a clean handoff without competing with the first paint.
-    preload(nodes[1]);
+    preload(nodes[1]);        // only stay one clip ahead; don't flood mobile data
   }
 
   /* -------------------------------------------------------------------------
@@ -443,7 +314,6 @@
      ---------------------------------------------------------------------- */
   var X = E.experience || {};
   root.setAttribute("data-motion",  reduced ? "off" : "on");
-  root.setAttribute("data-skin", "tape");
   root.setAttribute("data-grain",   X.grain === false || reduced ? "off" : "on");
   root.setAttribute("data-glow",    X.ambientGlow === false ? "off" : "on");
   root.setAttribute("data-shimmer", X.chromeShimmer === false || reduced ? "off" : "on");
@@ -460,8 +330,8 @@
   set("curtainMark", ID.name);
   set("curtainSay",  ID.pronunciation);
   set("hdrMark",     ID.name);
-  set("heroName",    OPENING.headline || ID.name);
-  set("heroSay",     OPENING.sub || ID.pronunciation);
+  set("heroName",    (E.hero && E.hero.headline) || ID.name);
+  set("heroSay",     (E.hero && E.hero.sub) || ID.pronunciation);
   set("ftrMark",     (E.footer && E.footer.mark) || ID.name);
   set("ftrNote",     (E.footer && E.footer.note) || ID.pronunciation);
   set("hdrEra",      (E.era && E.era.name) ? "ERA " + (E.era.id||"") + " · " + E.era.name : (ID.tagline || ""));
@@ -479,22 +349,37 @@
       (flinks ? '<br><span class="ftr__links">' + flinks + "</span>" : "");
   }
 
-  /* Bot protection is loaded only when the public site key is configured. */
-  (function turnstile() {
-    var key = E.list && E.list.turnstileSiteKey;
-    if (!key) return;
-    var s = el("script");
-    s.src = "https://challenges.cloudflare.com/turnstile/v0/api.js";
-    s.async = true;
-    s.defer = true;
-    document.head.appendChild(s);
+  /* -------------------------------------------------------------------------
+     ANALYTICS — nothing loads unless a key is filled in in era.config.js.
+     ---------------------------------------------------------------------- */
+  (function analytics() {
+    var A = E.analytics || {};
+    if (A.plausible) {
+      var s = el("script");
+      s.defer = true; s.dataset.domain = A.plausible;
+      s.src = "https://plausible.io/js/script.js";
+      document.head.appendChild(s);
+      window.plausible = window.plausible || function () {
+        (window.plausible.q = window.plausible.q || []).push(arguments);
+      };
+    }
+    if (A.ga4) {
+      var g = el("script");
+      g.async = true;
+      g.src = "https://www.googletagmanager.com/gtag/js?id=" + encodeURIComponent(A.ga4);
+      document.head.appendChild(g);
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { window.dataLayer.push(arguments); };
+      window.gtag("js", new Date());
+      window.gtag("config", A.ga4);
+    }
   })();
 
   /* -------------------------------------------------------------------------
-     OPENING SCREEN
+     HERO
      ---------------------------------------------------------------------- */
-  (function opening() {
-    var H = OPENING;
+  (function hero() {
+    var H = E.hero || {};
     var kickEl = $("#heroKicker");
     if (kickEl) { if (H.kicker) kickEl.textContent = H.kicker; else kickEl.remove(); }
     set("heroScroll", H.scrollHint || "scroll");
@@ -510,7 +395,6 @@
     media.style.setProperty("--focal", H.focalPoint || "50% 35%");
 
     var slides = normSlides(H.slides);
-    if (lightMedia && slides.length) slides = slides.slice(0, 1);
 
     if (H.video) {
       // Muted, looping, decorative background only. Never plays audio.
@@ -520,7 +404,7 @@
       v.setAttribute("aria-hidden", "true");
       if (!reduced) { v.autoplay = true; v.play().catch(function () {}); }
       media.appendChild(v);
-    } else if (slides.length) {
+    } else if (slides.length > 1) {
       var wrapS = el("div", "hero__slides");
       var nodes = [];
       slides.forEach(function (s, i) {
@@ -534,9 +418,13 @@
         wrapS.appendChild(n); nodes.push(n);
       });
       media.appendChild(wrapS);
-      armFirst(nodes);
-      if (nodes.length > 1) runSlides(nodes, 5000);   // clips run their length; stills hold 5s
-      else manageSoloClip(nodes[0], media);
+      var heroStarted = false;
+      startHeroReel = function () {
+        if (heroStarted) return;
+        heroStarted = true;
+        armFirst(nodes);
+        runSlides(nodes, 5000); // clips run their length; stills hold 5s
+      };
     } else if (H.image) {
       var img = el("img");
       img.src = H.image;
@@ -554,7 +442,7 @@
 
     var ctas = H.ctas && H.ctas.length ? H.ctas : [
       { label: (primary && primary.cta) || "PLAY ON SPOTIFY", style: "solid", primary: true },
-      { label: "JOIN THE LIST", style: "ghost", target: "list" }
+      { label: "ALL LINKS", style: "ghost", target: "links" }
     ];
 
     ctas.forEach(function (c) {
@@ -567,7 +455,7 @@
         a.href = url; a.target = "_blank"; a.rel = "noopener";
         if (c.primary && primary) a.setAttribute("aria-label", "Listen to " + primary.label);
       }
-      a.addEventListener("click", function () { track("opening_cta", { label: c.label }); });
+      a.addEventListener("click", function () { track("hero_cta", { label: c.label }); });
       cta.appendChild(a);
     });
 
@@ -622,27 +510,15 @@
     function toggle(open) {
       btn.setAttribute("aria-expanded", String(open));
       navEl.classList.toggle("is-open", open);
-      navEl.toggleAttribute("inert", !open);
-      navEl.setAttribute("aria-hidden", String(!open));
       document.body.classList.toggle("is-locked", open);
       label.textContent = open ? "CLOSE" : "MENU";
-      if (open) {
-        var f = navEl.querySelector("a");
-        if (f) setTimeout(function () { f.focus(); }, 0);
-      }
+      if (open) { var f = navEl.querySelector("a"); if (f) f.focus(); }
     }
     btn.addEventListener("click", function () { toggle(btn.getAttribute("aria-expanded") !== "true"); });
     navEl.addEventListener("click", function (e) { if (e.target.closest("a")) toggle(false); });
     document.addEventListener("keydown", function (e) {
-      if (!navEl.classList.contains("is-open")) return;
-      if (e.key === "Escape") { toggle(false); btn.focus(); return; }
-      if (e.key !== "Tab") return;
-      var focusable = [btn].concat([].slice.call(navEl.querySelectorAll("a")));
-      var first = focusable[0], last = focusable[focusable.length - 1];
-      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
-      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      if (e.key === "Escape" && navEl.classList.contains("is-open")) { toggle(false); btn.focus(); }
     });
-    toggle(false);
 
     // Sticky header state + active section
     var hdr = $("#hdr");
@@ -773,23 +649,15 @@
     });
 
     var lbx = $("#lbx"), lbxImg = $("#lbxImg"), cur = 0, lastFocus = null;
-    lbx.setAttribute("aria-hidden", "true");
-    lbx.setAttribute("inert", "");
     function open(i) {
       if (!real.length) return;
       cur = i; lastFocus = document.activeElement;
       lbxImg.src = real[cur].src; lbxImg.alt = real[cur].alt || "";
-      lbx.classList.add("is-open");
-      lbx.removeAttribute("inert");
-      lbx.setAttribute("aria-hidden", "false");
-      document.body.classList.add("is-locked");
-      setTimeout(function () { $("#lbxClose").focus(); }, 0);
+      lbx.classList.add("is-open"); document.body.classList.add("is-locked");
+      $("#lbxClose").focus();
     }
     function close() {
-      lbx.classList.remove("is-open");
-      lbx.setAttribute("inert", "");
-      lbx.setAttribute("aria-hidden", "true");
-      document.body.classList.remove("is-locked");
+      lbx.classList.remove("is-open"); document.body.classList.remove("is-locked");
       if (lastFocus) lastFocus.focus();
     }
     function step(d) {
@@ -805,12 +673,6 @@
       if (e.key === "Escape") close();
       if (e.key === "ArrowLeft") step(-1);
       if (e.key === "ArrowRight") step(1);
-      if (e.key === "Tab") {
-        var controls = [].slice.call(lbx.querySelectorAll("button:not([hidden])"));
-        var first = controls[0], last = controls[controls.length - 1];
-        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
-        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
-      }
     });
     if (real.length < 2) { $("#lbxPrev").hidden = true; $("#lbxNext").hidden = true; }
   })();
@@ -992,44 +854,79 @@
      ====================================================================== */
   var JOIN = (function () {
     var L = E.list || {};
+    var externalUrl = String(L.externalUrl || "");
+    var external = /^https?:\/\//.test(externalUrl);
     var endpoint = String(L.endpoint || "");
-    var configured = L.enabled !== false && (/^https?:\/\//.test(endpoint) || endpoint.charAt(0) === "/");
+    var configured = /^https?:\/\//.test(endpoint) && endpoint.indexOf("YOUR_FORM_ID") === -1;
+    var listeners = [];
     var uid = 0;
 
+    if (!configured && endpoint) {
+      console.warn("[PRXD.JAY] list.endpoint isn't set up yet — signups will fall back to the mail app. See SETUP-THE-LIST.md");
+    }
+
+    function lead() { return store.json(KEY.lead) || {}; }
+    function remember(patch) {
+      var d = lead();
+      Object.keys(patch).forEach(function (k) { if (patch[k]) d[k] = patch[k]; });
+      store.set(KEY.lead, JSON.stringify(d));
+      return d;
+    }
+    function onJoin(fn) { listeners.push(fn); }
+    function announce() { listeners.forEach(function (f) { try { f(); } catch (e) {} }); }
+
     /* ----------------------------------------------------------------------
-       SEND. Contact details go directly to the protected server endpoint.
-       They are never written to localStorage or placed in a mailto link.
+       SEND. Resolves true/false. Never throws, never loses the record —
+       anything that fails is kept locally so nothing typed is thrown away.
        ------------------------------------------------------------------- */
     function send(fields, cb) {
+      remember(fields);
+
       var payload = {
-        email:        fields.email || "",
+        email:        fields.email || lead().email || "",
         name:         fields.name || "",
         phone:        fields.phone || "",
         sms_consent:  fields.sms_consent || "no",
         consent_text: fields.consent_text || "",
+        consent_at:   new Date().toISOString(),
         source:       fields.source || "site",
         stage:        fields.stage || "email",
-        turnstileToken: fields.turnstileToken || "",
-        website: fields.website || ""
+        page:         location.href,
+        referrer:     document.referrer || "direct",
+        _subject:     "Early Access — " + (fields.stage === "phone" ? "phone added" : "new signup")
       };
 
       if (!configured) {
-        cb(false);
+        // Nothing set up yet: hand it to the mail app so the signup still
+        // reaches him. Lossy — this is why SETUP-THE-LIST.md matters.
+        var to = L.fallbackEmail || (E.contact && E.contact.email) || "";
+        var body = Object.keys(payload).map(function (k) { return k + ": " + payload[k]; }).join("\r\n");
+        window.location.href = "mailto:" + encodeURIComponent(to) +
+          "?subject=" + encodeURIComponent(payload._subject) +
+          "&body=" + encodeURIComponent(body);
+        cb(true);
         return;
       }
 
-      fetch(endpoint, {
-        method: "POST",
-        credentials: "same-origin",
-        headers: { Accept: "application/json", "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      })
+      var opaque = (L.transport === "opaque");
+      var opts = opaque
+        ? { method: "POST", mode: "no-cors", body: new URLSearchParams(payload) }
+        : { method: "POST", headers: { Accept: "application/json" }, body: toFormData(payload) };
+
+      fetch(endpoint, opts)
         .then(function (r) {
-          return r.json().catch(function () { return {}; }).then(function (body) {
-            cb(r.ok, body);
-          });
+          // A no-cors response is always opaque — we can't read it, so a
+          // resolved promise is the only success signal available.
+          if (!opaque && !r.ok) throw new Error("bad response");
+          cb(true);
         })
-        .catch(function () { cb(false, {}); });
+        .catch(function () { cb(false); });
+    }
+
+    function toFormData(o) {
+      var fd = new FormData();
+      Object.keys(o).forEach(function (k) { fd.append(k, o[k]); });
+      return fd;
     }
 
     /* ----------------------------------------------------------------------
@@ -1043,8 +940,19 @@
       var id = function (s) { return "jf" + n + "-" + s; };
 
       if (isMember()) { return renderDone(box, opts); }
-      if (!configured) {
-        box.innerHTML = '<p class="join__body">' + esc(L.unavailable || "The email list is being connected. Please check back soon.") + "</p>";
+      if (external) {
+        box.innerHTML =
+          '<div class="join join--external' + (opts.compact ? " join--compact" : "") + '">' +
+            '<a class="btn btn--solid join__go" href="' + esc(externalUrl) + '" target="_blank" rel="noopener">' +
+              '<span>' + esc(L.externalLabel || L.submitLabel || "JOIN EARLY ACCESS") + '</span>' +
+            '</a>' +
+            (opts.compact || !L.externalNote ? "" : '<p class="join__fine">' + esc(L.externalNote) + '</p>') +
+          '</div>';
+
+        box.querySelector("a").addEventListener("click", function () {
+          track("join_external", { source: src, provider: "foreverfan" });
+          if (opts.onDone) setTimeout(opts.onDone, 0);
+        });
         return;
       }
       renderStep1();
@@ -1063,8 +971,7 @@
               '<button class="btn btn--solid join__go" type="submit"><span>' +
                 esc(L.submitLabel || "I'M IN") + "</span></button>" +
             "</div>" +
-            '<input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">' +
-            (L.turnstileSiteKey ? '<div class="cf-turnstile" data-sitekey="' + esc(L.turnstileSiteKey) + '" data-action="subscribe" data-theme="dark"></div>' : "") +
+            '<input class="hp" type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true">' +
             (opts.compact ? "" : '<p class="join__fine">' + esc(L.reassure || "") + "</p>") +
             '<p class="form__msg" role="status" aria-live="polite"></p>' +
           "</form>";
@@ -1078,7 +985,7 @@
 
         form.addEventListener("submit", function (e) {
           e.preventDefault();
-          if (form.website.value) return;
+          if (form._gotcha.value) return;                       // bot
           msg.textContent = ""; msg.removeAttribute("data-state");
 
           if (!input.checkValidity() || !input.value.trim()) {
@@ -1091,51 +998,114 @@
           setBusy(btn, true, "SENDING");
           track("join_email", { source: src });
 
-          var tokenInput = form.querySelector('[name="cf-turnstile-response"]');
-          var token = tokenInput ? tokenInput.value : "";
-          if (L.turnstileSiteKey && !token) {
-            msg.textContent = "Please complete the security check.";
-            msg.setAttribute("data-state", "err");
-            return;
-          }
-
-          send({
-            email: input.value.trim(),
-            source: src,
-            stage: "email",
-            turnstileToken: token
-          }, function (ok, body) {
+          send({ email: input.value.trim(), source: src, stage: "email" }, function (ok) {
             setBusy(btn, false, L.submitLabel || "I'M IN");
             if (!ok) {
-              msg.textContent = (body && body.message) || L.errorMsg || "That didn't send. Please try again.";
+              msg.textContent = L.errorMsg || "That didn't send. Try again in a second.";
               msg.setAttribute("data-state", "err");
-              if (window.turnstile) window.turnstile.reset();
               return;
             }
-            store.set(KEY.pending, String(Date.now()));
-            renderPending(box, opts);
+            store.set(KEY.member, "1");
+            announce();
+            renderStep2();
           });
         });
       }
 
-      /* ---- CONFIRMATION STATES ---- */
-      function renderPending(target, o) {
-        var P = L.pending || {};
-        target.innerHTML =
-          '<div class="join__done">' +
-            '<p class="join__title">' + esc(P.title || "Check your inbox.") + "</p>" +
-            '<p class="join__body">' + esc(P.body || "Use the confirmation link to finish joining the list.") + "</p>" +
-          "</div>";
-        var title = target.querySelector(".join__title");
-        if (title) { title.setAttribute("tabindex", "-1"); title.focus(); }
-        if (o && o.onDone) o.onDone();
-        return target;
+      /* ---- STEP 2 — name + phone, post-commitment ---- */
+      function renderStep2() {
+        var S = L.step2 || {};
+        var consent = S.consentText || "";
+        box.innerHTML =
+          '<div class="join__done-head">' +
+            '<p class="join__title">' + esc(S.title || "You're in.") + "</p>" +
+            '<p class="join__body">' + esc(S.body || "") + "</p>" +
+          "</div>" +
+          '<form class="form join" novalidate>' +
+            '<div class="join__two">' +
+              '<div class="field">' +
+                '<label for="' + id("name") + '">' + esc(S.nameLabel || "First name") + "</label>" +
+                '<input id="' + id("name") + '" name="name" type="text" autocomplete="given-name" ' +
+                  'placeholder="' + esc(S.namePlaceholder || "") + '">' +
+              "</div>" +
+              '<div class="field">' +
+                '<label for="' + id("phone") + '">' + esc(S.phoneLabel || "Phone") + "</label>" +
+                '<input id="' + id("phone") + '" name="phone" type="tel" autocomplete="tel" inputmode="tel" ' +
+                  'placeholder="' + esc(S.phonePlaceholder || "") + '">' +
+              "</div>" +
+            "</div>" +
+            '<label class="consent"><input type="checkbox" name="consent">' +
+              "<span>" + esc(consent) + "</span></label>" +
+            '<div class="join__row join__row--end">' +
+              '<button class="btn btn--solid join__go" type="submit"><span>' +
+                esc(S.submitLabel || "TEXT ME TOO") + "</span></button>" +
+              '<button class="join__skip" type="button">' + esc(S.skipLabel || "Email is enough") + "</button>" +
+            "</div>" +
+            '<p class="form__msg" role="status" aria-live="polite"></p>' +
+          "</form>";
+
+        var form = box.querySelector("form");
+        var msg  = box.querySelector(".form__msg");
+        var btn  = box.querySelector(".join__go");
+
+        track("join_step2_view", { source: src });
+        var t = box.querySelector(".join__title");
+        if (t) { t.setAttribute("tabindex", "-1"); t.focus(); }
+
+        box.querySelector(".join__skip").addEventListener("click", function () {
+          track("join_skip_phone", { source: src });
+          renderDone(box, opts);
+        });
+
+        form.addEventListener("submit", function (e) {
+          e.preventDefault();
+          var phone = form.phone.value.trim();
+          var name  = form.name.value.trim();
+          msg.textContent = ""; msg.removeAttribute("data-state");
+
+          // A phone number with no ticked box is not a consenting number.
+          // Sending to it would be illegal, so the box is required here.
+          if (phone && !form.consent.checked) {
+            msg.textContent = "Tick the box so I'm allowed to text you.";
+            msg.setAttribute("data-state", "err");
+            form.consent.focus();
+            return;
+          }
+          if (phone && phone.replace(/\D/g, "").length < 10) {
+            msg.textContent = "That number looks short.";
+            msg.setAttribute("data-state", "err");
+            form.phone.focus();
+            return;
+          }
+          if (!phone && !name) { renderDone(box, opts); return; }
+
+          setBusy(btn, true, "SENDING");
+          send({
+            name: name,
+            phone: phone,
+            sms_consent: phone && form.consent.checked ? "yes" : "no",
+            consent_text: phone && form.consent.checked ? consent : "",
+            source: src,
+            stage: "phone"
+          }, function (ok) {
+            setBusy(btn, false, (L.step2 || {}).submitLabel || "TEXT ME TOO");
+            if (!ok) {
+              msg.textContent = L.errorMsg || "That didn't send. Try again in a second.";
+              msg.setAttribute("data-state", "err");
+              return;
+            }
+            track(phone ? "join_phone" : "join_name", { source: src });
+            renderDone(box, opts);
+          });
+        });
       }
 
+      /* ---- STEP 3 — the payoff ---- */
       function renderDone(target, o) {
         var D = L.done || {};
         var R = D.reward || {};
-        var greet = D.title || "Check your inbox.";
+        var name = (lead().name || "").trim();
+        var greet = name ? "Welcome in, " + name + "." : (D.title || "Welcome in.");
 
         target.innerHTML =
           '<div class="join__done">' +
@@ -1182,7 +1152,7 @@
       }
     }
 
-    return { mount: mount, configured: configured };
+    return { mount: mount, onJoin: onJoin, configured: configured || external, lead: lead };
   })();
 
   /* Native share sheet where it exists, clipboard everywhere else. */
@@ -1208,13 +1178,34 @@
   }
 
   /* -------------------------------------------------------------------------
-     EMAIL LIST SECTION
+     EARLY ACCESS SECTION
      ---------------------------------------------------------------------- */
   (function list() {
     var L = E.list || {};
+    var box = $("#listBox");
+    if (!box) return;
     if (L.heading) set("listH", L.heading);
     set("listCap", L.caption);
-    var box = $("#listBox");
+    var content = box;
+
+    // Keep ForeverFan as the data backend while letting this site own the
+    // visual first impression. One portrait, one CTA, no extra carousel.
+    if (L.image) {
+      var layout = el("div", "list__layout");
+      var visual = el("figure", "list__visual");
+      var image = document.createElement("img");
+      image.className = "list__image";
+      image.src = L.image;
+      image.alt = L.imageAlt || "PRXD.JAY";
+      image.loading = "lazy";
+      image.decoding = "async";
+      image.onerror = function () { visual.remove(); layout.classList.add("list__layout--no-image"); };
+      visual.appendChild(image);
+      content = el("div", "list__content");
+      layout.appendChild(visual);
+      layout.appendChild(content);
+      box.appendChild(layout);
+    }
 
     // What they actually get. Concrete beats "news and updates".
     var perks = L.perks || [];
@@ -1226,13 +1217,19 @@
           '<span class="perks__k">' + esc(p.k) + "</span>" +
           '<span class="perks__v">' + esc(p.v) + "</span>"));
       });
-      box.appendChild(ul);
+      content.appendChild(ul);
     }
 
     var mountPoint = el("div", "join__mount");
-    box.appendChild(mountPoint);
+    content.appendChild(mountPoint);
     JOIN.mount(mountPoint, { source: "section" });
 
+    // If they join from the bar or the modal, this section catches up.
+    JOIN.onJoin(function () {
+      if (!mountPoint.querySelector(".join__done")) {
+        JOIN.mount(mountPoint, { source: "section" });
+      }
+    });
   })();
 
   /* -------------------------------------------------------------------------
@@ -1264,8 +1261,13 @@
      ---------------------------------------------------------------------- */
   (function curtain() {
     var c = $("#curtain");
-    if (!X.introCurtain) { c.remove(); return; }
-    var H = OPENING;
+    if (!X.introCurtain) {
+      c.remove();
+      document.body.classList.remove("is-locked");
+      startHeroReel();
+      return;
+    }
+    var H = E.hero || {};
 
     // Behind the name: the loop if it exists, otherwise your own frames.
     var cm = $("#curtainMedia");
@@ -1322,11 +1324,7 @@
     var lbl = btn.querySelector("span") || btn;
 
     function go() {
-      /* Make sure whatever slide is up is actually rolling as the door
-         opens. Priming pauses clips to warm the decoder, and a mistimed
-         one would otherwise hand over a frozen frame. */
-      var live = document.querySelector(".hero__slides .is-on");
-      if (live && live.tagName === "VIDEO" && live.paused) armClip(live);
+      startHeroReel();
 
       c.classList.add("is-out");
       document.body.classList.remove("is-locked");
@@ -1340,77 +1338,46 @@
        So the door holds itself shut until the opening clip can actually play
        through, and says so while it waits. The wait is capped: on a bad
        connection they get in anyway rather than staring at a locked door. */
-    var gate = H.loading || {};
-    var maxWait = gate.maxWait == null ? 12000 : gate.maxWait;
+    var gate = (E.hero && E.hero.loading) || {};
+    var maxWait = gate.maxWait == null ? 4500 : gate.maxWait;
     var opened  = false;
     var waitTimer = null, pollTimer = null;
 
-    /* Wait only on the configured critical clips. The reel keeps one clip
-       ahead after entry, so the startup screen never turns into a long gate. */
+    /* Wait only on the opening clip. The reel preloads one clip ahead after
+       entry, avoiding the network and decoder spike caused by pulling the
+       whole sequence down at once. */
     var clips = [].slice.call(document.querySelectorAll(".hero__slides video"));
-    var criticalCount = Math.max(1, Math.min(clips.length, gate.criticalClips || 1));
-    var critical = clips.slice(0, criticalCount);
-    critical.forEach(function (v) {
+    var openingClip = document.querySelector(".hero__slides video.is-on") || clips[0];
+    if (openingClip) {
+      var v = openingClip;
       if (!v.src && v.dataset.src) { v.preload = "auto"; v.src = v.dataset.src; }
-    });
-
-    /* "Ready" has to mean the WHOLE clip is on the device.
-
-       readyState >= 3 only promises a few frames ahead of the playhead, so a
-       clip could clear the gate and then stall halfway through — which is
-       exactly the lag the door is supposed to be hiding. Check the buffered
-       range actually reaches the end instead. */
-    function buffered(v) {
-      if (v.error) return true;                       // dead file: falls back to a still
-      if (!v.duration || !isFinite(v.duration)) return false;
-      if (!v.buffered || !v.buffered.length) return false;
-      return v.buffered.end(v.buffered.length - 1) >= v.duration - 0.15;
     }
 
-    /* Downloaded isn't the same as ready to play. The first play of a clip
-       also has to spin up the decoder, which is its own hitch. Run each one
-       for a moment while it's still hidden behind the door so that cost is
-       paid here rather than on screen. */
-    function prime(v) {
-      if (v.__primed || v.error) return;
-      // The slide that's already up is running its real turn — priming it
-      // would pause the hero on a frozen frame the moment the door opens.
-      if (v.classList.contains("is-on")) { v.__primed = true; return; }
-      v.__primed = true;
-      v.muted = true;
-      var p = v.play();
-      if (p && p.then) p.catch(function () {});
-      setTimeout(function () {
-        try { v.pause(); v.currentTime = 0; } catch (e) {}
-      }, 140);
+    /* A few frames of future data are enough to open cleanly. Requiring the
+       entire clip held the whole page hostage on slower connections. */
+    function buffered(v) {
+      if (v.error) return true;                       // dead file: falls back to a still
+      return v.readyState >= 3;
     }
 
     function loaded() {
-      var n = 0;
-      critical.forEach(function (v) { if (buffered(v)) { prime(v); n += 1; } });
-      return n;
+      return openingClip && buffered(openingClip) ? 1 : 0;
     }
 
     function unlock(why) {
       if (opened) return;
       opened = true;
       clearTimeout(waitTimer); clearInterval(pollTimer);
-      /* When the critical clip is ready, keep the loading bar intact during
-         the short exit animation. Swapping it to a button first creates a
-         bright one-frame flash on fast phones. */
-      if (why === "auto" && gate.autoEnter) {
-        go();
-        return;
-      }
       c.removeAttribute("data-loading");
       c.style.removeProperty("--load");
       lbl.textContent = H.enterLabel || "ENTER";
       btn.disabled = false;
       btn.removeAttribute("aria-disabled");
       btn.focus();
+      if (why === "auto" && gate.autoEnter) go();
     }
 
-    if (!clips.length || reduced) {
+    if (!openingClip || reduced) {
       unlock("ready");
     } else {
       /* The loading screen is FORCED — it shows on every visit, even when
@@ -1421,7 +1388,7 @@
          a slow one it flashed by before the footage was really in hand. A
          deliberate minimum beat is also what gives the decoder time to warm
          up, so the first clip doesn't hitch on its opening frames. */
-      var minShow = gate.minShow == null ? 1600 : gate.minShow;
+      var minShow = gate.minShow == null ? 650 : gate.minShow;
       var started = Date.now();
 
       c.setAttribute("data-loading", "1");
@@ -1434,9 +1401,9 @@
         var done = loaded();
         var held = Date.now() - started;
         // Never let the bar hit the end before the door actually opens.
-        var pct = Math.min(done / critical.length, held / minShow);
+        var pct = Math.min(done, held / minShow);
         c.style.setProperty("--load", pct.toFixed(3));
-        if (done === critical.length && held >= minShow) unlock("auto");
+        if (done === 1 && held >= minShow) unlock("ready");
       }, 100);
       waitTimer = setTimeout(function () { unlock("timeout"); }, maxWait);
     }
@@ -1488,6 +1455,7 @@
           b.setAttribute("aria-label", joined ? "You're on the list" : "Join the list");
         };
         relabel();
+        JOIN.onJoin(relabel);
         b.addEventListener("click", function () {
           track("dock_join");
           var sec = document.getElementById("list");
@@ -1540,14 +1508,14 @@
   })();
 
   /* -------------------------------------------------------------------------
-     EMAIL LIST SLIDE-UP — fires only after they've engaged.
+     EARLY ACCESS SLIDE-UP — fires only after they've engaged.
      Dismissal is remembered. It never nags twice.
      ---------------------------------------------------------------------- */
   (function listPrompt() {
     var p = $("#prompt");
     if (!p) return;
     var L = E.list || {}, C = L.prompt;
-    if (!JOIN.configured || X.listPrompt === false || !C || isMember()) { p.remove(); return; }
+    if (X.listPrompt === false || !C || isMember()) { p.remove(); return; }
     if (store.get(KEY.prompt)) { p.remove(); return; }
 
     p.innerHTML =
@@ -1580,6 +1548,8 @@
     document.addEventListener("keydown", function (e) {
       if (e.key === "Escape" && p.classList.contains("is-up")) close(true);
     });
+    JOIN.onJoin(function () { store.set(KEY.prompt, "1"); });
+
     // Trigger: they got as far as the videos. They're interested — now ask.
     var trigger = document.getElementById(C.after || "video") || document.getElementById("music");
     if (!trigger || !("IntersectionObserver" in window)) return;
@@ -1604,7 +1574,7 @@
      ---------------------------------------------------------------------- */
   (function exitIntent() {
     var L = E.list || {}, C = L.exitIntent || {};
-    if (!JOIN.configured || !C.on || isMember() || store.get(KEY.exit)) return;
+    if (!C.on || isMember() || store.get(KEY.exit)) return;
     if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;   // no mobile
     if (window.innerWidth < 860) return;
 
@@ -1758,6 +1728,7 @@
     var live = ctaLive();
     if (!live) { tick(); var iv = setInterval(tick, 1000); }
     else if (clock) clock.remove();
+    JOIN.onJoin(ctaLive);
   })();
 
   /* -------------------------------------------------------------------------
@@ -1788,4 +1759,167 @@
     }, { threshold: 0.6 });
     nodes.forEach(function (n) { io.observe(n); });
   })();
+
+
+  /* -------------------------------------------------------------------------
+     THEME CUSTOMIZER — color is remembered; every visit opens in Modern.
+     ---------------------------------------------------------------------- */
+  (function themes() {
+    var btn = $("#skinBtn");
+    var panel = $("#themePanel");
+    var closeBtn = $("#themePanelClose");
+    var viewBox = $("#viewChoices");
+    var colorBox = $("#colorChoices");
+    var COLOR_KEY = "prxdjay.color";
+    var viewLoad = $("#viewLoad");
+    var viewLoadLabel = $("#viewLoadLabel");
+    var switching = false;
+
+    var VIEWS = {
+      tape: { label: "MODERN", note: "Editorial / VHS" },
+      win:  { label: "RETRO",  note: "Windows / bonus mode" }
+    };
+    var COLORS = {
+      midnight: { label: "MIDNIGHT", color: "#121110" },
+      ivory:    { label: "IVORY",    color: "#eee9df" },
+      cobalt:   { label: "COBALT",   color: "#071a42" },
+      violet:   { label: "VIOLET",   color: "#190b2e" },
+      cherry:   { label: "CHERRY",   color: "#2a070e" },
+      forest:   { label: "FOREST",   color: "#071e18" },
+      sunset:   { label: "SUNSET",   color: "#32160b" }
+    };
+
+    if (!btn) return;
+    if (X.skinSwitcher === false) {
+      btn.remove();
+      if (panel) panel.remove();
+      return;
+    }
+
+    function makeView(key) {
+      var b = el("button", "theme-view");
+      b.type = "button";
+      b.dataset.view = key;
+      b.innerHTML = "<b>" + esc(VIEWS[key].label) + "</b><small>" + esc(VIEWS[key].note) + "</small>";
+      b.addEventListener("click", function () {
+        transitionView(key);
+        track("theme_view", { view: key });
+      });
+      viewBox.appendChild(b);
+    }
+
+    function makeColor(key) {
+      var b = el("button", "theme-color");
+      b.type = "button";
+      b.dataset.color = key;
+      b.innerHTML =
+        '<i class="theme-color__swatch" aria-hidden="true"></i>' +
+        "<span>" + esc(COLORS[key].label) + "</span>";
+      b.setAttribute("aria-label", "Use the " + COLORS[key].label + " color theme");
+      b.addEventListener("click", function () {
+        applyColor(key);
+        track("theme_color", { color: key });
+      });
+      colorBox.appendChild(b);
+    }
+
+    Object.keys(VIEWS).forEach(makeView);
+    Object.keys(COLORS).forEach(makeColor);
+
+    function applyView(key) {
+      if (!VIEWS[key]) key = "tape";
+      root.setAttribute("data-skin", key);
+      [].slice.call(viewBox.querySelectorAll("[data-view]")).forEach(function (choice) {
+        var selected = choice.dataset.view === key;
+        choice.classList.toggle("is-selected", selected);
+        choice.setAttribute("aria-pressed", String(selected));
+      });
+    }
+
+    function transitionView(key) {
+      if (!VIEWS[key] || switching) return;
+      if (root.getAttribute("data-skin") === key) { closePanel(); return; }
+
+      /* Swapping the full interface repaints most of the page. Cover that
+         work with a short, deliberate blackout instead of showing a hitch. */
+      closePanel(false);
+      if (!viewLoad || reduced) { applyView(key); return; }
+
+      switching = true;
+      viewLoadLabel.textContent = key === "win"
+        ? "LOADING RETRO INTERFACE"
+        : "RETURNING TO MODERN";
+      viewLoad.hidden = false;
+      viewLoad.classList.remove("is-leaving");
+      void viewLoad.offsetWidth;
+      requestAnimationFrame(function () { viewLoad.classList.add("is-active"); });
+
+      setTimeout(function () { applyView(key); }, 240);
+      setTimeout(function () {
+        viewLoad.classList.add("is-leaving");
+        viewLoad.classList.remove("is-active");
+      }, 760);
+      setTimeout(function () {
+        viewLoad.hidden = true;
+        viewLoad.classList.remove("is-leaving");
+        switching = false;
+      }, 1120);
+    }
+
+    function applyColor(key) {
+      if (!COLORS[key]) key = "midnight";
+      root.setAttribute("data-color", key);
+      var meta = document.querySelector('meta[name="theme-color"]');
+      if (meta) meta.setAttribute("content", COLORS[key].color);
+      [].slice.call(colorBox.querySelectorAll("[data-color]")).forEach(function (choice) {
+        var selected = choice.dataset.color === key;
+        choice.classList.toggle("is-selected", selected);
+        choice.setAttribute("aria-pressed", String(selected));
+      });
+      btn.style.setProperty("--active-theme", COLORS[key].color);
+      try { localStorage.setItem(COLOR_KEY, key); } catch (e) {}
+    }
+
+    var startView = "tape";
+    var startColor = COLORS[X.defaultColor] ? X.defaultColor : "midnight";
+    try {
+      var savedColor = localStorage.getItem(COLOR_KEY);
+      if (COLORS[savedColor]) startColor = savedColor;
+      localStorage.removeItem("prxdjay.skin");
+    } catch (e) {}
+    applyView(startView);
+    applyColor(startColor);
+
+    function openPanel() {
+      if (!panel) return;
+      panel.hidden = false;
+      requestAnimationFrame(function () { panel.classList.add("is-open"); });
+      btn.setAttribute("aria-expanded", "true");
+      var selected = panel.querySelector(".is-selected");
+      if (selected) selected.focus();
+    }
+
+    function closePanel(returnFocus) {
+      if (!panel) return;
+      panel.classList.remove("is-open");
+      btn.setAttribute("aria-expanded", "false");
+      setTimeout(function () { panel.hidden = true; }, reduced ? 0 : 260);
+      if (returnFocus !== false) btn.focus({ preventScroll: true });
+    }
+
+    btn.addEventListener("click", function () {
+      if (panel && panel.classList.contains("is-open")) closePanel();
+      else openPanel();
+    });
+    if (closeBtn) closeBtn.addEventListener("click", closePanel);
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && panel && panel.classList.contains("is-open")) closePanel();
+    });
+    document.addEventListener("click", function (e) {
+      if (!panel || !panel.classList.contains("is-open")) return;
+      if (panel.contains(e.target) || btn.contains(e.target)) return;
+      closePanel();
+    });
+  })();
+
 })();

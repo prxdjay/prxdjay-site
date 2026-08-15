@@ -1,11 +1,11 @@
 {
   "name": "PRXD.JAY — pronounced Prodigy",
   "short_name": "PRXD.JAY",
-  "description": "The official site of PRXD.JAY, pronounced Prodigy.",
+  "description": "PRXD.JAY, pronounced Prodigy. Music, videos, photos, and every official link in one place.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#090b0f",
-  "theme_color": "#090b0f",
+  "background_color": "#121110",
+  "theme_color": "#121110",
   "icons": [
     { "src": "/assets/img/favicon.svg", "sizes": "any", "type": "image/svg+xml" }
   ]

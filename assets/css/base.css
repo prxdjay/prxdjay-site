@@ -57,7 +57,7 @@ body.is-locked{overflow:hidden}
   font-weight:400;font-style:normal;
   line-height:.94;letter-spacing:var(--tracking-display);
 }
-.h-sec{font-size:2.8rem}
+.h-sec{font-size:clamp(2.2rem,15vw,5rem)}
 .eyebrow{
   font-family:var(--font-mono);font-size:.62rem;
   letter-spacing:var(--tracking-label);text-transform:uppercase;
@@ -144,9 +144,9 @@ html[data-motion="on"] .ambient::after{
   0%{opacity:1}40%{opacity:.6;filter:contrast(2.4) brightness(1.6)}
   70%{opacity:.25}100%{opacity:0;visibility:hidden}
 }
-.curtain__inner{position:relative;z-index:2;max-width:560px}
-.curtain__mark{font-size:3.8rem;margin-bottom:14px}
-.curtain__say{font-family:var(--font-mono);font-size:.64rem;letter-spacing:var(--tracking-label);text-transform:uppercase;color:var(--bone-faint);margin-bottom:44px}
+.curtain__inner{position:relative;z-index:2;max-width:820px}
+.curtain__mark{font-size:clamp(3.6rem,20vw,9rem);margin-bottom:18px}
+.curtain__say{font-family:var(--font-mono);font-size:clamp(.72rem,2vw,.9rem);letter-spacing:var(--tracking-label);text-transform:uppercase;color:var(--bone-faint);margin-bottom:48px}
 .curtain__btn{
   font-family:var(--font-mono);font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;
   min-height:48px;padding:0 6px;color:var(--bone);
@@ -180,23 +180,23 @@ html[data-motion="on"] .ambient::after{
   position:fixed;inset:0;z-index:79;background:var(--ink);
   display:flex;flex-direction:column;justify-content:center;
   padding:100px var(--gutter) calc(var(--gutter) + env(safe-area-inset-bottom));
-  opacity:0;visibility:hidden;transition:opacity var(--dur) var(--ease),visibility 0s linear var(--dur);
+  opacity:0;visibility:hidden;transition:opacity var(--dur) var(--ease),visibility var(--dur);
 }
-.nav.is-open{opacity:1;visibility:visible;transition:opacity var(--dur) var(--ease),visibility 0s}
+.nav.is-open{opacity:1;visibility:visible}
 .nav__list{display:flex;flex-direction:column}
 .nav__link{
   display:flex;align-items:baseline;gap:16px;padding-block:9px;
   border-bottom:1px solid var(--line);
   font-family:var(--font-display);font-style:normal;font-weight:400;
-  font-size:2.25rem;line-height:1.06;
+  font-size:clamp(1.9rem,9vw,2.9rem);line-height:1.06;
   color:var(--bone-dim);transition:color var(--dur-fast) var(--ease),padding-left var(--dur-fast) var(--ease);
 }
 .nav__link:hover,.nav__link:focus-visible,.nav__link[aria-current="true"]{color:var(--bone);padding-left:12px}
 .nav__link span{font-family:var(--font-mono);font-style:normal;font-size:.56rem;letter-spacing:.14em;color:var(--bone-faint)}
 .nav__foot{margin-top:34px;font-family:var(--font-mono);font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:var(--bone-faint)}
 
-/* ---------- OPENING SCREEN ---------- */
-.hero{position:relative;height:80svh;min-height:420px;max-height:760px;display:grid;align-items:end;overflow:hidden;padding:0 var(--gutter) calc(48px + env(safe-area-inset-bottom))}
+/* ---------- HERO ---------- */
+.hero{position:relative;min-height:100svh;min-height:100dvh;display:grid;align-items:end;overflow:hidden;padding:0 var(--gutter) calc(48px + env(safe-area-inset-bottom))}
 .hero__media{position:absolute;inset:0;z-index:0}
 .hero__media img,.hero__media video{
   width:100%;height:100%;object-fit:cover;object-position:var(--focal,50% 35%);
@@ -206,7 +206,7 @@ html[data-motion="on"] .ambient::after{
 .hero__media.is-empty{background:linear-gradient(180deg,var(--ink-3),var(--ink))}
 .hero__inner{position:relative;z-index:2;width:100%;max-width:var(--max);margin-inline:auto}
 .hero__kicker{display:block;margin-bottom:18px}
-.hero__name{font-size:4rem;margin-bottom:16px;transform:rotate(var(--tilt));transform-origin:0 50%}
+.hero__name{font-size:clamp(2.6rem,17vw,8.5rem);margin-bottom:16px;transform:rotate(var(--tilt));transform-origin:0 50%}
 .hero__say{font-family:var(--font-mono);font-size:.66rem;letter-spacing:var(--tracking-label);text-transform:uppercase;color:var(--bone-dim);margin-bottom:32px}
 .hero__cta{display:flex;flex-wrap:wrap;gap:22px;align-items:center}
 .hero__scroll{display:none;position:absolute;right:var(--gutter);bottom:48px;z-index:2;writing-mode:vertical-rl;font-family:var(--font-mono);font-size:.54rem;letter-spacing:.28em;text-transform:uppercase;color:var(--bone-faint)}
@@ -253,7 +253,7 @@ html[data-motion="on"] .ambient::after{
 }
 .hub__item--primary:hover,.hub__item--primary:focus-visible{transform:rotate(0deg);padding-left:16px}
 .hub__item--primary .hub__num,.hub__item--primary .hub__arrow{color:var(--sticker-fg);opacity:.65}
-.hub__item--primary .hub__label{font-family:var(--font-display);font-style:normal;font-weight:400;font-size:1.5rem;letter-spacing:0;text-transform:none}
+.hub__item--primary .hub__label{font-family:var(--font-display);font-style:normal;font-weight:400;font-size:1.5rem;letter-spacing:-.01em;text-transform:none}
 .hub__item--primary .hub__note{display:inline;color:var(--sticker-fg);opacity:.6}
 .hub__item--primary .hub__dots{background:repeating-linear-gradient(90deg,rgba(0,0,0,.28) 0 2px,transparent 2px 6px)}
 .hub__pulse{display:none}
@@ -272,7 +272,7 @@ html[data-motion="on"] .ambient::after{
 
 .bio__quote{
   font-family:var(--font-display);font-style:normal;font-weight:400;
-  font-size:1.75rem;line-height:1.22;
+  font-size:clamp(1.5rem,6.4vw,2.15rem);line-height:1.22;
   color:var(--bone);margin-bottom:30px;text-indent:-.4em;
 }
 .bio__quote::before{content:"\201C"}
@@ -316,8 +316,8 @@ html[data-motion="on"] .ambient::after{
 .gal__ph span{font-family:var(--font-mono);font-size:.52rem;color:var(--bone-faint);opacity:.6}
 
 /* Lightbox */
-.lbx{position:fixed;inset:0;z-index:130;display:grid;place-items:center;background:rgba(var(--ink-rgb),.97);padding:calc(var(--gutter) + 46px) var(--gutter);opacity:0;visibility:hidden;transition:opacity var(--dur) var(--ease),visibility 0s linear var(--dur)}
-.lbx.is-open{opacity:1;visibility:visible;transition:opacity var(--dur) var(--ease),visibility 0s}
+.lbx{position:fixed;inset:0;z-index:130;display:grid;place-items:center;background:rgba(var(--ink-rgb),.97);padding:calc(var(--gutter) + 46px) var(--gutter);opacity:0;visibility:hidden;transition:opacity var(--dur) var(--ease),visibility var(--dur)}
+.lbx.is-open{opacity:1;visibility:visible}
 .lbx img{max-width:100%;max-height:82vh;object-fit:contain}
 .lbx__close,.lbx__nav{width:48px;height:48px;display:grid;place-items:center;font-family:var(--font-mono);color:var(--bone);position:absolute}
 .lbx__close{top:14px;right:14px}
@@ -361,7 +361,7 @@ html[data-motion="on"] .ambient::after{
   transform:rotate(-27deg);z-index:2;
 }
 .feat__body{display:flex;flex-direction:column;justify-content:center}
-.feat__title{font-size:2.75rem;margin:12px 0 12px}
+.feat__title{font-size:clamp(2.3rem,11vw,3.6rem);margin:12px 0 12px}
 .feat__meta{font-family:var(--font-mono);font-size:.58rem;letter-spacing:.2em;text-transform:uppercase;color:var(--bone-faint)}
 .feat__blurb{color:var(--bone-dim);margin:0 0 26px;max-width:42ch}
 .embed{overflow:hidden;background:var(--ink-3);border:1px solid var(--line);margin-top:26px}
@@ -382,7 +382,7 @@ html[data-motion="on"] .ambient::after{
 .rel__dots{flex:1;min-width:14px;height:1px;align-self:center;background:repeating-linear-gradient(90deg,var(--line) 0 2px,transparent 2px 6px)}
 .rel__meta{font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;color:var(--bone-faint);flex:0 0 auto}
 
-/* ---------- EMAIL LIST — underline fields, no boxes ---------- */
+/* ---------- EARLY ACCESS — underline fields, no boxes ---------- */
 .list__box{border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:34px 0;position:relative}
 .form{display:grid;gap:22px;max-width:520px}
 .field{display:grid;gap:6px}
@@ -408,7 +408,7 @@ html[data-motion="on"] .ambient::after{
 /* ---------- CONTACT ---------- */
 .contact__mail{
   display:inline-block;font-family:var(--font-display);font-style:normal;font-weight:400;
-  font-size:1.85rem;letter-spacing:0;word-break:break-word;line-height:1.1;
+  font-size:clamp(1.5rem,8vw,3rem);letter-spacing:-.02em;word-break:break-word;line-height:1.1;
   border-bottom:1px solid var(--line);padding-bottom:4px;
   transition:border-color var(--dur) var(--ease);
 }
@@ -417,7 +417,7 @@ html[data-motion="on"] .ambient::after{
 
 /* ---------- FOOTER ---------- */
 .ftr{border-top:1px solid var(--line);padding:56px var(--gutter) calc(42px + env(safe-area-inset-bottom));text-align:center;position:relative;z-index:1}
-.ftr__mark{font-family:var(--font-display);font-style:normal;font-weight:400;font-size:4rem;line-height:.94;letter-spacing:0}
+.ftr__mark{font-family:var(--font-display);font-style:normal;font-weight:400;font-size:clamp(2.2rem,16vw,7rem);line-height:.94;letter-spacing:-.03em}
 .ftr__note{font-family:var(--font-mono);font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--bone-faint);margin-top:10px}
 .ftr__legal{margin-top:32px;font-family:var(--font-mono);font-size:.54rem;letter-spacing:.16em;text-transform:uppercase;color:var(--bone-faint);line-height:1.9}
 
@@ -460,21 +460,6 @@ html[data-motion="on"] .reveal.is-in{opacity:1;transform:none;transition:opacity
   .reveal{opacity:1 !important;transform:none !important}
 }
 
-/* Keep the moving opening on phones without combining it with several
-   full-screen compositing effects. The dark scrim supplies the video grade. */
-@media (max-width:760px), (pointer:coarse){
-  .grain{display:none}
-  html[data-motion="on"] .ambient::after{display:none}
-  html[data-motion="on"] .hero__media::before{display:none;animation:none}
-  html[data-motion="on"] .hero__slides::after{animation:none}
-  .hero__slides::after{mix-blend-mode:normal;opacity:.08}
-  .hero__slides[data-kind="clip"]::after{opacity:.1}
-  .hero__slides video,
-  .hero__media video{filter:none;transform:none;animation:none !important}
-  .hdr{backdrop-filter:none;-webkit-backdrop-filter:none}
-  .section,.band,.ftr{content-visibility:auto;contain-intrinsic-size:auto 720px}
-}
-
 /* ---------- PRINT (EPK one-pager) ---------- */
 @media print{
   .hdr,.nav,.grain,.ambient,.curtain,.hero__scroll,.lbx{display:none !important}
@@ -511,11 +496,11 @@ html[data-motion="on"] .hero__slides img.is-on{animation:push 9s var(--ease) for
 .curtain__media img.is-on,.curtain__media video{opacity:1}
 .curtain__media::after{content:"";position:absolute;inset:0;background:radial-gradient(75% 60% at 50% 50%,rgba(var(--ink-rgb),.30),rgba(var(--ink-rgb),.86) 85%)}
 .curtain__tag{
-  font-family:var(--font-mono);font-size:.56rem;letter-spacing:.24em;
+  font-family:var(--font-mono);font-size:.66rem;letter-spacing:.24em;
   text-transform:uppercase;color:var(--bone-dim);margin-bottom:26px;
 }
 .curtain__btn{
-  border:1px solid var(--bone);padding:15px 34px;min-height:auto;
+  border:1px solid var(--bone);padding:17px 38px;min-height:auto;font-size:.8rem;
   background:transparent;position:relative;overflow:hidden;
 }
 .curtain__btn span{position:relative;z-index:2;transition:color var(--dur) var(--ease)}
@@ -671,6 +656,12 @@ body:has(.dock.is-up) .ftr{padding-bottom:calc(80px + env(safe-area-inset-bottom
 }
 .hero__slides video.is-on{opacity:1}
 
+/* Keep half the source saturation, then let the theme add a faint wash. */
+.hero__slides img,
+.hero__slides video{
+  filter:saturate(.5) contrast(var(--media-contrast,1.48)) brightness(var(--media-exposure,.82));
+}
+
 html[data-motion="on"] .hero__slides .is-on.drift-0{animation:drift0 11s var(--ease) forwards}
 html[data-motion="on"] .hero__slides .is-on.drift-1{animation:drift1 11s var(--ease) forwards}
 html[data-motion="on"] .hero__slides .is-on.drift-2{animation:drift2 11s var(--ease) forwards}
@@ -742,7 +733,7 @@ html[data-motion="on"] .hero__media::before{
 .drop[hidden]{display:none}
 .drop__inner{display:grid;gap:20px}
 .drop__kick{display:block;margin-bottom:8px}
-.drop__title{font-size:2.4rem;line-height:1}
+.drop__title{font-size:clamp(1.9rem,9vw,3rem);line-height:1}
 .drop__kind{
   display:inline-block;margin-top:8px;font-family:var(--font-mono);
   font-size:.56rem;letter-spacing:.2em;text-transform:uppercase;color:var(--bone-faint);
@@ -773,10 +764,24 @@ html[data-motion="on"] .hero__media::before{
 }
 .perks__n{font-size:.58rem;color:var(--bone-faint);flex:0 0 auto}
 .perks__k{
-  font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;
+  font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;
+  font-weight:600;color:var(--bone);
   flex:0 0 auto;min-width:118px;
 }
-.perks__v{font-size:.72rem;color:var(--bone-dim);flex:1 1 240px;letter-spacing:.01em}
+.perks__v{
+  font-size:.77rem;line-height:1.55;font-weight:500;
+  color:var(--bone-dim);flex:1 1 240px;letter-spacing:.01em;
+}
+
+/* The list has one job: explain the value in a single glance. */
+#list .sec-head .caption{
+  max-width:40ch;font-size:.8rem;line-height:1.5;
+  font-weight:600;color:var(--bone);
+}
+#list .field label,
+#list .join__fine,
+#list .join__go{font-weight:600}
+#list .join__fine{color:var(--bone-dim)}
 
 /* ---------- THE JOIN FORM ---------- */
 .join{gap:18px;max-width:560px}
@@ -799,7 +804,7 @@ html[data-motion="on"] .hero__media::before{
 .join__done-head{margin-bottom:24px}
 .join__title{
   font-family:var(--font-display);font-style:normal;font-weight:400;
-  font-size:2rem;line-height:1.08;margin-bottom:10px;
+  font-size:clamp(1.7rem,7vw,2.4rem);line-height:1.08;margin-bottom:10px;
 }
 .join__title:focus{outline:none}
 .join__body{
@@ -823,7 +828,7 @@ html[data-motion="on"] .hero__media::before{
 .reward__txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
 .reward__txt b{
   font-family:var(--font-display);font-style:normal;font-weight:400;
-  font-size:1.35rem;line-height:1.05;letter-spacing:0;
+  font-size:1.35rem;line-height:1.05;letter-spacing:-.01em;
 }
 .reward__txt i{font-style:normal;font-family:var(--font-mono);font-size:.58rem;opacity:.65;line-height:1.5}
 .reward__cta{
@@ -898,7 +903,7 @@ html[data-motion="on"] .hero__media::before{
   display:grid;place-items:center;color:var(--bone-faint);font-size:.8rem;
 }
 .modal__x:hover,.modal__x:focus-visible{color:var(--bone)}
-.modal__title{font-size:2.1rem;margin-bottom:12px}
+.modal__title{font-size:clamp(1.8rem,7vw,2.5rem);margin-bottom:12px}
 .modal__body{
   font-family:var(--font-mono);font-size:.72rem;line-height:1.65;
   color:var(--bone-dim);margin-bottom:26px;max-width:44ch;
@@ -930,7 +935,7 @@ html[data-motion="on"] .hero__media::before{
 
 /* ---------- PLAIN DOCUMENT PAGES (privacy / terms / 404) ---------- */
 .doc{max-width:70ch;margin-inline:auto;padding:120px var(--gutter) 90px}
-.doc h1{font-family:var(--font-display);font-style:normal;font-weight:400;font-size:2.8rem;line-height:1;margin-bottom:10px}
+.doc h1{font-family:var(--font-display);font-style:normal;font-weight:400;font-size:clamp(2.2rem,10vw,3.4rem);line-height:1;margin-bottom:10px}
 .doc__date{font-family:var(--font-mono);font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;color:var(--bone-faint);margin-bottom:44px}
 .doc h2{font-family:var(--font-mono);font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;margin:40px 0 14px;padding-top:18px;border-top:1px solid var(--line)}
 .doc p,.doc li{color:var(--bone-dim);margin-bottom:14px}
@@ -946,7 +951,7 @@ html[data-motion="on"] .hero__media::before{
 /* 404 */
 .oops{min-height:100svh;display:grid;place-items:center;text-align:center;padding:var(--gutter)}
 .oops__code{font-family:var(--font-mono);font-size:.6rem;letter-spacing:.3em;color:var(--bone-faint);margin-bottom:20px}
-.oops__title{font-family:var(--font-display);font-style:normal;font-weight:400;font-size:3.5rem;line-height:.95;margin-bottom:18px}
+.oops__title{font-family:var(--font-display);font-style:normal;font-weight:400;font-size:clamp(2.6rem,14vw,5rem);line-height:.95;margin-bottom:18px}
 .oops__body{font-family:var(--font-mono);font-size:.72rem;color:var(--bone-dim);margin-bottom:38px}
 .oops__row{display:flex;flex-wrap:wrap;gap:18px 26px;justify-content:center}
 
@@ -1015,21 +1020,21 @@ html[data-motion="on"] .hero__media::before{
   .curtain,.lbx,.modal{z-index:130}
 }
 
-/* The release sticker and the genre kicker were landing on top of each other */
-.hero__inner .sticker{display:block;width:max-content;margin-bottom:16px}
+/* The rail owns the left edge, so the skin toggle moves off it */
+@media (min-width:1100px){ .skin-btn{right:14px} }
 
-/* Crossfade, not dip-to-black. The outgoing slide waits before it starts
-   fading, and fades slower, so something is always fully opaque underneath
-   the incoming one. Without the delay both sit at ~50% mid-transition and
-   the whole landing screen visibly darkens on every change. */
-.hero__slides img,.hero__slides video{transition:opacity 2.4s var(--ease) .7s}
-.hero__slides img.is-on,.hero__slides video.is-on{transition:opacity 1.5s var(--ease) 0s}
-.curtain__media img,.curtain__media video{transition:opacity 1.9s var(--ease) .55s}
-.curtain__media img.is-on,.curtain__media video.is-on{transition:opacity 1.2s var(--ease) 0s}
+/* The release sticker and the genre kicker were landing on top of each other */
+.hero__inner .sticker{margin-bottom:16px}
+
+/* Crossfade without holding two video decoders active for several seconds. */
+.hero__slides img,.hero__slides video{transition:opacity 1.2s var(--ease) .25s}
+.hero__slides img.is-on,.hero__slides video.is-on{transition:opacity .85s var(--ease) 0s}
+.curtain__media img,.curtain__media video{transition:opacity 1.15s var(--ease) .2s}
+.curtain__media img.is-on,.curtain__media video.is-on{transition:opacity .8s var(--ease) 0s}
 
 /* ---------- THE DOOR AS A LOADING SCREEN ---------------------------------
    The hero opens on video. Rather than let someone walk into a stutter,
-   the door holds shut until the opening clip can play through — and looks
+   the door holds shut until the opening clip has frames ready — and looks
    deliberate while it does. A tape spooling up, not a spinner. */
 .curtain[data-loading] .curtain__btn{
   cursor:progress; color:var(--bone-dim); border-color:var(--bone-faint);
@@ -1077,11 +1082,11 @@ html[data-motion="on"] .curtain__media .is-on.drift-still{
 }
 /* exposure breathing + a touch of chroma drift, like tracking on a paused VHS */
 @keyframes tapehold{
-  0%,100%{filter:grayscale(.42) contrast(1.14) brightness(.66)}
-  20%    {filter:grayscale(.36) contrast(1.26) brightness(.74) hue-rotate(-5deg)}
-  40%    {filter:grayscale(.48) contrast(1.08) brightness(.60)}
-  60%    {filter:grayscale(.38) contrast(1.30) brightness(.71) hue-rotate(4deg)}
-  80%    {filter:grayscale(.44) contrast(1.12) brightness(.64)}
+  0%,100%{filter:saturate(.5) contrast(1.42) brightness(.90)}
+  20%    {filter:saturate(.5) contrast(1.48) brightness(.94)}
+  40%    {filter:saturate(.5) contrast(1.38) brightness(.86)}
+  60%    {filter:saturate(.5) contrast(1.50) brightness(.92)}
+  80%    {filter:saturate(.5) contrast(1.40) brightness(.88)}
 }
 
 /* While a still is up, the tracking bar sweeps harder — it's the only thing
@@ -1121,6 +1126,13 @@ html[data-motion="on"] .hero__media:has(.hero__slides[data-kind="still"])::befor
   opacity:.16;
   mix-blend-mode:overlay;
 }
+
+/* A restrained theme wash over footage that still keeps half its own color. */
+.hero__slides::before{
+  content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:var(--hero-tint,var(--bone));
+  mix-blend-mode:color;opacity:.12;
+}
 html[data-motion="on"] .hero__slides::after{animation:grainshift .8s steps(3) infinite}
 html[data-grain="off"] .hero__slides::after{display:none}
 
@@ -1155,33 +1167,10 @@ html[data-grain="off"] .hero__slides::after{display:none}
     radial-gradient(78% 62% at 50% 50%, rgba(0,0,0,.30), rgba(0,0,0,.9) 88%);
 }
 
-/* ---------- READABILITY + STABLE TYPE ---------------------------------- */
-.eyebrow,.sticker,.hero__say,.hdr__mark,.caption,.hub__note,.vid__note,
-.feat__meta,.rel__meta,.field label,.form__msg,.join__fine,.join__skip,
-.perks__n,.ftr__note,.ftr__legal,.doc__date,.doc h2,.doc__back{
-  font-size:.7rem;
-}
-.hub__label,.vid__title,.rel__title,.perks__k,.perks__v{font-size:.78rem}
-.bio__fact{font-size:.75rem}
-.bio__fact dt{font-size:.68rem}
-.btn,.menu-btn,.rail__link,.hub__cta,.hub__item--primary .hub__cta,
-.arch__btn i,.dock__item span{font-size:.7rem}
-.rail__n,.nav__link span{font-size:.62rem}
-.rail__foot{font-size:.68rem}
-.field input:focus-visible{outline:2px solid var(--bone);outline-offset:4px}
-.nav__link,.rail__link,.dock__item,.hub__item,.vid__play,.gal__btn{min-height:44px}
-
-@media (min-width:560px){
-  .hero__name{font-size:5.5rem}
-  .h-sec{font-size:3.6rem}
-  .contact__mail{font-size:2.4rem}
-}
-
-@media (min-width:860px){
-  .hero__name{font-size:7rem}
-  .h-sec{font-size:4.5rem}
-  .bio__quote{font-size:2.15rem}
-  .feat__title{font-size:3.6rem}
-  .contact__mail{font-size:3rem}
-  .ftr__mark{font-size:7rem}
+/* On phones, continuous grain and live backdrop blur consume GPU time even
+   when nothing is moving. Keep their look as a static layer instead. */
+@media (max-width:640px){
+  html[data-motion="on"] .grain,
+  html[data-motion="on"] .hero__slides::after{animation:none}
+  .dock{backdrop-filter:none;-webkit-backdrop-filter:none}
 }

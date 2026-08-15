@@ -1,15 +1,27 @@
 <!DOCTYPE html>
-<html lang="en" data-era="001" data-theme="tube" data-accent="red">
+<html lang="en" data-era="001">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#090b0f">
-<script src="assets/js/appearance.js?v=29"></script>
+<meta name="theme-color" content="#121110">
 <meta name="color-scheme" content="dark">
-
+<script>
+  try {
+    var savedColor = localStorage.getItem("prxdjay.color");
+    var themeColors = {
+      midnight:"#121110",ivory:"#eee9df",cobalt:"#071a42",
+      violet:"#190b2e",cherry:"#2a070e",forest:"#071e18",sunset:"#32160b"
+    };
+    document.documentElement.setAttribute("data-skin","tape");
+    if (themeColors[savedColor]) {
+      document.documentElement.setAttribute("data-color",savedColor);
+      document.querySelector('meta[name="theme-color"]').setAttribute("content",themeColors[savedColor]);
+    }
+  } catch (e) {}
+</script>
 <!-- ============================ SEO METADATA ============================ -->
-<title>PRXD.JAY | Official Site</title>
-<meta name="description" content="The official site of PRXD.JAY, pronounced Prodigy: an R&amp;B and hip-hop artist, producer, and engineer from Brentwood, New York.">
+<title>PRXD.JAY — pronounced Prodigy | Official Site</title>
+<meta name="description" content="PRXD.JAY, pronounced Prodigy. Music, videos, photos, and every official link in one place.">
 <link rel="canonical" href="https://prxdjay.com/">
 <meta name="author" content="PRXD.JAY">
 <meta name="robots" content="index, follow, max-image-preview:large">
@@ -24,7 +36,7 @@
 <meta property="og:type" content="profile">
 <meta property="og:site_name" content="PRXD.JAY">
 <meta property="og:title" content="PRXD.JAY — pronounced Prodigy">
-<meta property="og:description" content="R&amp;B and hip-hop from New York. Listen to the latest music and watch official videos.">
+<meta property="og:description" content="Music, videos, photos, and every official link in one place.">
 <meta property="og:url" content="https://prxdjay.com/">
 <meta property="og:image" content="https://prxdjay.com/assets/img/share.jpg">
 <meta property="og:image:width" content="1200">
@@ -36,19 +48,18 @@
 <meta name="twitter:site" content="@prxdjay">
 <meta name="twitter:creator" content="@prxdjay">
 <meta name="twitter:title" content="PRXD.JAY — pronounced Prodigy">
-<meta name="twitter:description" content="R&amp;B and hip-hop from New York. Listen to the latest music and watch official videos.">
+<meta name="twitter:description" content="Music, videos, photos, and every official link in one place.">
 <meta name="twitter:image" content="https://prxdjay.com/assets/img/share.jpg">
 
 <!-- ===================== STRUCTURED DATA (schema.org) ==================== -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "Person",
+  "@type": "MusicGroup",
   "name": "PRXD.JAY",
-  "alternateName": ["Prxd. Jay", "Prodigy"],
-  "description": "PRXD.JAY, pronounced Prodigy, is an R&B and hip-hop artist, producer, and engineer from Brentwood, New York.",
-  "jobTitle": ["Musician", "Record producer", "Audio engineer"],
-  "homeLocation": { "@type": "Place", "name": "Brentwood, New York" },
+  "alternateName": ["Prxd. Jay", "PRXDIGY", "Prodigy"],
+  "description": "PRXD.JAY, pronounced Prodigy. Rap and R&B, made end to end.",
+  "genre": ["Hip Hop", "Rap", "R&B", "Alternative R&B", "Neo Soul"],
   "url": "https://prxdjay.com/",
   "image": "https://i.scdn.co/image/ab6761610000e5eb1fba8e84e5fb261305dcba7f",
   "sameAs": [
@@ -83,23 +94,24 @@
      is worth roughly a quarter-second on the first paint over mobile data. -->
 <link rel="preconnect" href="https://i.ytimg.com" crossorigin>
 <link rel="preconnect" href="https://i.scdn.co" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&amp;family=JetBrains+Mono:wght@400;500&amp;family=Inter:wght@300;400;500;600&amp;family=Caveat:wght@400;600&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=JetBrains+Mono:wght@400;500&family=Inter:wght@300;400;500;600&family=Caveat:wght@400;600&display=swap">
 
 <!-- ============================== STYLES ================================
      theme.css = era tokens (swap per era)  ·  base.css = permanent framework
 
-     ?v=29 ON EVERY FILE BELOW IS NOT DECORATION. Browsers hold on to CSS and
+     ?v=25 ON EVERY FILE BELOW IS NOT DECORATION. Browsers hold on to CSS and
      JS for days. Without the number, someone who visited last week keeps the
      OLD site until their cache clears on its own.
      >>> EVERY TIME YOU EDIT era.config.js OR ANY css/js FILE, BUMP ALL FOUR
          NUMBERS BELOW BY ONE (v=2 -> v=3). That's the whole ritual. <<<
      ==================================================================== -->
-<link rel="stylesheet" href="assets/css/theme.css?v=29">
-<link rel="stylesheet" href="assets/css/base.css?v=29">
-<link rel="stylesheet" href="assets/css/system.css?v=29">
+<link rel="stylesheet" href="assets/css/theme.css?v=38">
+<link rel="stylesheet" href="assets/css/base.css?v=38">
+<link rel="stylesheet" href="assets/css/skin-win.css?v=38">
+<link rel="stylesheet" href="assets/css/color-themes.css?v=38">
 </head>
 
-<body>
+<body class="is-locked">
 <a class="skip" href="#main">Skip to content</a>
 
 <!-- Texture layers -->
@@ -107,15 +119,14 @@
 <div class="grain" aria-hidden="true"></div>
 
 <!-- ========================= INTRO CURTAIN ========================= -->
-<div class="curtain" id="curtain" role="dialog" aria-label="Enter the site" hidden>
+<div class="curtain" id="curtain" role="dialog" aria-label="Enter the site" data-loading="1">
   <div class="curtain__media" id="curtainMedia" aria-hidden="true"></div>
   <div class="curtain__inner">
     <p class="curtain__tag" id="curtainTag"></p>
     <p class="display chrome vhs curtain__mark" id="curtainMark">PRXD.JAY</p>
     <p class="curtain__say" id="curtainSay">pronounced Prodigy</p>
-    <button class="curtain__btn" id="curtainBtn" type="button"><span>ENTER</span></button>
+    <button class="curtain__btn" id="curtainBtn" type="button" disabled aria-disabled="true"><span>LOADING</span></button>
   </div>
-  <p class="curtain__meta" id="curtainMeta" aria-hidden="true"></p>
 </div>
 
 <!-- ============================ HEADER ============================ -->
@@ -125,9 +136,6 @@
   <!-- Tablet: every section visible in the header. Mobile: the menu button.
        Desktop: the side rail below takes over and this hides. -->
   <nav class="hdr__nav" id="hdrNav" aria-label="Sections"></nav>
-  <button class="appearance-btn" id="appearanceBtn" type="button" aria-expanded="false" aria-controls="appearance" aria-label="Personalize appearance">
-    <span aria-hidden="true"><i></i><i></i><i></i></span>
-  </button>
   <button class="menu-btn" id="menuBtn" type="button" aria-expanded="false" aria-controls="nav">
     <span id="menuLabel">MENU</span>
     <span class="menu-btn__bars" aria-hidden="true"><i></i><i></i><i></i></span>
@@ -153,7 +161,7 @@
 
 <main id="main">
 
-  <!-- ========================= OPENING SCREEN ========================= -->
+  <!-- ======================= 1. LANDING / HERO ======================= -->
   <section class="hero" id="home" aria-label="PRXD.JAY">
     <div class="hero__media" id="heroMedia" aria-hidden="true"></div>
     <div class="hero__inner">
@@ -169,12 +177,26 @@
   <!-- ===================== NEXT DROP (off until set) ================== -->
   <section class="drop" id="drop" aria-label="Next release" hidden></section>
 
-  <!-- ============================= MUSIC ============================= -->
+  <!-- ========================= 2. LINK HUB ========================== -->
+  <section class="section" id="links" aria-labelledby="linksH">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <div>
+          <span class="eyebrow">01 — All links</span>
+          <h2 class="display h-sec" id="linksH">THE HUB</h2>
+        </div>
+        <p class="caption" id="linksCap"></p>
+      </div>
+      <div class="hub reveal" id="hub"></div>
+    </div>
+  </section>
+
+  <!-- ========================== 3. MUSIC ============================ -->
   <section class="section" id="music" aria-labelledby="musH">
     <div class="wrap">
-      <div class="sec-head reveal" data-window="MUSIC">
+      <div class="sec-head reveal">
         <div>
-          <span class="eyebrow">01 · Music</span>
+          <span class="eyebrow">02 — Music</span>
           <h2 class="display h-sec" id="musH">THE MUSIC</h2>
         </div>
         <p class="caption" id="musCap"></p>
@@ -188,9 +210,9 @@
 
   <section class="section" id="video" aria-labelledby="vidH">
     <div class="wrap">
-      <div class="sec-head reveal" data-window="VIDEOS">
+      <div class="sec-head reveal">
         <div>
-          <span class="eyebrow">02 · Videos</span>
+          <span class="eyebrow">03 — Videos</span>
           <h2 class="display h-sec" id="vidH">IN MOTION</h2>
         </div>
         <p class="caption" id="vidCap"></p>
@@ -202,13 +224,25 @@
 
   <div class="band" id="band-video" hidden></div>
 
-  <!-- ============================= ABOUT ============================= -->
+  <section class="section" id="gallery" aria-labelledby="galH">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <div>
+          <span class="eyebrow">04 — Photos</span>
+          <h2 class="display h-sec" id="galH">VISUALS</h2>
+        </div>
+        <p class="caption" id="galCap"></p>
+      </div>
+      <div class="gal reveal" id="gal"></div>
+    </div>
+  </section>
+
   <section class="section" id="bio" aria-labelledby="bioH">
     <div class="wrap">
-      <div class="sec-head reveal" data-window="ABOUT">
+      <div class="sec-head reveal">
         <div>
-          <span class="eyebrow">03 · About</span>
-          <h2 class="display h-sec" id="bioH">ABOUT</h2>
+          <span class="eyebrow">05 — About</span>
+          <h2 class="display h-sec" id="bioH">THE ARTIST</h2>
         </div>
       </div>
       <div class="bio__grid">
@@ -223,60 +257,12 @@
     </div>
   </section>
 
-  <!-- ============================= PHOTOS ============================ -->
-  <section class="section" id="gallery" aria-labelledby="galH">
-    <div class="wrap">
-      <div class="sec-head reveal" data-window="PHOTOS">
-        <div>
-          <span class="eyebrow">04 · Photos</span>
-          <h2 class="display h-sec" id="galH">PHOTOS</h2>
-        </div>
-        <p class="caption" id="galCap"></p>
-      </div>
-      <div class="gal reveal" id="gal"></div>
-    </div>
-  </section>
-
-  <!-- ============================= LINKS ============================= -->
-  <section class="section" id="links" aria-labelledby="linksH">
-    <div class="wrap">
-      <div class="sec-head reveal" data-window="LINKS">
-        <div>
-          <span class="eyebrow">05 · Links</span>
-          <h2 class="display h-sec" id="linksH">LINKS</h2>
-        </div>
-        <p class="caption" id="linksCap"></p>
-      </div>
-      <div class="hub reveal" id="hub"></div>
-    </div>
-  </section>
-
-  <!-- ========================= 4. GALLERY =========================== -->
-
-  <!-- ========================== 5. VIDEO ============================ -->
-
-  <!-- ========================== 6. MUSIC ============================ -->
-
-  <!-- ========================== EMAIL LIST =========================== -->
-  <section class="section" id="list" aria-labelledby="listH">
-    <div class="wrap">
-      <div class="sec-head reveal" data-window="MAILING LIST">
-        <div>
-          <span class="eyebrow">06 · Join</span>
-          <h2 class="display h-sec" id="listH">JOIN THE LIST</h2>
-        </div>
-        <p class="caption" id="listCap"></p>
-      </div>
-      <div class="list__box reveal" id="listBox"></div>
-    </div>
-  </section>
-
-  <!-- ========================= 8. CONTACT =========================== -->
+  <!-- ========================= 7. CONTACT =========================== -->
   <section class="section" id="contact" aria-labelledby="conH">
     <div class="wrap">
-      <div class="sec-head reveal" data-window="CONTACT">
+      <div class="sec-head reveal">
         <div>
-          <span class="eyebrow">07 · Contact</span>
+          <span class="eyebrow">06 — Contact</span>
           <h2 class="display h-sec" id="conH">CONTACT</h2>
         </div>
         <p class="caption" id="conCap"></p>
@@ -287,7 +273,7 @@
 
 </main>
 
-<!-- =========================== 9. FOOTER ============================ -->
+<!-- =========================== 8. FOOTER ============================ -->
 <footer class="ftr">
   <p class="ftr__mark chrome vhs" id="ftrMark">PRXD.JAY</p>
   <p class="ftr__note" id="ftrNote">pronounced Prodigy</p>
@@ -298,49 +284,46 @@
 <div class="lbx" id="lbx" role="dialog" aria-modal="true" aria-label="Photo viewer">
   <button class="lbx__close" id="lbxClose" type="button" aria-label="Close">&#10005;</button>
   <button class="lbx__nav lbx__nav--prev" id="lbxPrev" type="button" aria-label="Previous photo">&#8249;</button>
-  <img id="lbxImg" alt="">
+  <img id="lbxImg" src="" alt="">
   <button class="lbx__nav lbx__nav--next" id="lbxNext" type="button" aria-label="Next photo">&#8250;</button>
 </div>
-
-<!-- ======================= APPEARANCE SETTINGS ===================== -->
-<aside class="appearance" id="appearance" role="dialog" aria-modal="true" aria-labelledby="appearanceTitle" hidden>
-  <div class="appearance__window">
-    <header class="appearance__titlebar">
-      <h2 id="appearanceTitle">APPEARANCE</h2>
-      <button class="appearance__close" id="appearanceClose" type="button" aria-label="Close appearance settings">&#10005;</button>
-    </header>
-    <div class="appearance__body">
-      <fieldset>
-        <legend>DISPLAY</legend>
-        <div class="appearance__themes" role="group" aria-label="Display style">
-          <button type="button" data-theme-choice="tube">TUBE</button>
-          <button type="button" data-theme-choice="desktop">DESKTOP</button>
-          <button type="button" data-theme-choice="clean">CLEAN</button>
-        </div>
-      </fieldset>
-      <fieldset>
-        <legend>COLOR</legend>
-        <div class="appearance__swatches" role="group" aria-label="Accent color">
-          <button type="button" data-accent-choice="red" aria-label="Red"><span></span></button>
-          <button type="button" data-accent-choice="green" aria-label="Green"><span></span></button>
-          <button type="button" data-accent-choice="blue" aria-label="Blue"><span></span></button>
-          <button type="button" data-accent-choice="violet" aria-label="Violet"><span></span></button>
-          <button type="button" data-accent-choice="gold" aria-label="Gold"><span></span></button>
-        </div>
-      </fieldset>
-      <button class="appearance__reset" id="appearanceReset" type="button">RESET</button>
-    </div>
-  </div>
-</aside>
 
 <!-- ===================== STICKY DOCK (fast path) ==================== -->
 <nav class="dock" id="dock" aria-label="Quick links"></nav>
 
-<!-- ===================== EMAIL LIST SLIDE-UP INVITE ================== -->
-<aside class="prompt" id="prompt" role="complementary" aria-label="Join the mailing list" hidden></aside>
+<!-- ======================== THEME CUSTOMIZER ======================== -->
+<button class="skin-btn" id="skinBtn" type="button" aria-expanded="false" aria-controls="themePanel">
+  <i aria-hidden="true"></i><span>THEME</span>
+</button>
+<aside class="theme-panel" id="themePanel" aria-label="Customize the site theme" hidden>
+  <div class="theme-panel__head">
+    <div>
+      <span class="theme-panel__eyebrow">PERSONALIZE</span>
+      <p class="theme-panel__title">CHOOSE YOUR LOOK</p>
+    </div>
+    <button class="theme-panel__close" id="themePanelClose" type="button" aria-label="Close theme menu">&#10005;</button>
+  </div>
+  <div class="theme-panel__group">
+    <p class="theme-panel__label">INTERFACE</p>
+    <div class="theme-panel__views" id="viewChoices"></div>
+  </div>
+  <div class="theme-panel__group">
+    <p class="theme-panel__label">COLOR</p>
+    <div class="theme-panel__colors" id="colorChoices"></div>
+  </div>
+  <p class="theme-panel__note">Color stays saved. Every visit starts in Modern.</p>
+</aside>
+
+<!-- The brief blackout makes the heavier interface repaint feel intentional. -->
+<div class="view-load" id="viewLoad" role="status" aria-live="polite" hidden>
+  <div class="view-load__inner">
+    <p class="view-load__label" id="viewLoadLabel">LOADING INTERFACE</p>
+    <span class="view-load__track" aria-hidden="true"><i></i></span>
+  </div>
+</div>
 
 <!-- ============================ SCRIPTS ============================ -->
-<script src="assets/js/era.config.js?v=29"></script>
-<script src="assets/js/app.js?v=29" defer></script>
+<script src="assets/js/era.config.js?v=38"></script>
+<script src="assets/js/app.js?v=38" defer></script>
 </body>
 </html>
