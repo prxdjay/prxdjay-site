@@ -29,12 +29,13 @@
   var set = function (id, txt) { var n = document.getElementById(id); if (n && txt != null) n.textContent = txt; };
 
   var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var compact = window.matchMedia("(max-width: 640px)").matches;
   var root = document.documentElement;
 
   /* How long the outgoing slide takes to finish dissolving: the .25s hold
      plus the 1.2s fade defined on .hero__slides > * in base.css. Used to
      decide when it's safe to pause the clip underneath. Keep in step. */
-  var FADE_MS = 1450;
+  var FADE_MS = compact ? 520 : 1450;
   var startHeroReel = function () {};
 
   /* -------------------------------------------------------------------------
@@ -100,7 +101,11 @@
     if (isClip(s.src)) {
       var v = el("video");
       v.muted = true; v.loop = true; v.playsInline = true;
+      v.preload = "none";
+      v.disablePictureInPicture = true;
       v.setAttribute("muted", ""); v.setAttribute("playsinline", "");
+      v.setAttribute("webkit-playsinline", "");
+      v.setAttribute("disablepictureinpicture", "");
       v.setAttribute("aria-hidden", "true");
       v.dataset.src = s.src;
       if (s.exposure != null) v.style.setProperty("--media-exposure", String(s.exposure));
@@ -108,6 +113,7 @@
 
       // A phone that won't play the clip still gets the frame behind it.
       v.onerror = function () {
+        if (v.dataset.releasing === "1") return;
         if (!s.fallback) { v.remove(); return; }
         var img = smartImg(s.fallback);
         img.className = v.className;
@@ -141,7 +147,11 @@
      a black frame forever. So if it isn't ready yet, play on `canplay`. */
   function armClip(v) {
     if (!v || v.tagName !== "VIDEO") return;
-    if (!v.src && v.dataset.src) { v.preload = "auto"; v.src = v.dataset.src; }
+    if (!v.getAttribute("src") && v.dataset.src) {
+      delete v.dataset.releasing;
+      v.preload = "auto";
+      v.src = v.dataset.src;
+    }
     if (reduced) return;                    // motion off: load a frame, hold it
     v.autoplay = true;
 
@@ -162,15 +172,29 @@
   function runSlides(nodes, hold) {
     if (reduced || !nodes || nodes.length < 2) return;
     var i = 0, timer = null, gen = 0;
+    var suspended = false, heroVisible = true;
 
     function clear() { if (timer) { clearTimeout(timer); timer = null; } }
 
     // Fetch the next clip while the current one plays, so its turn never
     // opens on a black frame.
     function preload(n) {
-      if (n && n.tagName === "VIDEO" && !n.src && n.dataset.src) {
+      if (n && n.tagName === "VIDEO" && !n.getAttribute("src") && n.dataset.src) {
+        delete n.dataset.releasing;
         n.preload = "auto"; n.src = n.dataset.src;
       }
+    }
+
+    /* Mobile Safari holds a decoder and buffered frames for every video that
+       has ever received a src, even after pause(). Release outgoing clips so
+       the reel stays at two decoders: the visible clip and the one queued. */
+    function unload(n) {
+      if (!compact || !n || n.tagName !== "VIDEO" || n.classList.contains("is-on")) return;
+      try { n.pause(); } catch (e) {}
+      n.dataset.releasing = "1";
+      n.removeAttribute("src");
+      n.preload = "none";
+      try { n.load(); } catch (e) {}
     }
 
     // readyState 3 = HAVE_FUTURE_DATA: there are frames ready to show.
@@ -242,6 +266,7 @@
     }
 
     function next(waited) {
+      if (suspended) return;
       clear();
       var live = nodes.filter(function (n) { return n.isConnected; });
       if (live.length < 2) return;
@@ -263,7 +288,12 @@
       }
 
       // Start it rolling first, then dissolve to it once it's really moving.
+      var handoffGen = gen;
       preroll(nxt, function () {
+        if (suspended || handoffGen !== gen) {
+          if (nxt.tagName === "VIDEO") try { nxt.pause(); } catch (e) {}
+          return;
+        }
         cur.classList.remove("is-on");
         i = (i + 1) % live.length;
         nxt.classList.remove("is-on");
@@ -275,7 +305,11 @@
            pausing it. Pausing on the same tick as the swap drops it to a
            frozen frame while it is still half visible. */
         if (cur.tagName === "VIDEO") {
-          setTimeout(function () { try { cur.pause(); } catch (e) {} }, FADE_MS);
+          setTimeout(function () {
+            if (cur.classList.contains("is-on")) return;
+            try { cur.pause(); } catch (e) {}
+            unload(cur);
+          }, FADE_MS);
         }
 
         preload(live[(i + 1) % live.length]);
@@ -284,6 +318,41 @@
 
     play(nodes[0]);
     preload(nodes[1]);        // only stay one clip ahead; don't flood mobile data
+
+    /* Stop all decoding when the hero is off screen or the tab is hidden.
+       Resume from the same frame when the visitor comes back. */
+    function suspend() {
+      if (suspended) return;
+      suspended = true;
+      clear(); ++gen;
+      if (cleanup) { cleanup(); cleanup = null; }
+      nodes.forEach(function (n) {
+        if (n.tagName !== "VIDEO") return;
+        try { n.pause(); } catch (e) {}
+        if (!n.classList.contains("is-on")) unload(n);
+      });
+    }
+    function resume() {
+      if (!suspended || document.hidden || !heroVisible) return;
+      suspended = false;
+      var live = nodes.filter(function (n) { return n.isConnected; });
+      if (!live.length) return;
+      var current = live[i % live.length];
+      play(current);
+      preload(live[(i + 1) % live.length]);
+    }
+
+    var host = nodes[0] && nodes[0].parentNode;
+    if (host && "IntersectionObserver" in window) {
+      var heroObserver = new IntersectionObserver(function (entries) {
+        heroVisible = !!(entries[0] && entries[0].isIntersecting);
+        if (heroVisible) resume(); else suspend();
+      }, { threshold: 0.01 });
+      heroObserver.observe(host);
+    }
+    document.addEventListener("visibilitychange", function () {
+      if (document.hidden) suspend(); else resume();
+    });
   }
 
   /* -------------------------------------------------------------------------
@@ -1350,7 +1419,7 @@
     var openingClip = document.querySelector(".hero__slides video.is-on") || clips[0];
     if (openingClip) {
       var v = openingClip;
-      if (!v.src && v.dataset.src) { v.preload = "auto"; v.src = v.dataset.src; }
+      if (!v.getAttribute("src") && v.dataset.src) { v.preload = "auto"; v.src = v.dataset.src; }
     }
 
     /* A few frames of future data are enough to open cleanly. Requiring the

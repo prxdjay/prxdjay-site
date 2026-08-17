@@ -310,6 +310,12 @@ html[data-skin="win"] .theme-color{background:var(--win-face-2);border-radius:0}
 
 @media (max-width:640px){
   .theme-panel{backdrop-filter:none;-webkit-backdrop-filter:none}
+
+  /* One lightweight color pass on mobile. The theme wash above supplies the
+     palette without the cost of hue rotation and multi-stage live filters. */
+  html[data-color] .hero__slides video{
+    filter:saturate(.5) brightness(var(--media-exposure,.86));
+  }
 }
 @media (prefers-reduced-motion:reduce){
   .view-load{transition:none}

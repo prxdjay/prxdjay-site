@@ -1173,4 +1173,18 @@ html[data-grain="off"] .hero__slides::after{display:none}
   html[data-motion="on"] .grain,
   html[data-motion="on"] .hero__slides::after{animation:none}
   .dock{backdrop-filter:none;-webkit-backdrop-filter:none}
+
+  /* Keep the reel's photography, but stop asking a phone GPU to animate and
+     blend several full-screen layers for every decoded video frame. */
+  html[data-motion="on"] .hero__slides video.is-on.drift-0,
+  html[data-motion="on"] .hero__slides video.is-on.drift-1,
+  html[data-motion="on"] .hero__slides video.is-on.drift-2,
+  html[data-motion="on"] .hero__slides video.is-on.drift-3{animation:none}
+  .hero__slides img,.hero__slides video{transition:opacity .42s linear}
+  html[data-motion="on"] .hero__media::before,
+  .ambient::after{display:none}
+  .grain{mix-blend-mode:normal;opacity:.04}
+  .hero__slides::after{mix-blend-mode:normal;opacity:.08}
+  .hero__slides[data-kind="clip"]::after{opacity:.10}
+  .hero__slides::before{mix-blend-mode:normal;opacity:.09}
 }
