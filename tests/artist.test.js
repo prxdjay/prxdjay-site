@@ -27,7 +27,7 @@ const album = "https://open.spotify.com/album/7reVqpxCzqE0df6fGIobVw";
 const identityPath = "assets/identity/prxd-jay-artist-photo.jpg";
 const identityUrl = `https://prxdjay.com/${identityPath}`;
 
-// Fingerprints of the approved revision 3 assets. An intentional replacement
+// Fingerprints of revision 3 assets, including the requested hero grain. An intentional replacement
 // requires reviewing the new asset before updating its fingerprint here.
 const approvedAssets = {
   "assets/artist/clip-posters/findyou.jpg": "af248554df5738f3ed20abc29a122ec9a0f8f357",
@@ -40,7 +40,7 @@ const approvedAssets = {
   "assets/artist/fonts/archivo.woff2": "e2448d0561ffdb0b0974d063a7cdbb712f41ad49",
   "assets/artist/fonts/martian.woff2": "397689377e7d2ddbf65580bc598942bfb222f091",
   "assets/artist/photos/concrete-graded-crop.jpg": "5bd2a4971e4cabcff1cf7ed6920935ab03feb4ae",
-  "assets/artist/photos/concrete-hero.jpg": "a85d278552a994aade0e57eafa9f0dd5ac3ee499",
+  "assets/artist/photos/concrete-hero.jpg": "305718289c11d846b79656772ae87629dc7e0812",
   "assets/artist/photos/fence_grain-6.3pct.jpg": "277671a4d5d9dc279754c3079ccde95c6ebe7f62",
   "assets/artist/photos/prxdigy-vxl1-cover.jpg": "6301c64126933e909d90d16cf417be950e16bd4f",
 };
