@@ -45,6 +45,7 @@ const approvedAssets = {
   "assets/artist/photos/concrete-hero.jpg": "305718289c11d846b79656772ae87629dc7e0812",
   "assets/artist/photos/fence_grain-6.3pct.jpg": "277671a4d5d9dc279754c3079ccde95c6ebe7f62",
   "assets/artist/photos/prxdigy-vxl1-cover.jpg": "6301c64126933e909d90d16cf417be950e16bd4f",
+  "assets/releases/nda-cover-original.png": "0bedaec32dfa49ffa680240fdd0b731f5d76049c",
 };
 const originalMp4s = {
   "assets/img/clips/findyou.mp4": "523c8969b4f2bb9e3c4548aba18cada5880c88f8",
@@ -117,6 +118,16 @@ test("legacy artist framework stays dormant while signup is gated on a verified 
   assert.match(html, /<section class="updates sec" id="updates"[^>]* hidden>/);
   assert.equal(signupConfig.trim().match(/window\.PRXD_SIGNUP_ENDPOINT = "([^"]*)";/)?.[1], "");
   for (const path of ["assets/css/base.css", "assets/css/theme.css"]) assert.ok(bytes(path).length > 0, path);
+});
+
+test("NDA teaser uses the approved complete cover and confirmed release date without a fake CTA", () => {
+  const teaser = html.match(/<section class="nda-release sec" id="nda"[\s\S]*?<\/section>/)?.[0];
+  assert.ok(teaser, "Missing NDA release section");
+  assert.match(teaser, /<h2[^>]*>NDA<\/h2>/);
+  assert.match(teaser, /<time datetime="2026-10-26">Monday, October 26, 2026<\/time>/);
+  assert.match(teaser, /src="\/assets\/releases\/nda-cover-original\.png"[^>]*width="1263" height="1263"/);
+  assert.doesNotMatch(teaser, /October 27|pre-?save|early access|listen|stream|href=|<button\b/i);
+  assert.match(css, /\.nda-release__frame img\{[^}]*object-fit:contain/);
 });
 
 test("signup is email-only, explicit, private by design, and has a removal route", () => {
