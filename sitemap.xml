@@ -1,26 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
-    <loc>https://prxdjay.com/</loc>
-    <lastmod>2026-08-18</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>1.0</priority>
-    <image:image>
-      <image:loc>https://prxdjay.com/assets/img/share-card-mono.jpg</image:loc>
-      <image:title>PRXD.JAY — pronounced Prodigy</image:title>
-    </image:image>
+    <loc>https://prxdjay.com/</loc><lastmod>2026-10-12</lastmod>
+    <image:image><image:loc>https://prxdjay.com/assets/artist/photos/concrete-hero.jpg</image:loc></image:image>
+    <image:image><image:loc>https://prxdjay.com/assets/artist/photos/fence_grain-6.3pct.jpg</image:loc></image:image>
+    <image:image><image:loc>https://prxdjay.com/assets/artist/photos/concrete-graded-crop.jpg</image:loc></image:image>
   </url>
   <url>
-    <loc>https://prxdjay.com/privacy.html</loc>
-    <lastmod>2026-08-15</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.2</priority>
+    <loc>https://prxdjay.com/photos.html</loc><lastmod>2026-10-12</lastmod>
+    <image:image><image:loc>https://prxdjay.com/assets/photos/prxd-jay-concrete-original.png</image:loc></image:image>
+    <image:image><image:loc>https://prxdjay.com/assets/artist/photos/fence_grain-6.3pct.jpg</image:loc></image:image>
+    <image:image><image:loc>https://prxdjay.com/assets/photos/prxd-jay-sponsored-car-still.png</image:loc></image:image>
+    <image:image><image:loc>https://prxdjay.com/assets/photos/prxd-jay-find-you-spotlight-still.png</image:loc></image:image>
+    <image:image><image:loc>https://prxdjay.com/assets/photos/prxd-jay-find-you-car-still.png</image:loc></image:image>
+    <image:image><image:loc>https://prxdjay.com/assets/photos/prxd-jay-too-many-reflections-still.png</image:loc></image:image>
   </url>
-  <url>
-    <loc>https://prxdjay.com/terms.html</loc>
-    <lastmod>2026-08-15</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.2</priority>
-  </url>
+  <url><loc>https://prxdjay.com/privacy.html</loc><lastmod>2026-08-15</lastmod></url>
+  <url><loc>https://prxdjay.com/terms.html</loc><lastmod>2026-08-15</lastmod></url>
 </urlset>
