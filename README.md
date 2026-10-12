@@ -131,9 +131,11 @@ Change `hidden: true` → `hidden: false`, paste the URL. No code changes.
 
 ---
 
-## TURNING ON THE MAILING LIST (2 minutes, free)
+## TURNING ON THE EMAIL LIST
 
-The form works out of the box in fallback mode — it opens the visitor's email app addressed to you. To collect properly:
+The current artist page has a minimal email-only signup backed by a private Google Sheet and Google Apps Script. It stays hidden unless a verified Apps Script web-app URL is present in `assets/js/signup-config.js`; an empty value fails closed so the site cannot pretend to accept signups. See **SETUP-THE-LIST.md** for deployment and end-to-end verification.
+
+<!-- Legacy Formspree and SMS notes retained only in repository history.
 
 1. Go to **formspree.io** → sign up free → **New Form**
 2. Copy the endpoint (looks like `https://formspree.io/f/abcdwxyz`)
@@ -146,6 +148,7 @@ The form works out of the box in fallback mode — it opens the visitor's email 
 Free tier = 50 submissions/month. Upgrade or swap to Mailchimp/ConvertKit later by changing that one URL.
 
 > **Texting people:** the consent checkbox is there so you're covered. Only text people who checked it, and always honor STOP.
+-->
 
 ---
 

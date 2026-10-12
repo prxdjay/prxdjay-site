@@ -13,6 +13,8 @@ const text = (path) => bytes(path).toString("utf8");
 const html = text("index.html");
 const css = text("assets/css/artist.css");
 const js = text("assets/js/artist.js");
+const signupJs = text("assets/js/signup.js");
+const signupConfig = text("assets/js/signup-config.js");
 const tags = [...html.matchAll(/<[a-z][^>]*>/gi)].map(([tag]) => tag);
 const attr = (tag, name) => tag.match(new RegExp(`(?:^|\\s)${name}="([^"]*)"`, "i"))?.[1];
 const values = (name) => tags.map((tag) => attr(tag, name)).filter(Boolean);
@@ -88,7 +90,7 @@ test("production is indexable and contains no approval placeholder copy", () => 
 });
 
 test("public artist page and active code contain no removed social or beat-store URLs", () => {
-  assert.doesNotMatch(`${html}\n${css}\n${js}`, /https?:\/\/(?:www\.)?(?:twitter\.com|x\.com|traktrain\.com)(?:[/:?#]|\b)/i);
+  assert.doesNotMatch(`${html}\n${css}\n${js}\n${signupJs}`, /https?:\/\/(?:www\.)?(?:twitter\.com|x\.com|traktrain\.com)(?:[/:?#]|\b)/i);
   // Twitter card metadata remains useful for shares; removed account handles do not.
   assert.doesNotMatch(html, /name="twitter:(?:site|creator)"/);
   assert.ok(!values("src").some((url) => /\/assets\/js\/(?:app|era\.config)\.js/.test(url)), "Dormant legacy UI must not execute on the new page");
@@ -110,17 +112,24 @@ test("all fragment navigation and accessible label targets exist and IDs are uni
   assert.ok(values("href").includes("/terms.html"));
 });
 
-test("legal documents and dormant subscription implementation stay unchanged", () => {
-  const preserved = {
-    "privacy.html": "3c4a4a26e7a869aa56b834a37ccb08b98448144e",
-    "terms.html": "5495bd93f403b6c4ebe9a544c4be64ca85881d1a",
-    "functions/api/subscribe.js": "a92f19020de95f7fd8ccb5988f047d5000ac9711",
-    "assets/js/app.js": "2a33ab4f1ad3f220d0bf7a27ad0772e3c66b4b1b",
-    "assets/js/era.config.js": "caf5735242c692c54fef09b141df6c603e6aab6a",
-  };
-  for (const [path, expected] of Object.entries(preserved)) assert.equal(gitHash(path), expected, path);
-  assert.doesNotMatch(html, /<form\b/i, "Do not introduce a signup form in the visual launch");
+test("legacy artist framework stays dormant while signup is gated on a verified Google endpoint", () => {
+  assert.ok(!values("src").some((url) => /\/assets\/js\/(?:app|era\.config)\.js/.test(url)));
+  assert.match(html, /<section class="updates sec" id="updates"[^>]* hidden>/);
+  assert.equal(signupConfig.trim().match(/window\.PRXD_SIGNUP_ENDPOINT = "([^"]*)";/)?.[1], "");
   for (const path of ["assets/css/base.css", "assets/css/theme.css"]) assert.ok(bytes(path).length > 0, path);
+});
+
+test("signup is email-only, explicit, private by design, and has a removal route", () => {
+  assert.match(html, /<input id="signupEmail" name="email" type="email"[^>]* required>/);
+  assert.doesNotMatch(html, /name="(?:name|phone|payment|card)"/i);
+  assert.match(html, /Get release updates/i);
+  assert.match(html, /Free to join/i);
+  assert.doesNotMatch(html, /early access|paid subscription|charge/i);
+  assert.match(html, /name="consent_token"[^>]*value="release-updates-v1"/);
+  assert.match(html, /\/privacy\.html#email-list/);
+  assert.match(text("privacy.html"), /private Google Sheet/i);
+  assert.match(text("privacy.html"), /Remove%20me%20from%20PRXD\.JAY%20email%20updates/i);
+  assert.doesNotMatch(`${text("privacy.html")}\n${text("terms.html")}`, /\b(?:TrakTrain|X)\b/);
 });
 
 test("artist identity schema retains its stable public photograph URL", () => {
@@ -172,7 +181,11 @@ test("video card IDs match their direct links and known official videos", () => 
 });
 
 test("players are click-created, named, and configured without autoplay", () => {
-  assert.doesNotMatch(html, /<iframe\b|<audio\b/i);
+  assert.doesNotMatch(html, /<audio\b/i);
+  const staticIframes = [...html.matchAll(/<iframe\b[^>]*>/gi)].map(([tag]) => tag);
+  assert.equal(staticIframes.length, 1);
+  assert.match(staticIframes[0], /class="signup__result-frame"/);
+  assert.match(staticIframes[0], /\bhidden\b/);
   assert.match(js, /https:\/\/open\.spotify\.com\/embed\/album\/7reVqpxCzqE0df6fGIobVw\?utm_source=generator&theme=0/);
   assert.match(js, /https:\/\/www\.youtube-nocookie\.com\/embed\//);
   assert.doesNotMatch(js, /[?&]autoplay=1/);
@@ -206,6 +219,9 @@ test("reel interruption and player keyboard-access fixes remain in the source", 
 
 test("active JavaScript and every inline executable script parse successfully", () => {
   assert.doesNotThrow(() => new vm.Script(js, { filename: fileURLToPath(new URL("assets/js/artist.js", root)) }));
+  for (const path of ["assets/js/signup-config.js", "assets/js/signup.js", "assets/js/signup-result.js"]) {
+    assert.doesNotThrow(() => new vm.Script(text(path), { filename: fileURLToPath(new URL(path, root)) }));
+  }
   for (const [, attributes, content] of html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)) {
     if (/\bsrc=|application\/ld\+json/.test(attributes)) continue;
     assert.doesNotThrow(() => new vm.Script(content, { filename: "index.html inline script" }));

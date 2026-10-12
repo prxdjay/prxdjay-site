@@ -1,177 +1,74 @@
-# TURN THE LIST ON
+# Email list deployment
 
-> **Beta note:** the public website does not currently show this feature. Keep
-> these setup notes for a future launch after the signup flow is ready.
+The signup is deliberately fail-closed. With an empty endpoint in
+`assets/js/signup-config.js`, the form and its navigation link stay hidden.
+Do not activate them until the Google write and duplicate paths have both
+been verified.
 
-Before restoring the feature, connect a real endpoint. The legacy fallback
-opens the visitor's mail app, which most people will not finish.
+## Architecture
 
-This takes about ten minutes and costs nothing. Pick **one** option.
+- Public site: an email-only form on `prxdjay.com`.
+- Write service: a Google Apps Script web app using
+  `google-apps-script/Code.gs`.
+- Storage: a private Google Sheet with a `Subscribers` tab.
+- Public access: write-only. `doGet` returns `Not found.` and there is no list
+  read route.
+- Credentials: the Sheet ID remains in Apps Script properties. It is never
+  committed to the repository or sent to a visitor.
 
----
+Google Apps Script web-app URLs are public submission addresses, not account
+credentials. The private Sheet ID and Google authorization must stay out of
+`assets/js/signup-config.js`.
 
-## OPTION A — Google Sheet (recommended)
+## One-time Google setup
 
-Free, unlimited signups, and you end up owning the data in a spreadsheet you
-already know how to use. No account to create, no monthly cap.
+This step changes persistent Google account access. Complete it only in the
+owner account and review the authorization screen before accepting it.
 
-### 1. Make the sheet
+1. Open the owner-controlled Apps Script project, or create a script from the
+   private subscriber Sheet.
+2. Replace its code with `google-apps-script/Code.gs`.
+3. In **Project Settings > Script properties**, add:
+   - `SPREADSHEET_ID`: the private subscriber Sheet ID.
+   - `SITE_ORIGIN`: `https://prxdjay.com`
+4. Deploy as a web app:
+   - Execute as: the owner.
+   - Who has access: anyone.
+5. Copy the `/exec` URL. Do not use the editor or `/dev` URL.
+6. Paste only that web-app URL into `assets/js/signup-config.js`.
 
-1. Go to **sheets.google.com** → blank spreadsheet. Name it `Early Access`.
-2. In row 1, type these nine headers, one per cell, left to right:
+The Sheet itself remains private. "Anyone" allows the web app to execute its
+limited `doPost` function; it does not grant public Sheet access.
 
-   `timestamp` · `email` · `name` · `phone` · `sms_consent` · `consent_text` · `source` · `stage` · `referrer`
+## Required end-to-end release test
 
-### 2. Add the script
+Use a clearly synthetic address, for example
+`codex-synthetic-test+YYYYMMDD@example.com`.
 
-1. In the sheet: **Extensions → Apps Script**.
-2. Delete whatever's in the editor. Paste this in:
+1. Deploy the repository update and load `https://prxdjay.com/#updates` on a
+   phone-sized viewport and a desktop viewport.
+2. Submit the synthetic address. Confirm the page says `You're on the list.`
+   and exactly one row appears in the private Sheet.
+3. Submit the same address with different capitalization. Confirm the page
+   says `You're already on the list.`, no second row appears, and
+   `submission_count` increments.
+4. Submit an invalid address and confirm the browser keeps focus on the email
+   field and nothing is written.
+5. Temporarily break the endpoint in a preview branch and confirm the form is
+   not shown. Restore the verified endpoint before release.
+6. Check keyboard focus, visible status announcements, a 320px-wide viewport,
+   and reduced-motion mode.
+7. Remove only the clearly labelled synthetic test row after verification.
+   Never bulk-delete or modify real subscriber rows during testing.
 
-```javascript
-function doPost(e) {
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheets()[0];
-  var p = e.parameter;
-  sheet.appendRow([
-    new Date(),
-    p.email || '',
-    p.name || '',
-    p.phone || '',
-    p.sms_consent || '',
-    p.consent_text || '',
-    p.source || '',
-    p.stage || '',
-    p.referrer || ''
-  ]);
-  return ContentService.createTextOutput('ok');
-}
-```
+## Removal requests
 
-3. Click **Deploy → New deployment**.
-4. Click the gear next to "Select type" → **Web app**.
-5. Set **Execute as:** `Me`. Set **Who has access:** `Anyone`.
-   > That second one has to say **Anyone**, or the site can't post to it. It
-   > does not make your spreadsheet public — it only lets the form add rows.
-6. **Deploy** → authorise it (Google will warn you about your own script;
-   click **Advanced → Go to (project name)** → **Allow**).
-7. Copy the **Web app URL**. It looks like
-   `https://script.google.com/macros/s/AKfy..../exec`
+The public privacy page links to a removal email. When a subscriber asks to be
+removed, set their `status` to `removed` and record the date in `removed_at`.
+Do not delete unrelated rows. A later explicit signup from the same address
+reactivates that single record and stores the current consent wording.
 
-### 3. Put it in the site
+## Sending email
 
-Open `assets/js/era.config.js`, find the `list:` block, and set both lines:
-
-```javascript
-endpoint: "https://script.google.com/macros/s/AKfy..../exec",
-transport: "opaque",
-```
-
-`transport: "opaque"` is required for Google. Don't skip it.
-
-### 4. Bump the cache number
-
-In `index.html`, change every `?v=2` to `?v=3`. There are five.
-
-### 5. Test it
-
-Load the site, sign yourself up, and watch a row appear in the sheet.
-
----
-
-## OPTION B — Formspree (faster, but capped)
-
-Easiest possible setup. Free plan is **50 signups a month** — fine to start,
-not fine once something takes off.
-
-1. **formspree.io** → sign up → **New Form**.
-2. Copy the endpoint: `https://formspree.io/f/xxxxxxx`
-3. In `era.config.js`:
-
-```javascript
-endpoint: "https://formspree.io/f/xxxxxxx",
-transport: "json",
-```
-
-4. Bump `?v=2` to `?v=3` in `index.html`.
-
-Same idea works with **Basin**, **Getform**, or **Formsubmit** — all use
-`transport: "json"`.
-
----
-
-## OPTION C — a real email platform
-
-Once the list is worth sending to properly, move it to **Mailchimp**,
-**ConvertKit**, or **Beehiiv**. All of them accept a CSV export from your
-Google Sheet, so **Option A now doesn't lock you out of this later** — that's
-the main reason to start there.
-
----
-
-# SENDING THE TEXTS
-
-The site **collects** phone numbers and stores proof of consent. It does not
-send anything — you need a texting service for that.
-
-## What you have to know before your first text
-
-US text marketing is regulated, and the penalties are per message. The site is
-already built to keep you on the right side of it:
-
-- The consent box is **separate** from the email signup and **unticked** by default.
-- A number **without** a ticked box is never submitted as consenting.
-- The exact sentence someone agreed to is saved with their record, along with the timestamp.
-
-That's your proof. **Don't remove any of it**, and don't text anyone whose
-`sms_consent` column says anything other than `yes`.
-
-## Getting set up
-
-1. Pick a service — **SimpleTexting**, **Community**, **Klaviyo**, or **Twilio**.
-2. You'll have to register the number (in the US this is called **A2P 10DLC**).
-   They'll ask for a link to your terms and privacy policy — that's what
-   `terms.html` and `privacy.html` are for. Both are already linked in your footer.
-3. Every message must let people reply **STOP**. Any real service handles this
-   automatically — check that it's on.
-
-> **Get a lawyer to read `terms.html` and `privacy.html` before the first
-> marketing text goes out.** They're written to be accurate and to cover what
-> carriers ask for, but they haven't been reviewed by anyone qualified.
-
----
-
-# WHAT TO SEND
-
-The list is only worth having if it's worth being on. What was promised on the
-site is: *unreleased records first, one text when something drops, show alerts.*
-That's it. Send that, and nothing else, and people stay.
-
-The fastest way to kill it is to go quiet for eight months and then show up
-asking for streams.
-
----
-
-# CHECKING IF IT'S WORKING
-
-Set analytics in `era.config.js` and you'll see the funnel:
-
-```javascript
-analytics: {
-  plausible: "prxdjay.com",   // plausible.io — ~$9/mo, no cookie banner needed
-  ga4: null                   // or "G-XXXXXXXXXX" for Google Analytics (free)
-}
-```
-
-The site already fires these on its own:
-
-| Event | What it means |
-|---|---|
-| `join_view` | someone saw a signup form |
-| `join_email` | someone submitted step 1 — **this is the number that matters** |
-| `join_phone` | someone gave a phone number too |
-| `join_skip_phone` | email only, no phone |
-| `share` | someone shared the site after joining |
-| `hero_cta` / `dock_join` / `drop_join` | which button got them there |
-| `prompt_show` / `exit_intent_show` | the slide-up bar and the exit pop-up |
-
-`join_email ÷ join_view` is your conversion rate. Under 2% means the offer
-isn't landing. Over 10% means it is.
+This feature only stores opt-ins. It does not create campaigns or send fan
+email. Any future sending workflow needs a separate decision and review.

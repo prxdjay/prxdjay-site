@@ -1,119 +1,153 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
+import vm from "node:vm";
 
-import { onRequest } from "../functions/api/subscribe.js";
+const root = new URL("../", import.meta.url);
+const code = readFileSync(new URL("google-apps-script/Code.gs", root), "utf8");
 
-const env = {
-  SITE_ORIGIN: "https://prxdjay.com",
-  TURNSTILE_SECRET_KEY: "turnstile-secret",
-  BREVO_API_KEY: "brevo-secret",
-  BREVO_LIST_ID: "12",
-  BREVO_DOI_TEMPLATE_ID: "34",
-  BREVO_REDIRECT_URL: "https://prxdjay.com/?confirmed=1#list",
-};
+function backend(initialRows = []) {
+  const rows = [[
+    "subscribed_at",
+    "email",
+    "source",
+    "consent_text",
+    "status",
+    "last_seen_at",
+    "submission_count",
+    "removed_at",
+  ], ...initialRows.map((row) => [...row])];
 
-function context(body, overrides = {}) {
-  const request = new Request("https://prxdjay.com/api/subscribe", {
-    method: overrides.method || "POST",
-    headers: {
-      Origin: overrides.origin || "https://prxdjay.com",
-      "Content-Type": overrides.contentType || "application/json",
+  function range(row, column, rowCount = 1, columnCount = 1) {
+    return {
+      getValues() {
+        return Array.from({ length: rowCount }, (_, r) =>
+          Array.from({ length: columnCount }, (_, c) => rows[row - 1 + r]?.[column - 1 + c] ?? ""));
+      },
+      getValue() { return rows[row - 1]?.[column - 1] ?? ""; },
+      setValue(value) {
+        rows[row - 1] ||= [];
+        rows[row - 1][column - 1] = value;
+        return this;
+      },
+      clearContent() {
+        rows[row - 1] ||= [];
+        rows[row - 1][column - 1] = "";
+        return this;
+      },
+      createTextFinder(needle) {
+        let matchCase = true;
+        return {
+          matchCase(value) { matchCase = value; return this; },
+          matchEntireCell() { return this; },
+          findNext() {
+            for (let i = row - 1; i < row - 1 + rowCount; i += 1) {
+              const value = String(rows[i]?.[column - 1] ?? "");
+              if ((matchCase ? value : value.toLowerCase()) === (matchCase ? needle : needle.toLowerCase())) {
+                return { getRow: () => i + 1 };
+              }
+            }
+            return null;
+          },
+        };
+      },
+    };
+  }
+
+  const sheet = {
+    appendRow(row) { rows.push([...row]); },
+    getLastRow() { return rows.length; },
+    getRange: range,
+  };
+  const lock = { waitLock() {}, releaseLock() {} };
+  const sandbox = {
+    console: { error() {} },
+    Date,
+    encodeURIComponent,
+    SpreadsheetApp: {
+      openById(id) {
+        assert.equal(id, "private-sheet-id");
+        return { getSheetByName: (name) => name === "Subscribers" ? sheet : null };
+      },
+      flush() {},
     },
-    body: (overrides.method || "POST") === "GET" ? undefined : JSON.stringify(body),
-  });
-  return { request, env: overrides.env || env };
+    PropertiesService: {
+      getScriptProperties() {
+        return { getProperty: (name) => ({ SPREADSHEET_ID: "private-sheet-id", SITE_ORIGIN: "https://prxdjay.com" })[name] };
+      },
+    },
+    LockService: { getScriptLock: () => lock },
+    ContentService: {
+      MimeType: { TEXT: "text" },
+      createTextOutput(value) { return { value, setMimeType() { return this; } }; },
+    },
+    HtmlService: {
+      XFrameOptionsMode: { ALLOWALL: "allowall" },
+      createHtmlOutput(value) { return { value, setXFrameOptionsMode() { return this; } }; },
+    },
+  };
+  vm.runInNewContext(code, sandbox, { filename: "Code.gs" });
+  return { rows, doPost: sandbox.doPost };
 }
 
-test("rejects requests from another origin", async () => {
-  const response = await onRequest(context({}, { origin: "https://example.com" }));
-  assert.equal(response.status, 403);
-});
-
-test("rejects requests without an origin", async () => {
-  const request = new Request("https://prxdjay.com/api/subscribe", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email: "fan@example.com" }),
-  });
-  const response = await onRequest({ request, env });
-  assert.equal(response.status, 403);
-});
-
-test("rejects invalid email before external calls", async () => {
-  const originalFetch = global.fetch;
-  let called = false;
-  global.fetch = async () => { called = true; return new Response(); };
-  try {
-    const response = await onRequest(context({ email: "not-an-email", stage: "email" }));
-    assert.equal(response.status, 400);
-    assert.equal(called, false);
-  } finally {
-    global.fetch = originalFetch;
-  }
-});
-
-test("fails closed when secrets are missing", async () => {
-  const response = await onRequest(context(
-    { email: "fan@example.com", stage: "email" },
-    { env: { SITE_ORIGIN: "https://prxdjay.com" } },
-  ));
-  assert.equal(response.status, 503);
-});
-
-test("rejects oversized requests", async () => {
-  const response = await onRequest(context({
-    email: "fan@example.com",
-    stage: "email",
-    padding: "x".repeat(9000),
-  }));
-  assert.equal(response.status, 413);
-});
-
-test("requires a valid Turnstile result", async () => {
-  const originalFetch = global.fetch;
-  global.fetch = async () => Response.json({ success: false });
-  try {
-    const response = await onRequest(context({
-      email: "fan@example.com",
-      stage: "email",
-      turnstileToken: "bad-token",
-    }));
-    assert.equal(response.status, 400);
-  } finally {
-    global.fetch = originalFetch;
-  }
-});
-
-test("starts Brevo double confirmation after Turnstile passes", async () => {
-  const originalFetch = global.fetch;
-  const calls = [];
-  global.fetch = async (url, options) => {
-    calls.push({ url: String(url), options });
-    if (String(url).includes("siteverify")) {
-      return Response.json({ success: true, action: "subscribe" });
-    }
-    return new Response("{}", { status: 201, headers: { "Content-Type": "application/json" } });
+function event(email, overrides = {}) {
+  return {
+    parameter: {
+      email,
+      consent_token: "release-updates-v1",
+      source: "prxdjay.com",
+      form_started_at: String(Date.now() - 1000),
+      website: "",
+      ...overrides,
+    },
   };
-  try {
-    const response = await onRequest(context({
-      email: " Fan@Example.com ",
-      stage: "email",
-      source: "section",
-      turnstileToken: "valid-token",
-    }));
-    assert.equal(response.status, 202);
-    assert.equal(calls.length, 2);
-    assert.equal(calls[1].url, "https://api.brevo.com/v3/contacts/doubleOptinConfirmation");
-    const body = JSON.parse(calls[1].options.body);
-    assert.equal(body.email, "fan@example.com");
-    assert.deepEqual(body.includeListIds, [12]);
-    assert.equal(body.attributes.SIGNUP_SOURCE, "section");
-  } finally {
-    global.fetch = originalFetch;
+}
+
+function result(output) {
+  return output.value.match(/signup-result\.html\?status=([^\"&]+)/)?.[1];
+}
+
+test("stores one normalized active subscriber with the exact consent text", () => {
+  const app = backend();
+  assert.equal(result(app.doPost(event(" Fan@Example.com "))), "saved");
+  assert.equal(app.rows.length, 2);
+  assert.equal(app.rows[1][1], "fan@example.com");
+  assert.equal(app.rows[1][2], "prxdjay.com");
+  assert.equal(app.rows[1][3], "Email me occasional PRXD.JAY release updates. Unsubscribe anytime.");
+  assert.equal(app.rows[1][4], "active");
+  assert.equal(app.rows[1][6], 1);
+});
+
+test("deduplicates an active subscriber and increments the submission count", () => {
+  const existing = [new Date(0), "fan@example.com", "prxdjay.com", "consent", "active", new Date(0), 1, ""];
+  const app = backend([existing]);
+  assert.equal(result(app.doPost(event("FAN@example.com"))), "duplicate");
+  assert.equal(app.rows.length, 2);
+  assert.equal(app.rows[1][6], 2);
+});
+
+test("a removed address can explicitly opt in again", () => {
+  const existing = [new Date(0), "fan@example.com", "prxdjay.com", "consent", "removed", new Date(0), 1, new Date(1)];
+  const app = backend([existing]);
+  assert.equal(result(app.doPost(event("fan@example.com"))), "resubscribed");
+  assert.equal(app.rows[1][4], "active");
+  assert.equal(app.rows[1][7], "");
+});
+
+test("rejects invalid, stale, or consentless submissions without writing", () => {
+  for (const submitted of [
+    event("not-an-email"),
+    event("fan@example.com", { consent_token: "" }),
+    event("fan@example.com", { form_started_at: String(Date.now() - 8000000) }),
+  ]) {
+    const app = backend();
+    assert.equal(result(app.doPost(submitted)), "invalid");
+    assert.equal(app.rows.length, 1);
   }
 });
 
-test("rejects unsupported methods", async () => {
-  const response = await onRequest(context(null, { method: "GET" }));
-  assert.equal(response.status, 405);
+test("honeypot submissions receive a generic success without storing data", () => {
+  const app = backend();
+  assert.equal(result(app.doPost(event("bot@example.com", { website: "spam" }))), "saved");
+  assert.equal(app.rows.length, 1);
 });
