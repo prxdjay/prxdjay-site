@@ -146,6 +146,22 @@ test("signup is email-only, explicit, private by design, and has a removal route
   assert.doesNotMatch(`${text("privacy.html")}\n${text("terms.html")}`, /\b(?:TrakTrain|X)\b/);
 });
 
+test("first-visit signup panel is optional, dismissible, reopenable, and contains no audio promise", () => {
+  const prompt = html.match(/<dialog class="signup-prompt"[\s\S]*?<\/dialog>/)?.[0];
+  assert.ok(prompt, "Missing signup prompt dialog");
+  assert.match(prompt, /aria-labelledby="signupPromptTitle"/);
+  assert.match(prompt, /aria-describedby="signupPromptDescription"/);
+  assert.match(prompt, /id="signupPromptClose"[^>]*aria-label="Collapse email signup"/);
+  assert.match(prompt, /id="promptSignupForm"[^>]*data-signup-form/);
+  assert.match(prompt, /type="email"[^>]*required/);
+  assert.doesNotMatch(prompt, /early access|preview|listen|audio|autoplay/i);
+  assert.match(html, /id="signupPromptOpen"[^>]*aria-haspopup="dialog"[^>]*aria-controls="signupPrompt"/);
+  assert.match(signupJs, /7 \* 24 \* 60 \* 60 \* 1000/);
+  assert.match(signupJs, /localStorage\.setItem\(dismissalKey/);
+  assert.match(signupJs, /prompt\.showModal\(\)/);
+  assert.match(signupJs, /prompt\.addEventListener\("cancel"/);
+});
+
 test("artist identity schema retains its stable public photograph URL", () => {
   const json = html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)?.[1];
   assert.ok(json, "Missing structured data");
