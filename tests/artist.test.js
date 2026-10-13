@@ -236,6 +236,8 @@ test("active JavaScript and every inline executable script parse successfully", 
   for (const path of ["assets/js/signup-config.js", "assets/js/signup.js", "assets/js/signup-result.js"]) {
     assert.doesNotThrow(() => new vm.Script(text(path), { filename: fileURLToPath(new URL(path, root)) }));
   }
+  assert.match(text("assets/js/signup-result.js"), /window\.top\.postMessage/);
+  assert.doesNotMatch(text("assets/js/signup-result.js"), /window\.parent\.postMessage/);
   for (const [, attributes, content] of html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)) {
     if (/\bsrc=|application\/ld\+json/.test(attributes)) continue;
     assert.doesNotThrow(() => new vm.Script(content, { filename: "index.html inline script" }));
