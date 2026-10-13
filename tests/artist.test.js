@@ -28,6 +28,7 @@ const gitHash = (path) => {
 const album = "https://open.spotify.com/album/7reVqpxCzqE0df6fGIobVw";
 const identityPath = "assets/identity/prxd-jay-artist-photo.jpg";
 const identityUrl = `https://prxdjay.com/${identityPath}`;
+const ndaPreviewPath = "assets/releases/nda-first-half-preview.mp3";
 
 // Fingerprints of revision 3 assets, including the requested hero grain. An intentional replacement
 // requires reviewing the new asset before updating its fingerprint here.
@@ -123,13 +124,21 @@ test("legacy artist framework stays dormant while signup uses the verified Googl
   for (const path of ["assets/css/base.css", "assets/css/theme.css"]) assert.ok(bytes(path).length > 0, path);
 });
 
-test("NDA teaser uses the approved complete cover and confirmed release date without a fake CTA", () => {
+test("NDA teaser uses the approved complete cover, confirmed date, and email-gated preview", () => {
   const teaser = html.match(/<section class="nda-release sec" id="nda"[\s\S]*?<\/section>/)?.[0];
   assert.ok(teaser, "Missing NDA release section");
   assert.match(teaser, /<h2[^>]*>NDA<\/h2>/);
   assert.match(teaser, /<time datetime="2026-10-23">Friday, October 23, 2026<\/time>/);
   assert.match(teaser, /src="\/assets\/releases\/nda-cover-original\.png"[^>]*width="1263" height="1263"/);
-  assert.doesNotMatch(teaser, /October 26|October 27|pre-?save|early access|listen|stream|href=|<button\b/i);
+  assert.match(teaser, /Join the email list to hear the first half of NDA before October 23\./);
+  assert.match(teaser, /id="ndaPreviewJoin"[^>]*>Join &amp; unlock preview<\/button>/);
+  assert.match(teaser, /id="ndaPreviewPlayer" hidden/);
+  const previewAudio = teaser.match(/<audio\b[^>]*id="ndaPreviewAudio"[^>]*>/)?.[0];
+  assert.ok(previewAudio, "Missing gated NDA preview player");
+  assert.match(previewAudio, /\bcontrols\b/);
+  assert.match(previewAudio, /preload="none"/);
+  assert.doesNotMatch(previewAudio, /\bsrc=|\bautoplay\b/);
+  assert.doesNotMatch(teaser, /October 26|October 27|pre-?save|href=/i);
   assert.match(css, /\.nda-release__frame img\{[^}]*object-fit:contain/);
 });
 
@@ -138,7 +147,7 @@ test("signup is email-only, explicit, private by design, and has a removal route
   assert.doesNotMatch(html, /name="(?:name|phone|payment|card)"/i);
   assert.match(html, /Get release updates/i);
   assert.match(html, /Free to join/i);
-  assert.doesNotMatch(html, /early access|paid subscription|charge/i);
+  assert.doesNotMatch(html, /paid subscription|charge/i);
   assert.match(html, /name="consent_token"[^>]*value="release-updates-v1"/);
   assert.match(html, /\/privacy\.html#email-list/);
   assert.match(text("privacy.html"), /private Google Sheet/i);
@@ -146,7 +155,7 @@ test("signup is email-only, explicit, private by design, and has a removal route
   assert.doesNotMatch(`${text("privacy.html")}\n${text("terms.html")}`, /\b(?:TrakTrain|X)\b/);
 });
 
-test("first-visit signup panel is compact, non-modal, dismissible, and contains no audio promise", () => {
+test("first-visit signup panel is compact, non-modal, and dismissible", () => {
   const prompt = html.match(/<aside class="signup-prompt"[\s\S]*?<\/aside>/)?.[0];
   assert.ok(prompt, "Missing signup prompt panel");
   assert.match(prompt, /aria-labelledby="signupPromptTitle"/);
@@ -155,7 +164,7 @@ test("first-visit signup panel is compact, non-modal, dismissible, and contains 
   assert.match(prompt, /id="signupPromptClose"[^>]*aria-label="Collapse email signup"/);
   assert.match(prompt, /id="promptSignupForm"[^>]*data-signup-form/);
   assert.match(prompt, /type="email"[^>]*required/);
-  assert.doesNotMatch(prompt, /early access|preview|listen|audio|autoplay/i);
+  assert.match(prompt, /Join to unlock the first half of NDA before October 23/);
   assert.match(html, /id="signupPromptOpen"[^>]*aria-controls="signupPrompt"[^>]*aria-expanded="false"/);
   assert.doesNotMatch(html, /<dialog class="signup-prompt"/);
   assert.match(signupJs, /7 \* 24 \* 60 \* 60 \* 1000/);
@@ -164,6 +173,27 @@ test("first-visit signup panel is compact, non-modal, dismissible, and contains 
   assert.match(signupJs, /prompt\.addEventListener\("keydown"/);
   assert.doesNotMatch(signupJs, /showModal|\.close\(\)/);
   assert.doesNotMatch(css, /\.signup-prompt::backdrop/);
+});
+
+test("NDA preview unlock is fail-closed, signup-gated, and never autoplayed", () => {
+  assert.match(signupJs, /ndaPreviewSource = "\/assets\/releases\/nda-first-half-preview\.mp3"/);
+  assert.match(signupJs, /ndaPreviewMaximum = 97\.2975/);
+  assert.match(signupJs, /if \(!Number\.isFinite\(ndaPreviewAudio\.duration\) \|\| ndaPreviewAudio\.duration > ndaPreviewMaximum\)/);
+  assert.match(signupJs, /case "saved":[\s\S]*?case "resubscribed":[\s\S]*?unlockNdaPreview\(true\)/);
+  assert.match(signupJs, /case "duplicate":[\s\S]*?unlockNdaPreview\(true\)/);
+  assert.doesNotMatch(signupJs.match(/case "invalid":[\s\S]*?case "error":/)?.[0] || "", /unlockNdaPreview/);
+  assert.doesNotMatch(signupJs.match(/case "error":[\s\S]*?default:/)?.[0] || "", /unlockNdaPreview/);
+  assert.doesNotMatch(signupJs, /\.play\s*\(/);
+  assert.match(signupJs, /localStorage\.setItem\(ndaUnlockKey, "1"\)/);
+});
+
+test("NDA preview asset has the approved truncated bytes when present", {
+  skip: existsSync(new URL(ndaPreviewPath, root)) ? false : "Approved Library preview has not been materialized",
+}, () => {
+  const preview = bytes(ndaPreviewPath);
+  assert.equal(preview.length, 3_106_351);
+  assert.equal(createHash("sha256").update(preview).digest("hex"), "5051d37a5d3afc64592122e47979b89c2069c2c4498c1dd3a0a4cea8cc13f6d2");
+  assert.equal(preview.subarray(0, 3).toString(), "ID3");
 });
 
 test("artist identity schema retains its stable public photograph URL", () => {
@@ -215,7 +245,10 @@ test("video card IDs match their direct links and known official videos", () => 
 });
 
 test("players are click-created, named, and configured without autoplay", () => {
-  assert.doesNotMatch(html, /<audio\b/i);
+  const audioTags = tags.filter((tag) => /^<audio\b/i.test(tag));
+  assert.equal(audioTags.length, 1);
+  assert.match(audioTags[0], /id="ndaPreviewAudio"/);
+  assert.doesNotMatch(audioTags[0], /\bautoplay\b|\bsrc=/);
   const staticIframes = [...html.matchAll(/<iframe\b[^>]*>/gi)].map(([tag]) => tag);
   assert.equal(staticIframes.length, 1);
   assert.match(staticIframes[0], /class="signup__result-frame"/);

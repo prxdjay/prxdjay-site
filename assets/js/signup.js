@@ -7,6 +7,11 @@
   const promptForm = document.querySelector("#promptSignupForm");
   const promptOpen = document.querySelector("#signupPromptOpen");
   const promptClose = document.querySelector("#signupPromptClose");
+  const ndaPreviewLocked = document.querySelector("#ndaPreviewLocked");
+  const ndaPreviewPlayer = document.querySelector("#ndaPreviewPlayer");
+  const ndaPreviewAudio = document.querySelector("#ndaPreviewAudio");
+  const ndaPreviewJoin = document.querySelector("#ndaPreviewJoin");
+  const ndaPreviewStatus = document.querySelector("#ndaPreviewStatus");
   if (!section || !forms.length) return;
 
   const endpoint = String(window.PRXD_SIGNUP_ENDPOINT || "");
@@ -16,6 +21,9 @@
   const links = document.querySelectorAll("[data-signup-link]");
   const dismissalKey = "prxd-signup-prompt-dismissed";
   const dismissalAge = 7 * 24 * 60 * 60 * 1000;
+  const ndaUnlockKey = "prxd-nda-preview-unlocked";
+  const ndaPreviewSource = "/assets/releases/nda-first-half-preview.mp3";
+  const ndaPreviewMaximum = 97.2975;
   const timers = new WeakMap();
   let activeForm = null;
 
@@ -82,6 +90,33 @@
     } catch (ignored) { return false; }
   }
 
+  function setNdaPreviewStatus(message, isError = false) {
+    if (!ndaPreviewStatus) return;
+    ndaPreviewStatus.textContent = message;
+    ndaPreviewStatus.classList.toggle("is-error", isError);
+  }
+
+  function rememberNdaUnlock() {
+    try { localStorage.setItem(ndaUnlockKey, "1"); } catch (ignored) {}
+  }
+
+  function forgetNdaUnlock() {
+    try { localStorage.removeItem(ndaUnlockKey); } catch (ignored) {}
+  }
+
+  function ndaWasUnlocked() {
+    try { return localStorage.getItem(ndaUnlockKey) === "1"; } catch (ignored) { return false; }
+  }
+
+  function unlockNdaPreview(announce = false) {
+    if (!ndaPreviewLocked || !ndaPreviewPlayer || !ndaPreviewAudio) return;
+    rememberNdaUnlock();
+    ndaPreviewLocked.hidden = true;
+    ndaPreviewPlayer.hidden = false;
+    if (!ndaPreviewAudio.getAttribute("src")) ndaPreviewAudio.setAttribute("src", ndaPreviewSource);
+    if (announce) setNdaPreviewStatus("Preview unlocked. Press play when you're ready.");
+  }
+
   function openPrompt(shouldFocus = false) {
     if (!prompt || !promptOpen || !prompt.hidden) return;
     prompt.hidden = false;
@@ -112,6 +147,37 @@
     if (!wasRecentlyDismissed()) openPrompt(false);
   }
 
+  if (ndaPreviewAudio) {
+    ndaPreviewAudio.addEventListener("loadedmetadata", () => {
+      if (!Number.isFinite(ndaPreviewAudio.duration) || ndaPreviewAudio.duration > ndaPreviewMaximum) {
+        ndaPreviewAudio.pause();
+        ndaPreviewAudio.removeAttribute("src");
+        ndaPreviewAudio.load();
+        if (ndaPreviewPlayer) ndaPreviewPlayer.hidden = true;
+        if (ndaPreviewLocked) ndaPreviewLocked.hidden = false;
+        forgetNdaUnlock();
+        setNdaPreviewStatus("The preview is temporarily unavailable.", true);
+      }
+    });
+    ndaPreviewAudio.addEventListener("seeking", () => {
+      if (ndaPreviewAudio.currentTime > ndaPreviewMaximum) {
+        ndaPreviewAudio.pause();
+        ndaPreviewAudio.currentTime = Math.min(ndaPreviewMaximum, ndaPreviewAudio.duration || ndaPreviewMaximum);
+      }
+    });
+  }
+
+  ndaPreviewJoin?.addEventListener("click", () => {
+    setNdaPreviewStatus("Complete the email signup to unlock the preview.");
+    if (prompt && promptOpen) openPrompt(true);
+    else {
+      section.scrollIntoView({ behavior: "smooth", block: "start" });
+      document.querySelector("#signupEmail")?.focus({ preventScroll: true });
+    }
+  });
+
+  if (ndaWasUnlocked()) unlockNdaPreview(false);
+
   window.addEventListener("message", (event) => {
     if (event.origin !== window.location.origin) return;
     if (!event.data || event.data.type !== "prxd-signup-result") return;
@@ -121,11 +187,13 @@
       case "resubscribed":
         activeForm?.elements.email.removeAttribute("aria-invalid");
         finish(activeForm, "You're on the list. Thank you.", false, true);
+        unlockNdaPreview(true);
         if (activeForm === promptForm) rememberDismissal();
         break;
       case "duplicate":
         activeForm?.elements.email.removeAttribute("aria-invalid");
         finish(activeForm, "You're already on the list.", false, true);
+        unlockNdaPreview(true);
         if (activeForm === promptForm) rememberDismissal();
         break;
       case "invalid":

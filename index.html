@@ -111,6 +111,20 @@
       <p class="nda-release__kicker">New single</p>
       <h2 class="nda-release__title display arrive" id="nda-title" tabindex="-1">NDA</h2>
       <p class="nda-release__date"><span>Release date</span><time datetime="2026-10-23">Friday, October 23, 2026</time></p>
+      <div class="nda-preview" id="ndaPreview" aria-labelledby="ndaPreviewTitle">
+        <div class="nda-preview__locked" id="ndaPreviewLocked">
+          <p class="nda-preview__eyebrow">Email-list early preview</p>
+          <h3 class="nda-preview__title" id="ndaPreviewTitle">Hear the first half early</h3>
+          <p class="nda-preview__copy">Join the email list to hear the first half of NDA before October 23.</p>
+          <button class="btn btn--primary" id="ndaPreviewJoin" type="button">Join &amp; unlock preview</button>
+        </div>
+        <div class="nda-preview__player" id="ndaPreviewPlayer" hidden>
+          <p class="nda-preview__eyebrow">Early preview unlocked</p>
+          <audio id="ndaPreviewAudio" controls controlslist="nodownload noplaybackrate" preload="none" aria-describedby="ndaPreviewNote"></audio>
+          <p class="nda-preview__note" id="ndaPreviewNote">First half only — this preview ends at about 1:37. Playback never starts automatically.</p>
+        </div>
+        <p class="nda-preview__status" id="ndaPreviewStatus" role="status" aria-live="polite"></p>
+      </div>
     </div>
   </section>
 
@@ -271,7 +285,7 @@
     </div>
     <div class="signup-prompt__copy">
       <h2 class="signup-prompt__title display" id="signupPromptTitle">Release updates</h2>
-      <p class="signup-prompt__lede" id="signupPromptDescription">Occasional PRXD. JAY release emails.</p>
+      <p class="signup-prompt__lede" id="signupPromptDescription">Join to unlock the first half of NDA before October 23, plus occasional release emails.</p>
     </div>
     <form class="signup signup--prompt" id="promptSignupForm" data-signup-form method="post" target="signupResultFrame" novalidate>
       <div class="signup__row">
@@ -279,7 +293,7 @@
           <label for="promptSignupEmail">Email address</label>
           <input id="promptSignupEmail" name="email" type="email" inputmode="email" autocomplete="email" spellcheck="false" maxlength="254" placeholder="you@example.com" required>
         </div>
-        <button class="btn btn--primary signup__submit" type="submit">Join list</button>
+        <button class="btn btn--primary signup__submit" type="submit">Join &amp; unlock</button>
       </div>
       <div class="signup__trap" aria-hidden="true">
         <label for="promptSignupWebsite">Website</label>

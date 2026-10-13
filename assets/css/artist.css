@@ -161,6 +161,16 @@ section[id]{scroll-margin-top:calc(var(--navH) + 8px)}
 .nda-release__date{margin-top:clamp(36px,5vw,70px);padding-top:20px;border-top:1px solid var(--hair-2);display:grid;gap:8px;max-width:580px}
 .nda-release__date span{font-family:var(--mono);font-stretch:75%;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--steel)}
 .nda-release__date time{font-size:clamp(21px,2.2vw,34px);font-weight:620;line-height:1.15;color:var(--bone)}
+.nda-preview{margin-top:clamp(28px,4vw,52px);padding:clamp(18px,2vw,26px);border:1px solid var(--hair-2);border-radius:16px;background:rgba(238,233,222,.035);max-width:580px}
+.nda-preview__eyebrow{font-family:var(--mono);font-stretch:75%;font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--cyan)}
+.nda-preview__title{margin-top:8px;font-size:clamp(22px,2.2vw,31px);line-height:1.05}
+.nda-preview__copy{margin-top:10px;max-width:42ch;color:var(--bone-2);font-size:16px}
+.nda-preview__locked .btn{margin-top:18px}
+.nda-preview__player audio{display:block;width:100%;margin-top:14px;accent-color:var(--cyan)}
+.nda-preview__note{margin-top:10px;color:var(--steel);font-family:var(--mono);font-stretch:75%;font-size:10px;line-height:1.55}
+.nda-preview__status{min-height:1.45em;margin-top:8px;color:var(--cyan);font-size:13px;font-weight:600}
+.nda-preview__status.is-error{color:#ff9b9b}
+.nda-preview__status:empty{display:none}
 
 /* ---------- Music (the case is unchanged) ---------- */
 .music{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);align-items:center;gap:clamp(24px,4vw,64px);--A:clamp(240px,26vw,400px)}
