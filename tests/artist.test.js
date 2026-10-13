@@ -127,9 +127,9 @@ test("NDA teaser uses the approved complete cover and confirmed release date wit
   const teaser = html.match(/<section class="nda-release sec" id="nda"[\s\S]*?<\/section>/)?.[0];
   assert.ok(teaser, "Missing NDA release section");
   assert.match(teaser, /<h2[^>]*>NDA<\/h2>/);
-  assert.match(teaser, /<time datetime="2026-10-26">Monday, October 26, 2026<\/time>/);
+  assert.match(teaser, /<time datetime="2026-10-23">Friday, October 23, 2026<\/time>/);
   assert.match(teaser, /src="\/assets\/releases\/nda-cover-original\.png"[^>]*width="1263" height="1263"/);
-  assert.doesNotMatch(teaser, /October 27|pre-?save|early access|listen|stream|href=|<button\b/i);
+  assert.doesNotMatch(teaser, /October 26|October 27|pre-?save|early access|listen|stream|href=|<button\b/i);
   assert.match(css, /\.nda-release__frame img\{[^}]*object-fit:contain/);
 });
 
@@ -146,20 +146,24 @@ test("signup is email-only, explicit, private by design, and has a removal route
   assert.doesNotMatch(`${text("privacy.html")}\n${text("terms.html")}`, /\b(?:TrakTrain|X)\b/);
 });
 
-test("first-visit signup panel is optional, dismissible, reopenable, and contains no audio promise", () => {
-  const prompt = html.match(/<dialog class="signup-prompt"[\s\S]*?<\/dialog>/)?.[0];
-  assert.ok(prompt, "Missing signup prompt dialog");
+test("first-visit signup panel is compact, non-modal, dismissible, and contains no audio promise", () => {
+  const prompt = html.match(/<aside class="signup-prompt"[\s\S]*?<\/aside>/)?.[0];
+  assert.ok(prompt, "Missing signup prompt panel");
   assert.match(prompt, /aria-labelledby="signupPromptTitle"/);
   assert.match(prompt, /aria-describedby="signupPromptDescription"/);
+  assert.match(prompt, /\bhidden\b/);
   assert.match(prompt, /id="signupPromptClose"[^>]*aria-label="Collapse email signup"/);
   assert.match(prompt, /id="promptSignupForm"[^>]*data-signup-form/);
   assert.match(prompt, /type="email"[^>]*required/);
   assert.doesNotMatch(prompt, /early access|preview|listen|audio|autoplay/i);
-  assert.match(html, /id="signupPromptOpen"[^>]*aria-haspopup="dialog"[^>]*aria-controls="signupPrompt"/);
+  assert.match(html, /id="signupPromptOpen"[^>]*aria-controls="signupPrompt"[^>]*aria-expanded="false"/);
+  assert.doesNotMatch(html, /<dialog class="signup-prompt"/);
   assert.match(signupJs, /7 \* 24 \* 60 \* 60 \* 1000/);
   assert.match(signupJs, /localStorage\.setItem\(dismissalKey/);
-  assert.match(signupJs, /prompt\.showModal\(\)/);
-  assert.match(signupJs, /prompt\.addEventListener\("cancel"/);
+  assert.match(signupJs, /prompt\.hidden = false/);
+  assert.match(signupJs, /prompt\.addEventListener\("keydown"/);
+  assert.doesNotMatch(signupJs, /showModal|\.close\(\)/);
+  assert.doesNotMatch(css, /\.signup-prompt::backdrop/);
 });
 
 test("artist identity schema retains its stable public photograph URL", () => {

@@ -82,32 +82,34 @@
     } catch (ignored) { return false; }
   }
 
-  function openPrompt() {
-    if (!prompt || !promptOpen || prompt.open) return;
-    prompt.showModal();
+  function openPrompt(shouldFocus = false) {
+    if (!prompt || !promptOpen || !prompt.hidden) return;
+    prompt.hidden = false;
     promptOpen.hidden = true;
-    promptForm?.elements.email.focus();
+    promptOpen.setAttribute("aria-expanded", "true");
+    if (shouldFocus) promptForm?.elements.email.focus();
   }
 
-  function closePrompt() {
-    if (!prompt?.open) return;
+  function closePrompt(restoreFocus = true) {
+    if (!prompt || prompt.hidden) return;
     rememberDismissal();
-    prompt.close();
+    prompt.hidden = true;
+    promptOpen.hidden = false;
+    promptOpen.setAttribute("aria-expanded", "false");
+    if (restoreFocus) promptOpen.focus();
   }
 
   if (prompt && promptOpen && promptClose) {
     promptOpen.hidden = false;
-    promptOpen.addEventListener("click", openPrompt);
+    promptOpen.addEventListener("click", () => openPrompt(true));
     promptClose.addEventListener("click", closePrompt);
-    prompt.addEventListener("cancel", (event) => {
-      event.preventDefault();
-      closePrompt();
+    prompt.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        closePrompt();
+      }
     });
-    prompt.addEventListener("click", (event) => {
-      if (event.target === prompt) closePrompt();
-    });
-    prompt.addEventListener("close", () => { promptOpen.hidden = false; });
-    if (!wasRecentlyDismissed()) openPrompt();
+    if (!wasRecentlyDismissed()) openPrompt(false);
   }
 
   window.addEventListener("message", (event) => {
