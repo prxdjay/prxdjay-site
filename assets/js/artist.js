@@ -13,6 +13,33 @@
   const lerp = (a, b, t) => a + (b - a) * t;
   const smooth = t => t * t * (3 - 2 * t);
 
+  /* ---------- Lightweight space atmosphere: pointer depth without canvas or media ---------- */
+  const atmosphere = $("#atmosphere");
+  const finePointer = matchMedia("(pointer: fine)");
+  let atmosphereFrame = 0;
+  function clearAtmosphereMotion() {
+    for (const name of ["--space-far-x", "--space-far-y", "--space-near-x", "--space-near-y", "--space-cloud-x", "--space-cloud-y", "--space-cloud-rx", "--space-cloud-ry"]) root.style.removeProperty(name);
+  }
+  if (atmosphere) {
+    addEventListener("pointermove", event => {
+      if (reduced || !finePointer.matches || event.pointerType === "touch") return;
+      const x = event.clientX / Math.max(1, innerWidth) - .5;
+      const y = event.clientY / Math.max(1, innerHeight) - .5;
+      cancelAnimationFrame(atmosphereFrame);
+      atmosphereFrame = requestAnimationFrame(() => {
+        root.style.setProperty("--space-far-x", (-x * 5).toFixed(2) + "px");
+        root.style.setProperty("--space-far-y", (-y * 4).toFixed(2) + "px");
+        root.style.setProperty("--space-near-x", (-x * 13).toFixed(2) + "px");
+        root.style.setProperty("--space-near-y", (-y * 10).toFixed(2) + "px");
+        root.style.setProperty("--space-cloud-x", (x * 18).toFixed(2) + "px");
+        root.style.setProperty("--space-cloud-y", (y * 14).toFixed(2) + "px");
+        root.style.setProperty("--space-cloud-rx", (-x * 12).toFixed(2) + "px");
+        root.style.setProperty("--space-cloud-ry", (-y * 9).toFixed(2) + "px");
+      });
+    }, { passive: true });
+    addEventListener("blur", clearAtmosphereMotion);
+  }
+
   /* ---------- Original clips: loaded only when needed ---------- */
   const FMT = (() => {
     const v = document.createElement("video");
@@ -506,7 +533,7 @@
   mqReduce.addEventListener && mqReduce.addEventListener("change", e => {
     reduced = e.matches;
     root.classList.toggle("motion", !reduced);
-    if (reduced) { clearMotion(); if (reelApi) reelApi.setReduced(true); stopPreviews(); }
+    if (reduced) { clearAtmosphereMotion(); clearMotion(); if (reelApi) reelApi.setReduced(true); stopPreviews(); }
     fitName(); measure(); request();
   });
 })();

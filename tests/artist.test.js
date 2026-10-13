@@ -131,6 +131,12 @@ test("NDA teaser uses the approved complete cover, confirmed date, and email-gat
   assert.match(teaser, /<h2[^>]*>NDA<\/h2>/);
   assert.match(teaser, /<time datetime="2026-10-23">Friday, October 23, 2026<\/time>/);
   assert.match(teaser, /src="\/assets\/releases\/nda-cover-original\.png"[^>]*width="1263" height="1263"/);
+  const presave = teaser.match(/<a class="nda-release__link"[^>]*>/)?.[0];
+  assert.ok(presave, "NDA cover must be the pre-save link");
+  assert.match(presave, /href="https:\/\/distrokid\.com\/hyperfollow\/prxdjay\/nda\?ref=release"/);
+  assert.match(presave, /target="_blank" rel="noopener"/);
+  assert.match(presave, /aria-label="Pre-save NDA by PRXD\. Jay on DistroKid \(opens in a new tab\)"/);
+  assert.match(teaser, /Tap or click the cover to pre-save\. No email required\./);
   assert.match(teaser, /Join the email list to hear the first half of NDA before October 23\./);
   assert.match(teaser, /id="ndaPreviewJoin"[^>]*>Join &amp; unlock preview<\/button>/);
   assert.match(teaser, /id="ndaPreviewPlayer" hidden/);
@@ -139,8 +145,24 @@ test("NDA teaser uses the approved complete cover, confirmed date, and email-gat
   assert.match(previewAudio, /\bcontrols\b/);
   assert.match(previewAudio, /preload="none"/);
   assert.doesNotMatch(previewAudio, /\bsrc=|\bautoplay\b/);
-  assert.doesNotMatch(teaser, /October 26|October 27|pre-?save|href=/i);
+  assert.equal((teaser.match(/distrokid\.com\/hyperfollow\/prxdjay\/nda/g) || []).length, 1);
+  assert.doesNotMatch(teaser.match(/<div class="nda-preview"[\s\S]*?<\/div>\s*<\/div>/)?.[0] || "", /distrokid|pre-?save/i);
+  assert.doesNotMatch(teaser, /October 26|October 27|early access|listen|stream/i);
   assert.match(css, /\.nda-release__frame img\{[^}]*object-fit:contain/);
+});
+
+test("space atmosphere is lightweight, pointer-responsive, and motion-safe", () => {
+  assert.match(html, /<div class="atmosphere" id="atmosphere" aria-hidden="true">/);
+  assert.equal((html.match(/class="atmosphere__(?:stars|cloud)/g) || []).length, 4);
+  assert.doesNotMatch(html, /<canvas\b|three\.min\.js|world\.js/i);
+  assert.match(css, /\.atmosphere\{[^}]*position:fixed[^}]*pointer-events:none[^}]*contain:strict/);
+  assert.match(css, /\.atmosphere__stars--far\{[^}]*radial-gradient/);
+  assert.match(css, /\.atmosphere__stars--near,.atmosphere__cloud--red\{display:none\}/);
+  assert.match(css, /@media \(prefers-reduced-motion:reduce\)[\s\S]*?\.atmosphere__stars,.atmosphere__cloud\{transform:none!important;will-change:auto\}/);
+  assert.match(js, /matchMedia\("\(pointer: fine\)"\)/);
+  assert.match(js, /addEventListener\("pointermove"[\s\S]*?event\.pointerType === "touch"/);
+  assert.match(js, /requestAnimationFrame\(\(\) => \{[\s\S]*?--space-near-x/);
+  assert.match(js, /if \(reduced\) \{ clearAtmosphereMotion\(\);/);
 });
 
 test("signup is email-only, explicit, private by design, and has a removal route", () => {
