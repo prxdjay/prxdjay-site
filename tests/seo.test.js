@@ -214,20 +214,40 @@ test("SEO: profile page and homepage are indexable, canonical and linked togethe
   }
 });
 
-test("SEO: current concrete image is used consistently for share metadata", () => {
-  const photo = requiredPhotos[0];
-  const url = `${site}/${photo.path}`;
+test("SEO: approved PRXDIGY X card is used consistently for share metadata and site icons", () => {
+  const sharePath = "assets/img/prxdjay-share.png";
+  const shareUrl = `${site}/${sharePath}`;
+  assert.deepEqual(imageSize(sharePath), { width: 1200, height: 630, type: "image/png" });
+  assert.equal(
+    createHash("sha256").update(readFileSync(new URL("assets/identity/prxdigy-x-original.png", root))).digest("hex"),
+    "bdaa98337b28cf31fbea66f378a6a7a6565ffc16ad4eec6231b99851fcf3b793",
+  );
   for (const [path, html] of pages) {
-    assert.equal(metadata(html, "og:image"), url, path);
-    assert.equal(metadata(html, "twitter:image"), url, path);
-    assert.equal(metadata(html, "og:image:type"), photo.type, path);
-    assert.equal(Number(metadata(html, "og:image:width")), photo.width, path);
-    assert.equal(Number(metadata(html, "og:image:height")), photo.height, path);
-    assert.match(metadata(html, "og:image:alt") ?? "", /PRXD\.?\s?JAY/i, path);
-    assert.match(metadata(html, "twitter:image:alt") ?? "", /PRXD\.?\s?JAY/i, path);
-    assert.doesNotMatch(html, /share-card-mono\.jpg/i, path);
+    assert.equal(metadata(html, "og:image"), shareUrl, path);
+    assert.equal(metadata(html, "og:image:secure_url"), shareUrl, path);
+    assert.equal(metadata(html, "twitter:image"), shareUrl, path);
+    assert.equal(metadata(html, "og:image:type"), "image/png", path);
+    assert.equal(Number(metadata(html, "og:image:width")), 1200, path);
+    assert.equal(Number(metadata(html, "og:image:height")), 630, path);
+    assert.match(metadata(html, "og:image:alt") ?? "", /PRXDIGY X logo/i, path);
+    assert.match(metadata(html, "twitter:image:alt") ?? "", /PRXDIGY X logo/i, path);
+    const icon = tags(html, "link").find((tag) => tag.rel === "icon");
+    assert.deepEqual(icon, { rel: "icon", href: "/assets/img/prxdigy-x-icon-64.png", type: "image/png", sizes: "64x64" }, path);
+    assert.ok(tags(html, "link").some((tag) => tag.rel === "apple-touch-icon" && tag.href === "/assets/img/apple-touch-icon.png"), path);
+    assert.ok(tags(html, "link").some((tag) => tag.rel === "manifest" && tag.href === "/site.webmanifest"), path);
   }
-  assert.doesNotMatch(sitemap, /share-card-mono\.jpg/i);
+  for (const [asset, width, height] of [
+    ["assets/img/prxdigy-x-icon-64.png", 64, 64],
+    ["assets/img/prxdigy-x-icon-192.png", 192, 192],
+    ["assets/img/prxdigy-x-icon-512.png", 512, 512],
+    ["assets/img/apple-touch-icon.png", 180, 180],
+  ]) assert.deepEqual(imageSize(asset), { width, height, type: "image/png" });
+
+  const manifest = JSON.parse(read("site.webmanifest"));
+  assert.deepEqual(manifest.icons, [
+    { src: "/assets/img/prxdigy-x-icon-192.png", sizes: "192x192", type: "image/png" },
+    { src: "/assets/img/prxdigy-x-icon-512.png", sizes: "512x512", type: "image/png" },
+  ]);
 });
 
 test("SEO: approved concrete and wide fence photos are ordinary images with correct dimensions and captions", () => {

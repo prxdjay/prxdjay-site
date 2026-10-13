@@ -125,9 +125,9 @@
     if (shouldFocus) promptForm?.elements.email.focus();
   }
 
-  function closePrompt(restoreFocus = true) {
+  function closePrompt(restoreFocus = true, remember = true) {
     if (!prompt || prompt.hidden) return;
-    rememberDismissal();
+    if (remember) rememberDismissal();
     prompt.hidden = true;
     promptOpen.hidden = false;
     promptOpen.setAttribute("aria-expanded", "false");
@@ -137,14 +137,17 @@
   if (prompt && promptOpen && promptClose) {
     promptOpen.hidden = false;
     promptOpen.addEventListener("click", () => openPrompt(true));
-    promptClose.addEventListener("click", closePrompt);
+    promptClose.addEventListener("click", () => closePrompt());
     prompt.addEventListener("keydown", (event) => {
       if (event.key === "Escape") {
         event.preventDefault();
         closePrompt();
       }
     });
-    if (!wasRecentlyDismissed()) openPrompt(false);
+    document.querySelectorAll('[data-jump="follow"]').forEach((link) => {
+      link.addEventListener("click", () => closePrompt(false, false));
+    });
+    if (!wasRecentlyDismissed() && location.hash !== "#follow") openPrompt(false);
   }
 
   if (ndaPreviewAudio) {

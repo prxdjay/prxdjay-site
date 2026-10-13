@@ -46,6 +46,7 @@ const approvedAssets = {
   "assets/artist/photos/concrete-hero.jpg": "305718289c11d846b79656772ae87629dc7e0812",
   "assets/artist/photos/fence_grain-6.3pct.jpg": "277671a4d5d9dc279754c3079ccde95c6ebe7f62",
   "assets/artist/photos/prxdigy-vxl1-cover.jpg": "6301c64126933e909d90d16cf417be950e16bd4f",
+  "assets/identity/prxdigy-x-original.png": "ff9dddee13bc55b49c08f8c7978c35db07ae5b68",
   "assets/releases/nda-cover-original.png": "0bedaec32dfa49ffa680240fdd0b731f5d76049c",
 };
 const originalMp4s = {
@@ -171,6 +172,8 @@ test("first-visit signup panel is compact, non-modal, and dismissible", () => {
   assert.match(signupJs, /localStorage\.setItem\(dismissalKey/);
   assert.match(signupJs, /prompt\.hidden = false/);
   assert.match(signupJs, /prompt\.addEventListener\("keydown"/);
+  assert.match(signupJs, /\[data-jump="follow"\][\s\S]*?closePrompt\(false, false\)/);
+  assert.match(signupJs, /location\.hash !== "#follow"/);
   assert.doesNotMatch(signupJs, /showModal|\.close\(\)/);
   assert.doesNotMatch(css, /\.signup-prompt::backdrop/);
 });
@@ -228,6 +231,22 @@ test("music, artist, contact, and social destinations retain verified identifier
   for (const tag of tags.filter((tag) => /\bjs-play\b/.test(attr(tag, "class") || ""))) {
     assert.equal(attr(tag, "href"), album, "Every play link must retain a functional Spotify fallback");
   }
+});
+
+test("Follow me fast travel contains only the five verified current destinations", () => {
+  const follow = html.match(/<section class="follow sec" id="follow"[\s\S]*?<\/section>/)?.[0];
+  assert.ok(follow, "Missing Follow me quick-links section");
+  assert.match(follow, /<h2[^>]*id="follow-title"[^>]*>Follow me<\/h2>/);
+  const hrefs = [...follow.matchAll(/href="([^"]+)"/g)].map(([, href]) => href);
+  assert.deepEqual(hrefs, [
+    "https://open.spotify.com/artist/2BXB6wbzCaQKOx0kP4sTip",
+    "https://music.apple.com/us/artist/prxd-jay/1418723888",
+    "https://www.youtube.com/@PrxdJayNY",
+    "https://instagram.com/prxd.jay",
+    "https://www.tiktok.com/@prxd.jay",
+  ]);
+  assert.match(html, /class="nav-follow" href="#follow" data-jump="follow">Follow me<\/a>/);
+  assert.doesNotMatch(follow, /(?:twitter\.com|x\.com|traktrain|snapchat|discord|pre-?save)/i);
 });
 
 test("video card IDs match their direct links and known official videos", () => {

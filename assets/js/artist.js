@@ -239,9 +239,9 @@
     const inBand = new Map();
     const bandIO = new IntersectionObserver(entries => {
       entries.forEach(en => inBand.set(en.target.id, en.isIntersecting));
-      setActive(["music", "videos", "contact"].find(id => inBand.get(id)) || null);
+      setActive(["music", "videos", "follow", "contact"].find(id => inBand.get(id)) || null);
     }, { rootMargin: "-42% 0px -52% 0px", threshold: 0 });
-    ["music", "videos", "contact"].forEach(id => { const s = document.getElementById(id); if (s) bandIO.observe(s); });
+    ["music", "videos", "follow", "contact"].forEach(id => { const s = document.getElementById(id); if (s) bandIO.observe(s); });
   }
 
   /* ---------- Hero name: one line, sized to stay clear of Jay's face ---------- */
