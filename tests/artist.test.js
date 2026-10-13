@@ -113,10 +113,13 @@ test("all fragment navigation and accessible label targets exist and IDs are uni
   assert.ok(values("href").includes("/terms.html"));
 });
 
-test("legacy artist framework stays dormant while signup is gated on a verified Google endpoint", () => {
+test("legacy artist framework stays dormant while signup uses the verified Google endpoint", () => {
   assert.ok(!values("src").some((url) => /\/assets\/js\/(?:app|era\.config)\.js/.test(url)));
   assert.match(html, /<section class="updates sec" id="updates"[^>]* hidden>/);
-  assert.equal(signupConfig.trim().match(/window\.PRXD_SIGNUP_ENDPOINT = "([^"]*)";/)?.[1], "");
+  assert.equal(
+    signupConfig.trim().match(/window\.PRXD_SIGNUP_ENDPOINT = "([^"]*)";/)?.[1],
+    "https://script.google.com/macros/s/AKfycbx9bFln1He_pQo1q8bq9QGlor2pUlNIv1jmQsOj4t1jUM-nXnaV_B2F2PQgpOIB3Q39vQ/exec",
+  );
   for (const path of ["assets/css/base.css", "assets/css/theme.css"]) assert.ok(bytes(path).length > 0, path);
 });
 
