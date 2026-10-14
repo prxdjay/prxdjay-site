@@ -4,5 +4,8 @@
   "type": "module",
   "scripts": {
     "test": "node --test tests/artist.test.js tests/seo.test.js tests/subscribe.test.js"
+  },
+  "devDependencies": {
+    "gsap": "^3.13.0"
   }
 }

@@ -13,8 +13,12 @@ const text = (path) => bytes(path).toString("utf8");
 const html = text("index.html");
 const css = text("assets/css/artist.css");
 const js = text("assets/js/artist.js");
+const designMotionJs = text("assets/js/design-motion.js");
+const gsapJs = text("assets/vendor/gsap/gsap.min.js");
+const scrollTriggerJs = text("assets/vendor/gsap/ScrollTrigger.min.js");
 const signupJs = text("assets/js/signup.js");
 const signupConfig = text("assets/js/signup-config.js");
+const packageJson = JSON.parse(text("package.json"));
 const tags = [...html.matchAll(/<[a-z][^>]*>/gi)].map(([tag]) => tag);
 const attr = (tag, name) => tag.match(new RegExp(`(?:^|\\s)${name}="([^"]*)"`, "i"))?.[1];
 const values = (name) => tags.map((tag) => attr(tag, name)).filter(Boolean);
@@ -165,6 +169,25 @@ test("space atmosphere is lightweight, pointer-responsive, and motion-safe", () 
   assert.match(js, /if \(reduced\) \{ clearAtmosphereMotion\(\);/);
 });
 
+test("editorial motion uses local licensed GSAP with static and reduced-motion fallbacks", () => {
+  assert.match(html, /src="\/assets\/vendor\/gsap\/gsap\.min\.js\?v=3\.13\.0" defer/);
+  assert.match(html, /src="\/assets\/vendor\/gsap\/ScrollTrigger\.min\.js\?v=3\.13\.0" defer/);
+  assert.match(html, /src="\/assets\/js\/design-motion\.js\?v=1" defer/);
+  assert.equal(packageJson.devDependencies.gsap, "^3.13.0");
+  assert.match(gsapJs.slice(0, 350), /GSAP 3\.13\.0[\s\S]*@license Copyright 2025, GreenSock[\s\S]*gsap\.com\/standard-license/);
+  assert.match(scrollTriggerJs.slice(0, 380), /ScrollTrigger 3\.13\.0[\s\S]*@license Copyright 2025, GreenSock[\s\S]*gsap\.com\/standard-license/);
+  assert.match(designMotionJs, /if \(reduced\.matches \|\| !gsap \|\| !ScrollTrigger\) return/);
+  assert.match(designMotionJs, /gsap\.registerPlugin\(ScrollTrigger\)/);
+  assert.match(designMotionJs, /heroImage[\s\S]*clipPath: "polygon\(0 0, 0 0, 0 100%, 0 100%\)"/);
+  assert.match(designMotionJs, /releaseArt[\s\S]*ScrollTrigger/);
+  assert.match(designMotionJs, /revealGroup\("\.videos"[\s\S]*revealGroup\("\.follow"/);
+  assert.match(designMotionJs, /clearProps: "opacity,visibility,transform,clipPath,filter"/);
+  assert.doesNotMatch(`${html}\n${designMotionJs}`, /Lenis|VANTA|ReactBits|react-bits/i);
+  assert.match(css, /\.op-name\{[^}]*white-space:nowrap/);
+  assert.match(css, /\.gsap-enhanced \.op-portrait img/);
+  assert.match(css, /@media \(prefers-reduced-motion:reduce\)[\s\S]*?\.op-portrait img,\.nda-release__frame\{clip-path:none!important/);
+});
+
 test("signup is email-only, explicit, private by design, and has a removal route", () => {
   assert.match(html, /<input id="signupEmail" name="email" type="email"[^>]* required>/);
   assert.doesNotMatch(html, /name="(?:name|phone|payment|card)"/i);
@@ -198,6 +221,8 @@ test("first-visit signup panel is compact, non-modal, and dismissible", () => {
   assert.match(signupJs, /location\.hash !== "#follow"/);
   assert.doesNotMatch(signupJs, /showModal|\.close\(\)/);
   assert.doesNotMatch(css, /\.signup-prompt::backdrop/);
+  assert.match(css, /\.signup-prompt\{[^}]*width:min\(360px/);
+  assert.match(css, /@media \(max-width:759px\)[\s\S]*?\.signup-prompt\{[^}]*top:calc\(var\(--ft\) \+ var\(--navH\) \+ 8px\)[^}]*width:min\(340px/);
 });
 
 test("NDA preview unlock is fail-closed, signup-gated, and never autoplayed", () => {
@@ -327,7 +352,7 @@ test("reel interruption and player keyboard-access fixes remain in the source", 
 
 test("active JavaScript and every inline executable script parse successfully", () => {
   assert.doesNotThrow(() => new vm.Script(js, { filename: fileURLToPath(new URL("assets/js/artist.js", root)) }));
-  for (const path of ["assets/js/signup-config.js", "assets/js/signup.js", "assets/js/signup-result.js"]) {
+  for (const path of ["assets/js/design-motion.js", "assets/js/signup-config.js", "assets/js/signup.js", "assets/js/signup-result.js"]) {
     assert.doesNotThrow(() => new vm.Script(text(path), { filename: fileURLToPath(new URL(path, root)) }));
   }
   assert.match(text("assets/js/signup-result.js"), /window\.top\.postMessage/);
