@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="PJ monogram">
+  <rect width="64" height="64" rx="14" fill="#0a0a09"/>
+  <rect x="3.5" y="3.5" width="57" height="57" rx="11" fill="none" stroke="#eee9de" stroke-width="1" opacity=".22"/>
+  <path fill="#eee9de" fill-rule="evenodd" d="M13 49V15h14.2C35.3 15 40 19.2 40 26s-4.8 11-12.9 11H21v12h-8Zm8-27v8h5.8c3.4 0 5.2-1.4 5.2-4s-1.8-4-5.2-4H21Z"/>
+  <path fill="#eee9de" d="M42 15h9v22.1C51 45.4 46.5 50 38.9 50c-4.6 0-8.2-1.7-10.6-4.9l6.1-5c1.2 1.7 2.6 2.6 4.3 2.6 2.3 0 3.3-1.7 3.3-5.6V15Z"/>
+</svg>
