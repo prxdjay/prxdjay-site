@@ -35,25 +35,13 @@
 
   try {
     const heroImage = document.querySelector("#heroImg");
-    const heroItems = [
-      document.querySelector(".op-name"),
-      document.querySelector(".op-say"),
-      document.querySelector(".op-actions"),
-    ].filter(Boolean);
-    remember(heroImage, heroItems);
+    remember(heroImage);
 
     const hero = gsap.timeline({ defaults: { ease: "power3.out" } });
     if (heroImage) {
       hero.fromTo(heroImage,
         { clipPath: "polygon(0 0, 0 0, 0 100%, 0 100%)", filter: "brightness(.72) contrast(1.08)" },
         { clipPath: "polygon(0 0, 100% 0, 100% 100%, 0 100%)", filter: "brightness(1) contrast(1)", duration: 1.18 }
-      );
-    }
-    if (heroItems.length) {
-      hero.fromTo(heroItems,
-        { autoAlpha: 0, y: 34 },
-        { autoAlpha: 1, y: 0, duration: .72, stagger: .1, clearProps: "transform", ease: "power3.out" },
-        "-=.58"
       );
     }
 

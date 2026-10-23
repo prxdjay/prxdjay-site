@@ -147,7 +147,7 @@
     document.querySelectorAll('[data-jump="follow"]').forEach((link) => {
       link.addEventListener("click", () => closePrompt(false, false));
     });
-    if (!wasRecentlyDismissed() && location.hash !== "#follow") openPrompt(false);
+    // Let the NDA launch message lead; visitors can open this panel when they choose.
   }
 
   if (ndaPreviewAudio) {
