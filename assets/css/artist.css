@@ -68,7 +68,7 @@ ul,ol{padding:0;list-style:none}
 .topnav:not(.is-solid) .navlinks .nav-follow{color:var(--black);text-shadow:none}
 .navlinks .nav-follow::after{display:none}
 .navlinks .nav-follow:hover,.navlinks .nav-follow[aria-current="true"]{background:#fff;color:var(--black)}
-.navplay{display:grid;place-items:center;width:44px;height:44px;margin-left:6px;border-radius:50%;background:var(--bone);color:var(--black);font-size:14px;opacity:0;transform:scale(.8);pointer-events:none;transition:opacity .3s,transform .3s var(--ease),background-color .2s}
+.navplay{display:grid;place-items:center;min-height:44px;padding:0 14px;margin-left:6px;border-radius:999px;background:var(--bone);color:var(--black);font-size:14px;font-weight:700;white-space:nowrap;text-decoration:none;opacity:0;transform:scale(.8);pointer-events:none;transition:opacity .3s,transform .3s var(--ease),background-color .2s}
 .topnav.is-solid .navplay{opacity:1;transform:none;pointer-events:auto}
 .navplay:hover{background:#fff}
 
@@ -480,7 +480,7 @@ section[id]{scroll-margin-top:calc(var(--navH) + 8px)}
   .atmosphere__stars--near,.atmosphere__cloud--red{display:none}
   .atmosphere__stars--far{opacity:.25}
   .atmosphere__cloud--blue{left:-60%;top:26%;width:150vw;opacity:.2;filter:blur(28px)}
-  .navplay{width:44px;height:44px;margin-left:2px}
+  .navplay{margin-left:2px;padding:0 10px;font-size:12px}
   .nda-release{padding-top:clamp(72px,18vw,104px);padding-bottom:clamp(76px,19vw,110px)}
   .nda-release__title{font-size:min(31vw,138px)}
   .nda-release__art{padding:5px}
@@ -523,6 +523,9 @@ section[id]{scroll-margin-top:calc(var(--navH) + 8px)}
   .signup--prompt .signup__fine{margin-top:7px;font-size:9px;line-height:1.35}
   .signup-prompt__reopen{top:calc(var(--ft) + var(--navH) + 6px);right:calc(var(--fs) + 8px);padding:0 14px;font-size:13px}
   .dock{left:calc(var(--fs) + 8px);right:calc(var(--fs) + 8px);width:auto;bottom:calc(var(--fs) + 8px + env(safe-area-inset-bottom))}
+}
+@media (max-width:480px){
+  .navlinks a[data-jump="music"],.navlinks a[data-jump="videos"]{display:none}
 }
 @media (max-width:359px){
   .op-actions{grid-template-columns:auto auto;gap:8px}

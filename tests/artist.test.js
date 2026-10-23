@@ -271,6 +271,7 @@ test("music, artist, contact, and social destinations retain verified identifier
     "https://open.spotify.com/artist/2BXB6wbzCaQKOx0kP4sTip",
     "https://music.apple.com/us/artist/prxd-jay/1418723888",
     "https://www.youtube.com/@PrxdJayNY",
+    "https://soundcloud.com/prxdjay",
     "https://instagram.com/prxd.jay",
     "https://www.tiktok.com/@prxd.jay",
     "mailto:prxd.jay@gmail.com",
@@ -280,7 +281,7 @@ test("music, artist, contact, and social destinations retain verified identifier
   }
 });
 
-test("Follow me fast travel contains only the five verified current destinations", () => {
+test("Follow me fast travel contains the six verified current destinations", () => {
   const follow = html.match(/<section class="follow sec" id="follow"[\s\S]*?<\/section>/)?.[0];
   assert.ok(follow, "Missing Follow me quick-links section");
   assert.match(follow, /<h2[^>]*id="follow-title"[^>]*>Follow me<\/h2>/);
