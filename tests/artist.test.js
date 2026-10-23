@@ -290,6 +290,7 @@ test("Follow me fast travel contains the six verified current destinations", () 
     "https://open.spotify.com/artist/2BXB6wbzCaQKOx0kP4sTip",
     "https://music.apple.com/us/artist/prxd-jay/1418723888",
     "https://www.youtube.com/@PrxdJayNY",
+    "https://soundcloud.com/prxdjay",
     "https://instagram.com/prxd.jay",
     "https://www.tiktok.com/@prxd.jay",
   ]);
